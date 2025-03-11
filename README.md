@@ -5,7 +5,7 @@ KGPKeeper is a c++ based distributed coordination service
 ## Overview
 
 
-This project implements a distributed server system where an admin dynamically adds servers with IPs and ports to a servers.json file. Clients can connect to any server, which will provide information about other available servers.
+This project implements a distributed coordination system where an admin can dynamically add servers with IPs and ports to a servers.json file. Clients initially connect to a assistant server to know about exisiting servers and then can connect to any server later on
 
 
 ## Directory Structure
