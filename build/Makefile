@@ -297,6 +297,39 @@ src/utils/assistantUtils.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/assistant.dir/build.make CMakeFiles/assistant.dir/src/utils/assistantUtils.cpp.s
 .PHONY : src/utils/assistantUtils.cpp.s
 
+src/utils/leaderElection.o: src/utils/leaderElection.cpp.o
+.PHONY : src/utils/leaderElection.o
+
+# target to build an object file
+src/utils/leaderElection.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/src/utils/leaderElection.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/src/utils/leaderElection.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/admin.dir/build.make CMakeFiles/admin.dir/src/utils/leaderElection.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assistant.dir/build.make CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o
+.PHONY : src/utils/leaderElection.cpp.o
+
+src/utils/leaderElection.i: src/utils/leaderElection.cpp.i
+.PHONY : src/utils/leaderElection.i
+
+# target to preprocess a source file
+src/utils/leaderElection.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/src/utils/leaderElection.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/src/utils/leaderElection.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/admin.dir/build.make CMakeFiles/admin.dir/src/utils/leaderElection.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assistant.dir/build.make CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.i
+.PHONY : src/utils/leaderElection.cpp.i
+
+src/utils/leaderElection.s: src/utils/leaderElection.cpp.s
+.PHONY : src/utils/leaderElection.s
+
+# target to generate assembly for a file
+src/utils/leaderElection.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/src/utils/leaderElection.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/src/utils/leaderElection.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/admin.dir/build.make CMakeFiles/admin.dir/src/utils/leaderElection.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assistant.dir/build.make CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.s
+.PHONY : src/utils/leaderElection.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -324,6 +357,9 @@ help:
 	@echo "... src/utils/assistantUtils.o"
 	@echo "... src/utils/assistantUtils.i"
 	@echo "... src/utils/assistantUtils.s"
+	@echo "... src/utils/leaderElection.o"
+	@echo "... src/utils/leaderElection.i"
+	@echo "... src/utils/leaderElection.s"
 .PHONY : help
 
 
