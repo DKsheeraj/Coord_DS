@@ -1,1 +1,1 @@
-/usr/bin/c++ -Wall -Wextra CMakeFiles/assistant.dir/src/AssistantServer.cpp.o CMakeFiles/assistant.dir/src/utils/assistantUtils.cpp.o -o assistant 
+/usr/bin/c++ -Wall -Wextra CMakeFiles/assistant.dir/src/AssistantServer.cpp.o CMakeFiles/assistant.dir/src/utils/assistantUtils.cpp.o CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o -o assistant 

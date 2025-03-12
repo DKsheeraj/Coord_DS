@@ -87,12 +87,12 @@ clean: CMakeFiles/assistant.dir/clean
 CMakeFiles/server.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=10,11,12 "Built target server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=13,14,15,16 "Built target server"
 .PHONY : CMakeFiles/server.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/server.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/server.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 0
 .PHONY : CMakeFiles/server.dir/rule
@@ -113,12 +113,12 @@ CMakeFiles/server.dir/clean:
 CMakeFiles/client.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=7,8,9 "Built target client"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=9,10,11,12 "Built target client"
 .PHONY : CMakeFiles/client.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/client.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/client.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 0
 .PHONY : CMakeFiles/client.dir/rule
@@ -139,12 +139,12 @@ CMakeFiles/client.dir/clean:
 CMakeFiles/admin.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/admin.dir/build.make CMakeFiles/admin.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/admin.dir/build.make CMakeFiles/admin.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=1,2,3 "Built target admin"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=1,2,3,4 "Built target admin"
 .PHONY : CMakeFiles/admin.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/admin.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/admin.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 0
 .PHONY : CMakeFiles/admin.dir/rule
@@ -165,12 +165,12 @@ CMakeFiles/admin.dir/clean:
 CMakeFiles/assistant.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/assistant.dir/build.make CMakeFiles/assistant.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/assistant.dir/build.make CMakeFiles/assistant.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=4,5,6 "Built target assistant"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=5,6,7,8 "Built target assistant"
 .PHONY : CMakeFiles/assistant.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/assistant.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/assistant.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 0
 .PHONY : CMakeFiles/assistant.dir/rule

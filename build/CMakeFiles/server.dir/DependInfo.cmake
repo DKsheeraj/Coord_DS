@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/datta/Documents/KGPkeeper/src/server.cpp" "CMakeFiles/server.dir/src/server.cpp.o" "gcc" "CMakeFiles/server.dir/src/server.cpp.o.d"
   "/home/datta/Documents/KGPkeeper/src/utils/assistantUtils.cpp" "CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o" "gcc" "CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o.d"
+  "/home/datta/Documents/KGPkeeper/src/utils/leaderElection.cpp" "CMakeFiles/server.dir/src/utils/leaderElection.cpp.o" "gcc" "CMakeFiles/server.dir/src/utils/leaderElection.cpp.o.d"
   )
 
 # Targets to which this target links.

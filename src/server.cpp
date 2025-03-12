@@ -1,4 +1,5 @@
 #include "../include/Node.h"
+#include "../include/leaderElection.h"
 
 using namespace std;
 
@@ -11,7 +12,18 @@ int main(int argc, char* argv[]) {
     string ip = argv[1];
     int port = stoi(argv[2]);
 
-    Node serverNode(ip, port, true);
+    Node serverNode(ip, port, false);
+    if(port == 8080) {
+        serverNode.isLeader = true;
+    }
+
+    if (serverNode.isLeader) {
+        thread hbThread(sendHeartbeat, ref(serverNode));
+        hbThread.detach();  
+    }else{
+        thread recHbThread(receiveHeartbeat, ref(serverNode));
+        recHbThread.detach();
+    }
 
     serverNode.sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverNode.sockfd == -1) {
