@@ -18,9 +18,11 @@ project_root/
 │── include/
 │   └── assistantUtils.h    # Header files
 |   └── Node.h
+|   └── leaderElection.h
 │── src/
 │   ├── utils/
 │   │   └── assistantUtils.cpp  # Utility functions
+|   |   └── leaderElection.cpp
 │   ├── server.cpp
 │   ├── client.cpp
 │   ├── admin.cpp
