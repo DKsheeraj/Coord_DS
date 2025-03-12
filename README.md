@@ -17,6 +17,7 @@ project_root/
 │   └── servers.json        # JSON storage
 │── include/
 │   └── assistantUtils.h    # Header files
+|   └── Node.h
 │── src/
 │   ├── utils/
 │   │   └── assistantUtils.cpp  # Utility functions
