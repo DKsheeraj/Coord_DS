@@ -3,6 +3,7 @@
 
 using namespace std;
 
+
 int main(int argc, char* argv[]) {
     if (argc != 3) {
         cerr << "Usage: " << argv[0] << " <IP> <Port>" << endl;
@@ -17,13 +18,25 @@ int main(int argc, char* argv[]) {
         serverNode.isLeader = true;
     }
 
-    if (serverNode.isLeader) {
-        thread hbThread(sendHeartbeat, ref(serverNode));
-        hbThread.detach();  
-    }else{
-        thread recHbThread(receiveHeartbeat, ref(serverNode));
-        recHbThread.detach();
-    }
+    struct sembuf pop, vop ;
+    pop.sem_num = vop.sem_num = 0;
+	pop.sem_flg = vop.sem_flg = 0;
+	pop.sem_op = -1 ; vop.sem_op = 1 ;
+
+
+    int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
+    if(serverNode.port == 8080) semctl(semid1, 0, SETVAL, 1); 
+
+    thread hbThread(assignType, ref(serverNode));
+    hbThread.detach();
+
+    // if (serverNode.isLeader) {
+    //     thread hbThread(sendHeartbeat, ref(serverNode));
+    //     hbThread.detach();  
+    // // }else{
+    //     thread recHbThread(receiveHeartbeat, ref(serverNode));
+    //     recHbThread.detach();
+    // }
 
     serverNode.sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverNode.sockfd == -1) {

@@ -26,7 +26,7 @@ void addServer(string ip, int port) {
     }
     inFile.close();
 
-    serverList.push_back({{"ip", ip}, {"port", port}});
+    serverList.push_back({{"ip", ip}, {"port", port}, {"isLeader", false}});
 
     ensureDataFolderExists();
 

@@ -8,8 +8,14 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <nlohmann/json.hpp>  // Include the JSON library
+
+using json = nlohmann::json;
 
 using namespace std;
+
+static string leaderIp = "127.0.0.1";
+static int leaderPort = 8080;
 
 class Node {
 public:
@@ -19,6 +25,10 @@ public:
     struct sockaddr_in address;
 
     bool isLeader;
+
+    json toJson() const {
+        return {{"ip", ip}, {"port", port}, {"isLeader", isLeader}};
+    }
 
 public:
     Node(string ip, int port, bool isLeader = false) {

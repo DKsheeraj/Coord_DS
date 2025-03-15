@@ -1,1 +1,1 @@
-/usr/bin/c++ -Wall -Wextra CMakeFiles/client.dir/src/client.cpp.o CMakeFiles/client.dir/src/utils/assistantUtils.cpp.o CMakeFiles/client.dir/src/utils/leaderElection.cpp.o -o client 
+/usr/bin/c++ -Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare CMakeFiles/client.dir/src/client.cpp.o CMakeFiles/client.dir/src/utils/assistantUtils.cpp.o CMakeFiles/client.dir/src/utils/leader.cpp.o CMakeFiles/client.dir/src/utils/leaderElection.cpp.o -o client 
