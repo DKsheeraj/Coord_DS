@@ -225,16 +225,48 @@ CMakeFiles/server.dir/src/server.cpp.o: ../src/server.cpp \
   /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
   /usr/include/linux/close_range.h \
   /usr/include/arpa/inet.h \
-  ../include/leaderElection.h \
+  /usr/include/nlohmann/json.hpp \
+  /usr/include/c++/11/algorithm \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/bits/ranges_algo.h \
+  /usr/include/c++/11/bits/ranges_algobase.h \
+  /usr/include/c++/11/iterator \
+  /usr/include/c++/11/bits/stream_iterator.h \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/ranges_util.h \
+  /usr/include/c++/11/pstl/glue_algorithm_defs.h \
+  /usr/include/c++/11/functional \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/refwrap.h \
+  /usr/include/c++/11/bits/std_function.h \
+  /usr/include/c++/11/unordered_map \
+  /usr/include/c++/11/ext/aligned_buffer.h \
+  /usr/include/c++/11/bits/hashtable.h \
+  /usr/include/c++/11/bits/hashtable_policy.h \
+  /usr/include/c++/11/bits/enable_special_members.h \
+  /usr/include/c++/11/bits/node_handle.h \
+  /usr/include/c++/11/bits/unordered_map.h \
+  /usr/include/c++/11/bits/erase_if.h \
   /usr/include/c++/11/vector \
   /usr/include/c++/11/bits/stl_uninitialized.h \
   /usr/include/c++/11/bits/stl_vector.h \
   /usr/include/c++/11/bits/stl_bvector.h \
   /usr/include/c++/11/bits/vector.tcc \
-  ../include/Node.h \
-  /usr/include/c++/11/thread \
-  /usr/include/c++/11/stop_token \
-  /usr/include/c++/11/atomic \
+  /usr/include/c++/11/pstl/execution_defs.h \
+  /usr/include/c++/11/cstddef \
+  /usr/include/c++/11/memory \
+  /usr/include/c++/11/bits/stl_raw_storage_iter.h \
+  /usr/include/c++/11/bits/align.h \
+  /usr/include/c++/11/bit \
+  /usr/include/c++/11/bits/unique_ptr.h \
+  /usr/include/c++/11/bits/shared_ptr.h \
+  /usr/include/c++/11/bits/shared_ptr_base.h \
+  /usr/include/c++/11/bits/allocated_ptr.h \
+  /usr/include/c++/11/ext/concurrence.h \
+  /usr/include/c++/11/bits/shared_ptr_atomic.h \
   /usr/include/c++/11/bits/atomic_base.h \
   /usr/include/c++/11/bits/atomic_lockfree_defines.h \
   /usr/include/c++/11/bits/atomic_wait.h \
@@ -254,67 +286,13 @@ CMakeFiles/server.dir/src/server.cpp.o: ../src/server.cpp \
   /usr/include/x86_64-linux-gnu/asm/unistd_64.h \
   /usr/include/x86_64-linux-gnu/bits/syscall.h \
   /usr/include/c++/11/bits/std_mutex.h \
-  /usr/include/c++/11/bits/std_thread.h \
-  /usr/include/c++/11/tuple \
-  /usr/include/c++/11/utility \
-  /usr/include/c++/11/bits/stl_relops.h \
-  /usr/include/c++/11/array \
-  /usr/include/c++/11/bits/uses_allocator.h \
-  /usr/include/c++/11/bits/invoke.h \
-  /usr/include/c++/11/bits/refwrap.h \
-  /usr/include/c++/11/bits/unique_ptr.h \
-  /usr/include/c++/11/semaphore \
-  /usr/include/c++/11/bits/semaphore_base.h \
-  /usr/include/c++/11/bits/atomic_timed_wait.h \
-  /usr/include/c++/11/bits/this_thread_sleep.h \
-  /usr/include/c++/11/chrono \
-  /usr/include/c++/11/ratio \
-  /usr/include/c++/11/limits \
-  /usr/include/c++/11/ctime \
-  /usr/include/c++/11/bits/parse_numbers.h \
-  /usr/include/x86_64-linux-gnu/sys/time.h \
-  /usr/include/semaphore.h \
-  /usr/include/x86_64-linux-gnu/bits/semaphore.h \
-  /usr/include/c++/11/fstream \
-  /usr/include/c++/11/bits/codecvt.h \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
-  /usr/include/c++/11/bits/fstream.tcc \
-  /usr/include/nlohmann/json.hpp \
-  /usr/include/c++/11/algorithm \
-  /usr/include/c++/11/bits/ranges_algo.h \
-  /usr/include/c++/11/bits/ranges_algobase.h \
-  /usr/include/c++/11/iterator \
-  /usr/include/c++/11/bits/stream_iterator.h \
-  /usr/include/c++/11/bits/ranges_util.h \
-  /usr/include/c++/11/pstl/glue_algorithm_defs.h \
-  /usr/include/c++/11/functional \
-  /usr/include/c++/11/bits/std_function.h \
-  /usr/include/c++/11/unordered_map \
-  /usr/include/c++/11/ext/aligned_buffer.h \
-  /usr/include/c++/11/bits/hashtable.h \
-  /usr/include/c++/11/bits/hashtable_policy.h \
-  /usr/include/c++/11/bits/enable_special_members.h \
-  /usr/include/c++/11/bits/node_handle.h \
-  /usr/include/c++/11/bits/unordered_map.h \
-  /usr/include/c++/11/bits/erase_if.h \
-  /usr/include/c++/11/pstl/execution_defs.h \
-  /usr/include/c++/11/cstddef \
-  /usr/include/c++/11/memory \
-  /usr/include/c++/11/bits/stl_raw_storage_iter.h \
-  /usr/include/c++/11/bits/align.h \
-  /usr/include/c++/11/bit \
-  /usr/include/c++/11/bits/shared_ptr.h \
-  /usr/include/c++/11/bits/shared_ptr_base.h \
-  /usr/include/c++/11/bits/allocated_ptr.h \
-  /usr/include/c++/11/ext/concurrence.h \
-  /usr/include/c++/11/bits/shared_ptr_atomic.h \
   /usr/include/c++/11/backward/auto_ptr.h \
   /usr/include/c++/11/bits/ranges_uninitialized.h \
   /usr/include/c++/11/bits/uses_allocator_args.h \
   /usr/include/c++/11/pstl/glue_memory_defs.h \
   /usr/include/c++/11/numeric \
   /usr/include/c++/11/bits/stl_numeric.h \
+  /usr/include/c++/11/limits \
   /usr/include/c++/11/pstl/glue_numeric_defs.h \
   /usr/include/nlohmann/adl_serializer.hpp \
   /usr/include/nlohmann/detail/conversions/from_json.hpp \
@@ -378,12 +356,17 @@ CMakeFiles/server.dir/src/server.cpp.o: ../src/server.cpp \
   /usr/include/nlohmann/json_fwd.hpp \
   /usr/include/c++/11/filesystem \
   /usr/include/c++/11/bits/fs_fwd.h \
+  /usr/include/c++/11/chrono \
+  /usr/include/c++/11/ratio \
+  /usr/include/c++/11/ctime \
+  /usr/include/c++/11/bits/parse_numbers.h \
   /usr/include/c++/11/bits/fs_path.h \
   /usr/include/c++/11/locale \
   /usr/include/c++/11/bits/locale_facets_nonio.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h \
   /usr/include/libintl.h \
+  /usr/include/c++/11/bits/codecvt.h \
   /usr/include/c++/11/bits/locale_facets_nonio.tcc \
   /usr/include/c++/11/bits/locale_conv.h \
   /usr/include/c++/11/iomanip \
@@ -415,7 +398,32 @@ CMakeFiles/server.dir/src/server.cpp.o: ../src/server.cpp \
   /usr/include/nlohmann/detail/conversions/to_chars.hpp \
   /usr/include/nlohmann/ordered_map.hpp \
   /usr/include/nlohmann/detail/macro_unscope.hpp \
-  /usr/include/nlohmann/thirdparty/hedley/hedley_undef.hpp
+  /usr/include/nlohmann/thirdparty/hedley/hedley_undef.hpp \
+  ../include/leaderElection.h \
+  ../include/Node.h \
+  /usr/include/c++/11/thread \
+  /usr/include/c++/11/stop_token \
+  /usr/include/c++/11/atomic \
+  /usr/include/c++/11/bits/std_thread.h \
+  /usr/include/c++/11/semaphore \
+  /usr/include/c++/11/bits/semaphore_base.h \
+  /usr/include/c++/11/bits/atomic_timed_wait.h \
+  /usr/include/c++/11/bits/this_thread_sleep.h \
+  /usr/include/x86_64-linux-gnu/sys/time.h \
+  /usr/include/semaphore.h \
+  /usr/include/x86_64-linux-gnu/bits/semaphore.h \
+  /usr/include/c++/11/fstream \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
+  /usr/include/c++/11/bits/fstream.tcc \
+  /usr/include/x86_64-linux-gnu/sys/ipc.h \
+  /usr/include/x86_64-linux-gnu/bits/ipctypes.h \
+  /usr/include/x86_64-linux-gnu/bits/ipc.h \
+  /usr/include/x86_64-linux-gnu/bits/ipc-perm.h \
+  /usr/include/x86_64-linux-gnu/sys/sem.h \
+  /usr/include/x86_64-linux-gnu/bits/sem.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_semid_ds.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_semid64_ds.h
 
 CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o: ../src/utils/assistantUtils.cpp \
   /usr/include/stdc-predef.h \
@@ -821,6 +829,9 @@ CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o: ../src/utils/assistantUtil
   /usr/include/x86_64-linux-gnu/bits/in.h \
   /usr/include/arpa/inet.h
 
+CMakeFiles/server.dir/src/utils/leader.cpp.o: ../src/utils/leader.cpp \
+  /usr/include/stdc-predef.h
+
 CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElection.cpp \
   /usr/include/stdc-predef.h \
   ../include/leaderElection.h \
@@ -1051,9 +1062,43 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
   /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
   /usr/include/linux/close_range.h \
   /usr/include/arpa/inet.h \
-  /usr/include/c++/11/thread \
-  /usr/include/c++/11/stop_token \
-  /usr/include/c++/11/atomic \
+  /usr/include/nlohmann/json.hpp \
+  /usr/include/c++/11/algorithm \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/bits/ranges_algo.h \
+  /usr/include/c++/11/bits/ranges_algobase.h \
+  /usr/include/c++/11/iterator \
+  /usr/include/c++/11/bits/stream_iterator.h \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/ranges_util.h \
+  /usr/include/c++/11/pstl/glue_algorithm_defs.h \
+  /usr/include/c++/11/functional \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/refwrap.h \
+  /usr/include/c++/11/bits/std_function.h \
+  /usr/include/c++/11/unordered_map \
+  /usr/include/c++/11/ext/aligned_buffer.h \
+  /usr/include/c++/11/bits/hashtable.h \
+  /usr/include/c++/11/bits/hashtable_policy.h \
+  /usr/include/c++/11/bits/enable_special_members.h \
+  /usr/include/c++/11/bits/node_handle.h \
+  /usr/include/c++/11/bits/unordered_map.h \
+  /usr/include/c++/11/bits/erase_if.h \
+  /usr/include/c++/11/pstl/execution_defs.h \
+  /usr/include/c++/11/cstddef \
+  /usr/include/c++/11/memory \
+  /usr/include/c++/11/bits/stl_raw_storage_iter.h \
+  /usr/include/c++/11/bits/align.h \
+  /usr/include/c++/11/bit \
+  /usr/include/c++/11/bits/unique_ptr.h \
+  /usr/include/c++/11/bits/shared_ptr.h \
+  /usr/include/c++/11/bits/shared_ptr_base.h \
+  /usr/include/c++/11/bits/allocated_ptr.h \
+  /usr/include/c++/11/ext/concurrence.h \
+  /usr/include/c++/11/bits/shared_ptr_atomic.h \
   /usr/include/c++/11/bits/atomic_base.h \
   /usr/include/c++/11/bits/atomic_lockfree_defines.h \
   /usr/include/c++/11/bits/atomic_wait.h \
@@ -1073,67 +1118,13 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
   /usr/include/x86_64-linux-gnu/asm/unistd_64.h \
   /usr/include/x86_64-linux-gnu/bits/syscall.h \
   /usr/include/c++/11/bits/std_mutex.h \
-  /usr/include/c++/11/bits/std_thread.h \
-  /usr/include/c++/11/tuple \
-  /usr/include/c++/11/utility \
-  /usr/include/c++/11/bits/stl_relops.h \
-  /usr/include/c++/11/array \
-  /usr/include/c++/11/bits/uses_allocator.h \
-  /usr/include/c++/11/bits/invoke.h \
-  /usr/include/c++/11/bits/refwrap.h \
-  /usr/include/c++/11/bits/unique_ptr.h \
-  /usr/include/c++/11/semaphore \
-  /usr/include/c++/11/bits/semaphore_base.h \
-  /usr/include/c++/11/bits/atomic_timed_wait.h \
-  /usr/include/c++/11/bits/this_thread_sleep.h \
-  /usr/include/c++/11/chrono \
-  /usr/include/c++/11/ratio \
-  /usr/include/c++/11/limits \
-  /usr/include/c++/11/ctime \
-  /usr/include/c++/11/bits/parse_numbers.h \
-  /usr/include/x86_64-linux-gnu/sys/time.h \
-  /usr/include/semaphore.h \
-  /usr/include/x86_64-linux-gnu/bits/semaphore.h \
-  /usr/include/c++/11/fstream \
-  /usr/include/c++/11/bits/codecvt.h \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
-  /usr/include/c++/11/bits/fstream.tcc \
-  /usr/include/nlohmann/json.hpp \
-  /usr/include/c++/11/algorithm \
-  /usr/include/c++/11/bits/ranges_algo.h \
-  /usr/include/c++/11/bits/ranges_algobase.h \
-  /usr/include/c++/11/iterator \
-  /usr/include/c++/11/bits/stream_iterator.h \
-  /usr/include/c++/11/bits/ranges_util.h \
-  /usr/include/c++/11/pstl/glue_algorithm_defs.h \
-  /usr/include/c++/11/functional \
-  /usr/include/c++/11/bits/std_function.h \
-  /usr/include/c++/11/unordered_map \
-  /usr/include/c++/11/ext/aligned_buffer.h \
-  /usr/include/c++/11/bits/hashtable.h \
-  /usr/include/c++/11/bits/hashtable_policy.h \
-  /usr/include/c++/11/bits/enable_special_members.h \
-  /usr/include/c++/11/bits/node_handle.h \
-  /usr/include/c++/11/bits/unordered_map.h \
-  /usr/include/c++/11/bits/erase_if.h \
-  /usr/include/c++/11/pstl/execution_defs.h \
-  /usr/include/c++/11/cstddef \
-  /usr/include/c++/11/memory \
-  /usr/include/c++/11/bits/stl_raw_storage_iter.h \
-  /usr/include/c++/11/bits/align.h \
-  /usr/include/c++/11/bit \
-  /usr/include/c++/11/bits/shared_ptr.h \
-  /usr/include/c++/11/bits/shared_ptr_base.h \
-  /usr/include/c++/11/bits/allocated_ptr.h \
-  /usr/include/c++/11/ext/concurrence.h \
-  /usr/include/c++/11/bits/shared_ptr_atomic.h \
   /usr/include/c++/11/backward/auto_ptr.h \
   /usr/include/c++/11/bits/ranges_uninitialized.h \
   /usr/include/c++/11/bits/uses_allocator_args.h \
   /usr/include/c++/11/pstl/glue_memory_defs.h \
   /usr/include/c++/11/numeric \
   /usr/include/c++/11/bits/stl_numeric.h \
+  /usr/include/c++/11/limits \
   /usr/include/c++/11/pstl/glue_numeric_defs.h \
   /usr/include/nlohmann/adl_serializer.hpp \
   /usr/include/nlohmann/detail/conversions/from_json.hpp \
@@ -1197,12 +1188,17 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
   /usr/include/nlohmann/json_fwd.hpp \
   /usr/include/c++/11/filesystem \
   /usr/include/c++/11/bits/fs_fwd.h \
+  /usr/include/c++/11/chrono \
+  /usr/include/c++/11/ratio \
+  /usr/include/c++/11/ctime \
+  /usr/include/c++/11/bits/parse_numbers.h \
   /usr/include/c++/11/bits/fs_path.h \
   /usr/include/c++/11/locale \
   /usr/include/c++/11/bits/locale_facets_nonio.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h \
   /usr/include/libintl.h \
+  /usr/include/c++/11/bits/codecvt.h \
   /usr/include/c++/11/bits/locale_facets_nonio.tcc \
   /usr/include/c++/11/bits/locale_conv.h \
   /usr/include/c++/11/iomanip \
@@ -1234,8 +1230,49 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
   /usr/include/nlohmann/detail/conversions/to_chars.hpp \
   /usr/include/nlohmann/ordered_map.hpp \
   /usr/include/nlohmann/detail/macro_unscope.hpp \
-  /usr/include/nlohmann/thirdparty/hedley/hedley_undef.hpp
+  /usr/include/nlohmann/thirdparty/hedley/hedley_undef.hpp \
+  /usr/include/c++/11/thread \
+  /usr/include/c++/11/stop_token \
+  /usr/include/c++/11/atomic \
+  /usr/include/c++/11/bits/std_thread.h \
+  /usr/include/c++/11/semaphore \
+  /usr/include/c++/11/bits/semaphore_base.h \
+  /usr/include/c++/11/bits/atomic_timed_wait.h \
+  /usr/include/c++/11/bits/this_thread_sleep.h \
+  /usr/include/x86_64-linux-gnu/sys/time.h \
+  /usr/include/semaphore.h \
+  /usr/include/x86_64-linux-gnu/bits/semaphore.h \
+  /usr/include/c++/11/fstream \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
+  /usr/include/c++/11/bits/fstream.tcc \
+  /usr/include/x86_64-linux-gnu/sys/ipc.h \
+  /usr/include/x86_64-linux-gnu/bits/ipctypes.h \
+  /usr/include/x86_64-linux-gnu/bits/ipc.h \
+  /usr/include/x86_64-linux-gnu/bits/ipc-perm.h \
+  /usr/include/x86_64-linux-gnu/sys/sem.h \
+  /usr/include/x86_64-linux-gnu/bits/sem.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_semid_ds.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_semid64_ds.h
 
+
+/usr/include/x86_64-linux-gnu/bits/sem.h:
+
+/usr/include/x86_64-linux-gnu/bits/ipc.h:
+
+/usr/include/x86_64-linux-gnu/sys/ipc.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h:
+
+/usr/include/c++/11/bits/atomic_timed_wait.h:
+
+/usr/include/c++/11/bits/semaphore_base.h:
+
+/usr/include/c++/11/semaphore:
+
+/usr/include/c++/11/atomic:
 
 /usr/include/nlohmann/thirdparty/hedley/hedley_undef.hpp:
 
@@ -1246,6 +1283,12 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 /usr/include/nlohmann/detail/conversions/to_chars.hpp:
 
 /usr/include/nlohmann/detail/output/serializer.hpp:
+
+/usr/include/c++/11/fstream:
+
+/usr/include/nlohmann/detail/output/output_adapters.hpp:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_semid_ds.h:
 
 /usr/include/nlohmann/detail/output/binary_writer.hpp:
 
@@ -1277,6 +1320,14 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/bits/locale_facets_nonio.h:
 
+/usr/include/c++/11/bits/parse_numbers.h:
+
+/usr/include/c++/11/ctime:
+
+/usr/include/c++/11/thread:
+
+/usr/include/c++/11/ratio:
+
 /usr/include/nlohmann/detail/json_pointer.hpp:
 
 /usr/include/c++/11/filesystem:
@@ -1284,6 +1335,10 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 /usr/include/nlohmann/detail/input/json_sax.hpp:
 
 /usr/include/nlohmann/detail/meta/call_std/end.hpp:
+
+/usr/include/x86_64-linux-gnu/sys/time.h:
+
+/usr/include/nlohmann/detail/meta/call_std/begin.hpp:
 
 /usr/include/nlohmann/detail/iterators/iterator_traits.hpp:
 
@@ -1357,6 +1412,8 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/nlohmann/adl_serializer.hpp:
 
+/usr/include/c++/11/limits:
+
 /usr/include/c++/11/bits/stl_numeric.h:
 
 /usr/include/c++/11/numeric:
@@ -1371,67 +1428,57 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/backward/auto_ptr.h:
 
+/usr/include/c++/11/tr1/poly_laguerre.tcc:
+
+/usr/include/c++/11/bits/std_mutex.h:
+
+/usr/include/nlohmann/detail/meta/is_sax.hpp:
+
+/usr/include/x86_64-linux-gnu/bits/syscall.h:
+
+/usr/include/c++/11/sstream:
+
+/usr/include/x86_64-linux-gnu/asm/unistd_64.h:
+
+/usr/include/x86_64-linux-gnu/sys/syscall.h:
+
+/usr/include/c++/11/bits/stl_tree.h:
+
+/usr/include/syscall.h:
+
+/usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
+
+/usr/include/x86_64-linux-gnu/bits/local_lim.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix1_lim.h:
+
+/usr/include/c++/11/bits/valarray_before.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/limits.h:
+
+/usr/include/c++/11/bits/atomic_wait.h:
+
+/usr/include/c++/11/bits/valarray_array.tcc:
+
+/usr/include/c++/11/bits/atomic_lockfree_defines.h:
+
+/usr/include/c++/11/bits/atomic_base.h:
+
 /usr/include/c++/11/bits/shared_ptr_atomic.h:
 
 /usr/include/c++/11/ext/concurrence.h:
 
 /usr/include/c++/11/bits/allocated_ptr.h:
 
+/usr/include/c++/11/bits/unique_ptr.h:
+
 /usr/include/c++/11/bit:
 
 /usr/include/c++/11/bits/stl_raw_storage_iter.h:
 
-/usr/include/c++/11/memory:
-
-/usr/include/c++/11/bits/unordered_map.h:
-
-/usr/include/c++/11/bits/hashtable_policy.h:
-
-/usr/include/c++/11/bits/hashtable.h:
-
-/usr/include/c++/11/unordered_map:
-
-/usr/include/c++/11/bits/stream_iterator.h:
-
 /usr/include/c++/11/algorithm:
-
-/usr/include/nlohmann/json.hpp:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h:
-
-/usr/include/nlohmann/detail/output/output_adapters.hpp:
-
-/usr/include/c++/11/fstream:
-
-/usr/include/nlohmann/detail/meta/call_std/begin.hpp:
-
-/usr/include/x86_64-linux-gnu/sys/time.h:
-
-/usr/include/c++/11/bits/parse_numbers.h:
-
-/usr/include/c++/11/ctime:
-
-/usr/include/c++/11/limits:
-
-/usr/include/c++/11/bits/atomic_timed_wait.h:
-
-/usr/include/c++/11/bits/semaphore_base.h:
-
-/usr/include/c++/11/semaphore:
-
-/usr/include/c++/11/bits/unique_ptr.h:
-
-/usr/include/c++/11/bits/uses_allocator.h:
-
-/usr/include/x86_64-linux-gnu/bits/fp-fast.h:
-
-/usr/include/c++/11/bits/node_handle.h:
-
-/usr/include/c++/11/iostream:
-
-/usr/include/x86_64-linux-gnu/sys/syscall.h:
 
 /usr/include/c++/11/bits/cxxabi_forced.h:
 
@@ -1440,10 +1487,6 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 /usr/include/c++/11/bits/locale_classes.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
-
-/usr/include/c++/11/bits/invoke.h:
-
-/usr/include/asm-generic/socket.h:
 
 /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
 
@@ -1471,6 +1514,12 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/x86_64-linux-gnu/gnu/stubs.h:
 
+/usr/include/linux/limits.h:
+
+/usr/include/c++/11/bits/shared_ptr_base.h:
+
+/usr/include/c++/11/bits/basic_string.h:
+
 /usr/include/c++/11/pstl/glue_numeric_defs.h:
 
 /usr/include/x86_64-linux-gnu/bits/locale.h:
@@ -1485,6 +1534,14 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/bits/localefwd.h:
 
+/usr/include/c++/11/iomanip:
+
+/usr/include/x86_64-linux-gnu/asm/unistd.h:
+
+/usr/include/c++/11/cctype:
+
+/usr/include/c++/11/unordered_map:
+
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 
 /usr/include/x86_64-linux-gnu/bits/types.h:
@@ -1495,9 +1552,7 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h:
 
-/usr/include/c++/11/sstream:
-
-/usr/include/x86_64-linux-gnu/asm/unistd_64.h:
+/usr/include/c++/11/bits/unordered_map.h:
 
 /usr/include/c++/11/ext/alloc_traits.h:
 
@@ -1509,19 +1564,23 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/bits/predefined_ops.h:
 
-/usr/include/c++/11/bits/atomic_wait.h:
+/usr/include/x86_64-linux-gnu/bits/semaphore.h:
 
 /usr/include/c++/11/bits/shared_ptr.h:
 
-/usr/include/x86_64-linux-gnu/bits/semaphore.h:
-
 /usr/include/c++/11/bits/stl_construct.h:
-
-/usr/include/c++/11/bits/ranges_algo.h:
 
 /usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
 
+/usr/include/c++/11/bits/ranges_algo.h:
+
 /usr/include/c++/11/bits/stl_iterator.h:
+
+/usr/include/c++/11/bits/sstream.tcc:
+
+/usr/include/c++/11/climits:
+
+/usr/include/c++/11/new:
 
 /usr/include/linux/close_range.h:
 
@@ -1534,6 +1593,14 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 /usr/include/c++/11/locale:
 
 /usr/include/ctype.h:
+
+/usr/include/c++/11/bits/stream_iterator.h:
+
+/usr/include/c++/11/bits/std_thread.h:
+
+/usr/include/c++/11/bits/cpp_type_traits.h:
+
+/usr/include/c++/11/bits/stl_iterator_base_funcs.h:
 
 /usr/include/c++/11/bits/ranges_cmp.h:
 
@@ -1551,6 +1618,10 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/bits/cxxabi_init_exception.h:
 
+/usr/include/x86_64-linux-gnu/bits/uio_lim.h:
+
+/usr/include/c++/11/string:
+
 /usr/include/nlohmann/detail/input/binary_reader.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/types/time_t.h:
@@ -1565,29 +1636,37 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h:
 
-/usr/include/c++/11/tr1/poly_laguerre.tcc:
-
-/usr/include/c++/11/bits/std_mutex.h:
-
 /usr/include/x86_64-linux-gnu/bits/timesize.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/cpu_defines.h:
 
 /usr/include/c++/11/exception:
 
+/usr/include/asm-generic/socket.h:
+
+/usr/include/c++/11/bits/invoke.h:
+
 /usr/include/c++/11/cstdint:
 
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
 
-/usr/include/c++/11/functional:
+/usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h:
 
-/usr/include/linux/errno.h:
+/usr/include/c++/11/debug/debug.h:
+
+/usr/include/features-time64.h:
 
 /usr/include/c++/11/bits/stringfwd.h:
 
 /usr/include/c++/11/tr1/gamma.tcc:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
+
+/usr/include/x86_64-linux-gnu/bits/fp-fast.h:
+
+/usr/include/c++/11/iostream:
+
+/usr/include/c++/11/bits/node_handle.h:
 
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
 
@@ -1629,10 +1708,6 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/x86_64-linux-gnu/bits/time64.h:
 
-/usr/include/c++/11/bits/refwrap.h:
-
-/usr/include/linux/stddef.h:
-
 /usr/include/c++/11/ext/type_traits.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/FILE.h:
@@ -1655,17 +1730,23 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/asm-generic/errno-base.h:
 
+/usr/include/linux/errno.h:
+
+/usr/include/c++/11/functional:
+
 /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
-/usr/include/c++/11/bits/forward_list.tcc:
-
 /usr/include/c++/11/chrono:
+
+/usr/include/c++/11/bits/forward_list.tcc:
 
 /usr/include/x86_64-linux-gnu/bits/wordsize.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/locale_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h:
+
+/usr/include/x86_64-linux-gnu/bits/ipc-perm.h:
 
 /usr/include/nlohmann/detail/json_ref.hpp:
 
@@ -1709,25 +1790,25 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/cstdlib:
 
+/usr/include/c++/11/stop_token:
+
+/usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h:
+
+/usr/include/c++/11/bits/postypes.h:
+
+/usr/include/x86_64-linux-gnu/bits/in.h:
+
+/usr/include/x86_64-linux-gnu/sys/sem.h:
+
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
 
-/usr/include/x86_64-linux-gnu/bits/local_lim.h:
-
-/usr/include/c++/11/bits/shared_ptr_base.h:
-
-/usr/include/c++/11/bits/basic_string.h:
-
-/usr/include/linux/limits.h:
-
-/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
-
 /usr/include/c++/11/bits/exception_ptr.h:
+
+../src/utils/leader.cpp:
 
 /usr/include/c++/11/ext/string_conversions.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
-
-/usr/include/c++/11/atomic:
 
 /usr/include/x86_64-linux-gnu/asm/posix_types_64.h:
 
@@ -1757,11 +1838,7 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:
 
-/usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
-
 /usr/include/c++/11/ext/numeric_traits.h:
-
-/usr/include/c++/11/bits/atomic_base.h:
 
 /usr/include/features.h:
 
@@ -1777,27 +1854,11 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 ../include/assistantUtils.h:
 
-/usr/include/c++/11/ext/aligned_buffer.h:
-
 /usr/include/x86_64-linux-gnu/sys/types.h:
 
-/usr/include/c++/11/bits/erase_if.h:
-
-/usr/include/c++/11/bits/ptr_traits.h:
-
-/usr/include/stdint.h:
-
-/usr/include/endian.h:
+/usr/include/c++/11/ext/aligned_buffer.h:
 
 /usr/include/x86_64-linux-gnu/bits/byteswap.h:
-
-/usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h:
-
-/usr/include/c++/11/bits/postypes.h:
-
-/usr/include/x86_64-linux-gnu/bits/in.h:
-
-/usr/include/c++/11/stop_token:
 
 /usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
 
@@ -1815,9 +1876,9 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/initializer_list:
 
-/usr/include/c++/11/iterator:
-
 /usr/include/x86_64-linux-gnu/bits/floatn.h:
+
+/usr/include/c++/11/iterator:
 
 /usr/include/c++/11/bits/range_access.h:
 
@@ -1839,12 +1900,6 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/string_view:
 
-/usr/include/c++/11/iomanip:
-
-/usr/include/c++/11/cctype:
-
-/usr/include/x86_64-linux-gnu/asm/unistd.h:
-
 /usr/include/c++/11/bits/functional_hash.h:
 
 /usr/include/c++/11/bits/align.h:
@@ -1854,10 +1909,6 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 /usr/include/c++/11/cstdio:
 
 /usr/include/stdio.h:
-
-/usr/include/c++/11/ratio:
-
-/usr/include/c++/11/thread:
 
 /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
 
@@ -1876,10 +1927,6 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
 
 /usr/include/asm-generic/errno.h:
-
-/usr/include/c++/11/bits/stl_tree.h:
-
-/usr/include/syscall.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/error_t.h:
 
@@ -1907,9 +1954,7 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/stdexcept:
 
-/usr/include/c++/11/bits/valarray_array.tcc:
-
-/usr/include/c++/11/bits/atomic_lockfree_defines.h:
+/usr/include/x86_64-linux-gnu/bits/types/struct_semid64_ds.h:
 
 /usr/include/c++/11/bits/uniform_int_dist.h:
 
@@ -1935,12 +1980,6 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/bits/locale_facets.tcc:
 
-/usr/include/c++/11/bits/enable_special_members.h:
-
-/usr/include/c++/11/bits/codecvt.h:
-
-/usr/include/c++/11/bits/basic_ios.tcc:
-
 /usr/include/asm-generic/sockios.h:
 
 /usr/include/c++/11/istream:
@@ -1953,11 +1992,11 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/string.h:
 
+../include/leaderElection.h:
+
 /usr/include/c++/11/bits/memoryfwd.h:
 
 /usr/include/c++/11/bits/stl_function.h:
-
-../include/leaderElection.h:
 
 /usr/include/x86_64-linux-gnu/sys/socket.h:
 
@@ -1971,17 +2010,13 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/linux/posix_types.h:
 
-/usr/include/c++/11/bits/ranges_util.h:
-
-/usr/include/x86_64-linux-gnu/asm/posix_types.h:
-
 /usr/include/c++/11/bits/concept_check.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
 
 /usr/include/asm-generic/bitsperlong.h:
 
-/usr/include/x86_64-linux-gnu/bits/posix1_lim.h:
+/usr/include/x86_64-linux-gnu/bits/ipctypes.h:
 
 /usr/include/math.h:
 
@@ -2029,13 +2064,15 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
 
-/usr/include/c++/11/bits/stl_uninitialized.h:
+/usr/include/nlohmann/json.hpp:
 
-/usr/include/c++/11/bits/sstream.tcc:
+/usr/include/limits.h:
 
-/usr/include/c++/11/new:
+/usr/include/c++/11/bits/stl_relops.h:
 
-/usr/include/c++/11/climits:
+/usr/include/x86_64-linux-gnu/asm/posix_types.h:
+
+/usr/include/c++/11/bits/ranges_util.h:
 
 /usr/include/nlohmann/json_fwd.hpp:
 
@@ -2043,30 +2080,30 @@ CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElectio
 
 /usr/include/c++/11/array:
 
-/usr/include/c++/11/bits/valarray_before.h:
+/usr/include/c++/11/bits/uses_allocator.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/11/include/limits.h:
+/usr/include/linux/stddef.h:
 
-/usr/include/c++/11/debug/debug.h:
+/usr/include/c++/11/bits/refwrap.h:
 
-/usr/include/features-time64.h:
+/usr/include/c++/11/bits/hashtable.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h:
+/usr/include/c++/11/bits/hashtable_policy.h:
 
-/usr/include/limits.h:
+/usr/include/c++/11/bits/codecvt.h:
 
-/usr/include/c++/11/bits/stl_relops.h:
+/usr/include/c++/11/bits/basic_ios.tcc:
 
-/usr/include/c++/11/string:
+/usr/include/c++/11/bits/enable_special_members.h:
 
-/usr/include/x86_64-linux-gnu/bits/uio_lim.h:
+/usr/include/c++/11/bits/ptr_traits.h:
 
-/usr/include/nlohmann/detail/meta/is_sax.hpp:
+/usr/include/stdint.h:
 
-/usr/include/x86_64-linux-gnu/bits/syscall.h:
+/usr/include/endian.h:
 
-/usr/include/c++/11/bits/cpp_type_traits.h:
+/usr/include/c++/11/bits/erase_if.h:
 
-/usr/include/c++/11/bits/stl_iterator_base_funcs.h:
+/usr/include/c++/11/bits/stl_uninitialized.h:
 
-/usr/include/c++/11/bits/std_thread.h:
+/usr/include/c++/11/memory:

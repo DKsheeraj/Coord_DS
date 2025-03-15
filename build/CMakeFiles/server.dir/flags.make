@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/datta/Documents/KGPkeeper/include
 
-CXX_FLAGS = -Wall -Wextra -std=gnu++20
+CXX_FLAGS = -Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare -std=gnu++20
 

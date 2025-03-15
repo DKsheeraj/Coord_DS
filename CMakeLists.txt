@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(KGPKeeper)
 
 set(CMAKE_CXX_STANDARD 20)  
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+# set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare")
 
 include_directories(include)  
 file(GLOB UTILS_SRC src/utils/*.cpp)  
