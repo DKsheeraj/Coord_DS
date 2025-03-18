@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <nlohmann/json.hpp>  // Include the JSON library
+#include <bits/stdc++.h>
 
 using json = nlohmann::json;
 
@@ -19,13 +20,23 @@ static int leaderPort = 8080;
 
 class Node {
 public:
+    int totalNodes = 5;
     string ip;
     int port;
     int sockfd;
     struct sockaddr_in address;
 
     bool isLeader;
+    string leaderIp = "127.0.0.1";
+    int leaderPort = 8080;
 
+    int termNumber = 1;
+    set<int> votes;
+    int votedFor = -1;
+    int voteTimeout = 3;
+
+    int role = 0;  // 0 - follower, 1 - candidate, 2 - leader
+    
     json toJson() const {
         return {{"ip", ip}, {"port", port}, {"isLeader", isLeader}};
     }

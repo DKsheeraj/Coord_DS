@@ -16,6 +16,7 @@ int main(int argc, char* argv[]) {
     Node serverNode(ip, port, false);
     if(port == 8080) {
         serverNode.isLeader = true;
+        serverNode.role = 2;
     }
 
     struct sembuf pop, vop ;
@@ -30,13 +31,6 @@ int main(int argc, char* argv[]) {
     thread hbThread(assignType, ref(serverNode));
     hbThread.detach();
 
-    // if (serverNode.isLeader) {
-    //     thread hbThread(sendHeartbeat, ref(serverNode));
-    //     hbThread.detach();  
-    // // }else{
-    //     thread recHbThread(receiveHeartbeat, ref(serverNode));
-    //     recHbThread.detach();
-    // }
 
     serverNode.sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverNode.sockfd == -1) {
