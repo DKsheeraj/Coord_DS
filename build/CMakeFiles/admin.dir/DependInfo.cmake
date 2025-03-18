@@ -8,10 +8,9 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/datta/Documents/KGPkeeper/src/admin.cpp" "CMakeFiles/admin.dir/src/admin.cpp.o" "gcc" "CMakeFiles/admin.dir/src/admin.cpp.o.d"
-  "/home/datta/Documents/KGPkeeper/src/utils/assistantUtils.cpp" "CMakeFiles/admin.dir/src/utils/assistantUtils.cpp.o" "gcc" "CMakeFiles/admin.dir/src/utils/assistantUtils.cpp.o.d"
-  "/home/datta/Documents/KGPkeeper/src/utils/leader.cpp" "CMakeFiles/admin.dir/src/utils/leader.cpp.o" "gcc" "CMakeFiles/admin.dir/src/utils/leader.cpp.o.d"
-  "/home/datta/Documents/KGPkeeper/src/utils/leaderElection.cpp" "CMakeFiles/admin.dir/src/utils/leaderElection.cpp.o" "gcc" "CMakeFiles/admin.dir/src/utils/leaderElection.cpp.o.d"
+  "/home/mayukha/Documents/DS/KGPKeeper/src/admin.cpp" "CMakeFiles/admin.dir/src/admin.cpp.o" "gcc" "CMakeFiles/admin.dir/src/admin.cpp.o.d"
+  "/home/mayukha/Documents/DS/KGPKeeper/src/utils/assistantUtils.cpp" "CMakeFiles/admin.dir/src/utils/assistantUtils.cpp.o" "gcc" "CMakeFiles/admin.dir/src/utils/assistantUtils.cpp.o.d"
+  "/home/mayukha/Documents/DS/KGPKeeper/src/utils/leaderElection.cpp" "CMakeFiles/admin.dir/src/utils/leaderElection.cpp.o" "gcc" "CMakeFiles/admin.dir/src/utils/leaderElection.cpp.o.d"
   )
 
 # Targets to which this target links.

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/datta/Documents/KGPkeeper/include
+CXX_INCLUDES = -I/home/mayukha/Documents/DS/KGPKeeper/include
 
 CXX_FLAGS = -Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare -std=gnu++20
 

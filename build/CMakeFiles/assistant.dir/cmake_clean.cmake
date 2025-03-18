@@ -3,8 +3,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/assistant.dir/src/AssistantServer.cpp.o.d"
   "CMakeFiles/assistant.dir/src/utils/assistantUtils.cpp.o"
   "CMakeFiles/assistant.dir/src/utils/assistantUtils.cpp.o.d"
-  "CMakeFiles/assistant.dir/src/utils/leader.cpp.o"
-  "CMakeFiles/assistant.dir/src/utils/leader.cpp.o.d"
   "CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o"
   "CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o.d"
   "assistant"

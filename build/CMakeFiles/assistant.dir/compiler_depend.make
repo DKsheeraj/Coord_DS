@@ -403,7 +403,117 @@ CMakeFiles/assistant.dir/src/AssistantServer.cpp.o: ../src/AssistantServer.cpp \
   /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
   /usr/include/netinet/in.h \
   /usr/include/x86_64-linux-gnu/bits/in.h \
-  /usr/include/arpa/inet.h
+  /usr/include/arpa/inet.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/stdc++.h \
+  /usr/include/c++/11/cfloat \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h \
+  /usr/include/c++/11/ciso646 \
+  /usr/include/c++/11/csetjmp \
+  /usr/include/setjmp.h \
+  /usr/include/c++/11/csignal \
+  /usr/include/signal.h \
+  /usr/include/x86_64-linux-gnu/bits/signum-generic.h \
+  /usr/include/x86_64-linux-gnu/bits/signum-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-consts.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigval_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h \
+  /usr/include/x86_64-linux-gnu/bits/sigevent-consts.h \
+  /usr/include/x86_64-linux-gnu/bits/sigaction.h \
+  /usr/include/x86_64-linux-gnu/bits/sigcontext.h \
+  /usr/include/x86_64-linux-gnu/bits/types/stack_t.h \
+  /usr/include/x86_64-linux-gnu/sys/ucontext.h \
+  /usr/include/x86_64-linux-gnu/bits/sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/sigstksz.h \
+  /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/sigthread.h \
+  /usr/include/x86_64-linux-gnu/bits/signal_ext.h \
+  /usr/include/c++/11/cstdarg \
+  /usr/include/c++/11/ccomplex \
+  /usr/include/c++/11/complex \
+  /usr/include/c++/11/cfenv \
+  /usr/include/c++/11/fenv.h \
+  /usr/include/fenv.h \
+  /usr/include/x86_64-linux-gnu/bits/fenv.h \
+  /usr/include/c++/11/cinttypes \
+  /usr/include/inttypes.h \
+  /usr/include/c++/11/cstdalign \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdalign.h \
+  /usr/include/c++/11/cstdbool \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
+  /usr/include/c++/11/ctgmath \
+  /usr/include/c++/11/cuchar \
+  /usr/include/uchar.h \
+  /usr/include/c++/11/bitset \
+  /usr/include/c++/11/deque \
+  /usr/include/c++/11/bits/stl_deque.h \
+  /usr/include/c++/11/bits/deque.tcc \
+  /usr/include/c++/11/list \
+  /usr/include/c++/11/bits/stl_list.h \
+  /usr/include/c++/11/bits/list.tcc \
+  /usr/include/c++/11/queue \
+  /usr/include/c++/11/bits/stl_queue.h \
+  /usr/include/c++/11/set \
+  /usr/include/c++/11/bits/stl_set.h \
+  /usr/include/c++/11/bits/stl_multiset.h \
+  /usr/include/c++/11/stack \
+  /usr/include/c++/11/bits/stl_stack.h \
+  /usr/include/c++/11/atomic \
+  /usr/include/c++/11/condition_variable \
+  /usr/include/c++/11/bits/unique_lock.h \
+  /usr/include/c++/11/stop_token \
+  /usr/include/c++/11/bits/std_thread.h \
+  /usr/include/c++/11/semaphore \
+  /usr/include/c++/11/bits/semaphore_base.h \
+  /usr/include/c++/11/bits/atomic_timed_wait.h \
+  /usr/include/c++/11/bits/this_thread_sleep.h \
+  /usr/include/x86_64-linux-gnu/sys/time.h \
+  /usr/include/semaphore.h \
+  /usr/include/x86_64-linux-gnu/bits/semaphore.h \
+  /usr/include/c++/11/future \
+  /usr/include/c++/11/mutex \
+  /usr/include/c++/11/bits/atomic_futex.h \
+  /usr/include/c++/11/random \
+  /usr/include/c++/11/bits/random.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/opt_random.h \
+  /usr/include/c++/11/bits/random.tcc \
+  /usr/include/c++/11/regex \
+  /usr/include/c++/11/bits/regex_constants.h \
+  /usr/include/c++/11/bits/regex_error.h \
+  /usr/include/c++/11/bits/regex_automaton.h \
+  /usr/include/c++/11/bits/regex_automaton.tcc \
+  /usr/include/c++/11/bits/regex_scanner.h \
+  /usr/include/c++/11/bits/regex_scanner.tcc \
+  /usr/include/c++/11/bits/regex_compiler.h \
+  /usr/include/c++/11/bits/regex_compiler.tcc \
+  /usr/include/c++/11/bits/regex.h \
+  /usr/include/c++/11/bits/regex.tcc \
+  /usr/include/c++/11/bits/regex_executor.h \
+  /usr/include/c++/11/bits/regex_executor.tcc \
+  /usr/include/c++/11/scoped_allocator \
+  /usr/include/c++/11/thread \
+  /usr/include/c++/11/typeindex \
+  /usr/include/c++/11/unordered_set \
+  /usr/include/c++/11/bits/unordered_set.h \
+  /usr/include/c++/11/shared_mutex \
+  /usr/include/c++/11/any \
+  /usr/include/c++/11/charconv \
+  /usr/include/c++/11/optional \
+  /usr/include/c++/11/memory_resource \
+  /usr/include/c++/11/variant \
+  /usr/include/c++/11/barrier \
+  /usr/include/c++/11/coroutine \
+  /usr/include/c++/11/latch \
+  /usr/include/c++/11/ranges \
+  /usr/include/c++/11/span \
+  /usr/include/c++/11/source_location \
+  /usr/include/c++/11/syncstream \
+  /usr/include/c++/11/version
 
 CMakeFiles/assistant.dir/src/utils/assistantUtils.cpp.o: ../src/utils/assistantUtils.cpp \
   /usr/include/stdc-predef.h \
@@ -807,10 +917,117 @@ CMakeFiles/assistant.dir/src/utils/assistantUtils.cpp.o: ../src/utils/assistantU
   /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
   /usr/include/netinet/in.h \
   /usr/include/x86_64-linux-gnu/bits/in.h \
-  /usr/include/arpa/inet.h
-
-CMakeFiles/assistant.dir/src/utils/leader.cpp.o: ../src/utils/leader.cpp \
-  /usr/include/stdc-predef.h
+  /usr/include/arpa/inet.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/stdc++.h \
+  /usr/include/c++/11/cfloat \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h \
+  /usr/include/c++/11/ciso646 \
+  /usr/include/c++/11/csetjmp \
+  /usr/include/setjmp.h \
+  /usr/include/c++/11/csignal \
+  /usr/include/signal.h \
+  /usr/include/x86_64-linux-gnu/bits/signum-generic.h \
+  /usr/include/x86_64-linux-gnu/bits/signum-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-consts.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigval_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h \
+  /usr/include/x86_64-linux-gnu/bits/sigevent-consts.h \
+  /usr/include/x86_64-linux-gnu/bits/sigaction.h \
+  /usr/include/x86_64-linux-gnu/bits/sigcontext.h \
+  /usr/include/x86_64-linux-gnu/bits/types/stack_t.h \
+  /usr/include/x86_64-linux-gnu/sys/ucontext.h \
+  /usr/include/x86_64-linux-gnu/bits/sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/sigstksz.h \
+  /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/sigthread.h \
+  /usr/include/x86_64-linux-gnu/bits/signal_ext.h \
+  /usr/include/c++/11/cstdarg \
+  /usr/include/c++/11/ccomplex \
+  /usr/include/c++/11/complex \
+  /usr/include/c++/11/cfenv \
+  /usr/include/c++/11/fenv.h \
+  /usr/include/fenv.h \
+  /usr/include/x86_64-linux-gnu/bits/fenv.h \
+  /usr/include/c++/11/cinttypes \
+  /usr/include/inttypes.h \
+  /usr/include/c++/11/cstdalign \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdalign.h \
+  /usr/include/c++/11/cstdbool \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
+  /usr/include/c++/11/ctgmath \
+  /usr/include/c++/11/cuchar \
+  /usr/include/uchar.h \
+  /usr/include/c++/11/bitset \
+  /usr/include/c++/11/deque \
+  /usr/include/c++/11/bits/stl_deque.h \
+  /usr/include/c++/11/bits/deque.tcc \
+  /usr/include/c++/11/list \
+  /usr/include/c++/11/bits/stl_list.h \
+  /usr/include/c++/11/bits/list.tcc \
+  /usr/include/c++/11/queue \
+  /usr/include/c++/11/bits/stl_queue.h \
+  /usr/include/c++/11/set \
+  /usr/include/c++/11/bits/stl_set.h \
+  /usr/include/c++/11/bits/stl_multiset.h \
+  /usr/include/c++/11/stack \
+  /usr/include/c++/11/bits/stl_stack.h \
+  /usr/include/c++/11/atomic \
+  /usr/include/c++/11/condition_variable \
+  /usr/include/c++/11/bits/unique_lock.h \
+  /usr/include/c++/11/stop_token \
+  /usr/include/c++/11/bits/std_thread.h \
+  /usr/include/c++/11/semaphore \
+  /usr/include/c++/11/bits/semaphore_base.h \
+  /usr/include/c++/11/bits/atomic_timed_wait.h \
+  /usr/include/c++/11/bits/this_thread_sleep.h \
+  /usr/include/x86_64-linux-gnu/sys/time.h \
+  /usr/include/semaphore.h \
+  /usr/include/x86_64-linux-gnu/bits/semaphore.h \
+  /usr/include/c++/11/future \
+  /usr/include/c++/11/mutex \
+  /usr/include/c++/11/bits/atomic_futex.h \
+  /usr/include/c++/11/random \
+  /usr/include/c++/11/bits/random.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/opt_random.h \
+  /usr/include/c++/11/bits/random.tcc \
+  /usr/include/c++/11/regex \
+  /usr/include/c++/11/bits/regex_constants.h \
+  /usr/include/c++/11/bits/regex_error.h \
+  /usr/include/c++/11/bits/regex_automaton.h \
+  /usr/include/c++/11/bits/regex_automaton.tcc \
+  /usr/include/c++/11/bits/regex_scanner.h \
+  /usr/include/c++/11/bits/regex_scanner.tcc \
+  /usr/include/c++/11/bits/regex_compiler.h \
+  /usr/include/c++/11/bits/regex_compiler.tcc \
+  /usr/include/c++/11/bits/regex.h \
+  /usr/include/c++/11/bits/regex.tcc \
+  /usr/include/c++/11/bits/regex_executor.h \
+  /usr/include/c++/11/bits/regex_executor.tcc \
+  /usr/include/c++/11/scoped_allocator \
+  /usr/include/c++/11/thread \
+  /usr/include/c++/11/typeindex \
+  /usr/include/c++/11/unordered_set \
+  /usr/include/c++/11/bits/unordered_set.h \
+  /usr/include/c++/11/shared_mutex \
+  /usr/include/c++/11/any \
+  /usr/include/c++/11/charconv \
+  /usr/include/c++/11/optional \
+  /usr/include/c++/11/memory_resource \
+  /usr/include/c++/11/variant \
+  /usr/include/c++/11/barrier \
+  /usr/include/c++/11/coroutine \
+  /usr/include/c++/11/latch \
+  /usr/include/c++/11/ranges \
+  /usr/include/c++/11/span \
+  /usr/include/c++/11/source_location \
+  /usr/include/c++/11/syncstream \
+  /usr/include/c++/11/version
 
 CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElection.cpp \
   /usr/include/stdc-predef.h \
@@ -1211,9 +1428,73 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
   /usr/include/nlohmann/ordered_map.hpp \
   /usr/include/nlohmann/detail/macro_unscope.hpp \
   /usr/include/nlohmann/thirdparty/hedley/hedley_undef.hpp \
-  /usr/include/c++/11/thread \
-  /usr/include/c++/11/stop_token \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/stdc++.h \
+  /usr/include/c++/11/cfloat \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h \
+  /usr/include/c++/11/ciso646 \
+  /usr/include/c++/11/csetjmp \
+  /usr/include/setjmp.h \
+  /usr/include/c++/11/csignal \
+  /usr/include/signal.h \
+  /usr/include/x86_64-linux-gnu/bits/signum-generic.h \
+  /usr/include/x86_64-linux-gnu/bits/signum-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-consts.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigval_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h \
+  /usr/include/x86_64-linux-gnu/bits/sigevent-consts.h \
+  /usr/include/x86_64-linux-gnu/bits/sigaction.h \
+  /usr/include/x86_64-linux-gnu/bits/sigcontext.h \
+  /usr/include/x86_64-linux-gnu/bits/types/stack_t.h \
+  /usr/include/x86_64-linux-gnu/sys/ucontext.h \
+  /usr/include/x86_64-linux-gnu/bits/sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/sigstksz.h \
+  /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/sigthread.h \
+  /usr/include/x86_64-linux-gnu/bits/signal_ext.h \
+  /usr/include/c++/11/cstdarg \
+  /usr/include/c++/11/ccomplex \
+  /usr/include/c++/11/complex \
+  /usr/include/c++/11/cfenv \
+  /usr/include/c++/11/fenv.h \
+  /usr/include/fenv.h \
+  /usr/include/x86_64-linux-gnu/bits/fenv.h \
+  /usr/include/c++/11/cinttypes \
+  /usr/include/inttypes.h \
+  /usr/include/c++/11/cstdalign \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdalign.h \
+  /usr/include/c++/11/cstdbool \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
+  /usr/include/c++/11/ctgmath \
+  /usr/include/c++/11/cuchar \
+  /usr/include/uchar.h \
+  /usr/include/c++/11/bitset \
+  /usr/include/c++/11/deque \
+  /usr/include/c++/11/bits/stl_deque.h \
+  /usr/include/c++/11/bits/deque.tcc \
+  /usr/include/c++/11/fstream \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
+  /usr/include/c++/11/bits/fstream.tcc \
+  /usr/include/c++/11/list \
+  /usr/include/c++/11/bits/stl_list.h \
+  /usr/include/c++/11/bits/list.tcc \
+  /usr/include/c++/11/queue \
+  /usr/include/c++/11/bits/stl_queue.h \
+  /usr/include/c++/11/set \
+  /usr/include/c++/11/bits/stl_set.h \
+  /usr/include/c++/11/bits/stl_multiset.h \
+  /usr/include/c++/11/stack \
+  /usr/include/c++/11/bits/stl_stack.h \
   /usr/include/c++/11/atomic \
+  /usr/include/c++/11/condition_variable \
+  /usr/include/c++/11/bits/unique_lock.h \
+  /usr/include/c++/11/stop_token \
   /usr/include/c++/11/bits/std_thread.h \
   /usr/include/c++/11/semaphore \
   /usr/include/c++/11/bits/semaphore_base.h \
@@ -1222,10 +1503,45 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
   /usr/include/x86_64-linux-gnu/sys/time.h \
   /usr/include/semaphore.h \
   /usr/include/x86_64-linux-gnu/bits/semaphore.h \
-  /usr/include/c++/11/fstream \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
-  /usr/include/c++/11/bits/fstream.tcc \
+  /usr/include/c++/11/future \
+  /usr/include/c++/11/mutex \
+  /usr/include/c++/11/bits/atomic_futex.h \
+  /usr/include/c++/11/random \
+  /usr/include/c++/11/bits/random.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/opt_random.h \
+  /usr/include/c++/11/bits/random.tcc \
+  /usr/include/c++/11/regex \
+  /usr/include/c++/11/bits/regex_constants.h \
+  /usr/include/c++/11/bits/regex_error.h \
+  /usr/include/c++/11/bits/regex_automaton.h \
+  /usr/include/c++/11/bits/regex_automaton.tcc \
+  /usr/include/c++/11/bits/regex_scanner.h \
+  /usr/include/c++/11/bits/regex_scanner.tcc \
+  /usr/include/c++/11/bits/regex_compiler.h \
+  /usr/include/c++/11/bits/regex_compiler.tcc \
+  /usr/include/c++/11/bits/regex.h \
+  /usr/include/c++/11/bits/regex.tcc \
+  /usr/include/c++/11/bits/regex_executor.h \
+  /usr/include/c++/11/bits/regex_executor.tcc \
+  /usr/include/c++/11/scoped_allocator \
+  /usr/include/c++/11/thread \
+  /usr/include/c++/11/typeindex \
+  /usr/include/c++/11/unordered_set \
+  /usr/include/c++/11/bits/unordered_set.h \
+  /usr/include/c++/11/shared_mutex \
+  /usr/include/c++/11/any \
+  /usr/include/c++/11/charconv \
+  /usr/include/c++/11/optional \
+  /usr/include/c++/11/memory_resource \
+  /usr/include/c++/11/variant \
+  /usr/include/c++/11/barrier \
+  /usr/include/c++/11/coroutine \
+  /usr/include/c++/11/latch \
+  /usr/include/c++/11/ranges \
+  /usr/include/c++/11/span \
+  /usr/include/c++/11/source_location \
+  /usr/include/c++/11/syncstream \
+  /usr/include/c++/11/version \
   /usr/include/x86_64-linux-gnu/sys/ipc.h \
   /usr/include/x86_64-linux-gnu/bits/ipctypes.h \
   /usr/include/x86_64-linux-gnu/bits/ipc.h \
@@ -1242,6 +1558,42 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/x86_64-linux-gnu/sys/ipc.h:
 
+/usr/include/c++/11/version:
+
+/usr/include/c++/11/source_location:
+
+/usr/include/c++/11/ranges:
+
+/usr/include/c++/11/latch:
+
+/usr/include/c++/11/barrier:
+
+/usr/include/c++/11/variant:
+
+/usr/include/c++/11/optional:
+
+/usr/include/c++/11/charconv:
+
+/usr/include/c++/11/bits/unordered_set.h:
+
+/usr/include/c++/11/scoped_allocator:
+
+/usr/include/c++/11/bits/regex_executor.h:
+
+/usr/include/c++/11/bits/regex_compiler.h:
+
+/usr/include/c++/11/bits/regex_automaton.h:
+
+/usr/include/c++/11/bits/regex_error.h:
+
+/usr/include/c++/11/bits/regex_constants.h:
+
+/usr/include/c++/11/bits/random.h:
+
+/usr/include/c++/11/random:
+
+/usr/include/c++/11/mutex:
+
 /usr/include/c++/11/bits/atomic_timed_wait.h:
 
 /usr/include/c++/11/bits/semaphore_base.h:
@@ -1250,9 +1602,65 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/atomic:
 
+/usr/include/c++/11/bits/stl_stack.h:
+
+/usr/include/c++/11/stack:
+
+/usr/include/c++/11/bits/stl_multiset.h:
+
+/usr/include/c++/11/set:
+
+/usr/include/c++/11/bits/deque.tcc:
+
+/usr/include/c++/11/deque:
+
+/usr/include/c++/11/bitset:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stdalign.h:
+
+/usr/include/c++/11/cstdalign:
+
+/usr/include/inttypes.h:
+
+/usr/include/c++/11/fenv.h:
+
+/usr/include/x86_64-linux-gnu/bits/signal_ext.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigthread.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigstksz.h:
+
+/usr/include/x86_64-linux-gnu/sys/ucontext.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/stack_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigcontext.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigaction.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigevent-consts.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigval_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/siginfo-consts.h:
+
+/usr/include/x86_64-linux-gnu/bits/siginfo-arch.h:
+
+/usr/include/c++/11/bits/list.tcc:
+
+/usr/include/x86_64-linux-gnu/bits/ss_flags.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h:
+
+/usr/include/setjmp.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/float.h:
+
 /usr/include/arpa/inet.h:
 
 /usr/include/netinet/in.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h:
 
@@ -1280,13 +1688,21 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/nlohmann/detail/output/binary_writer.hpp:
 
+/usr/include/c++/11/shared_mutex:
+
 /usr/include/nlohmann/detail/iterators/json_reverse_iterator.hpp:
 
 /usr/include/nlohmann/detail/iterators/iter_impl.hpp:
 
 /usr/include/nlohmann/detail/input/parser.hpp:
 
+/usr/include/c++/11/bits/regex_scanner.tcc:
+
+/usr/include/fenv.h:
+
 /usr/include/nlohmann/detail/input/input_adapters.hpp:
+
+/usr/include/signal.h:
 
 /usr/include/strings.h:
 
@@ -1300,13 +1716,19 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/bits/fs_ops.h:
 
+/usr/include/c++/11/ctgmath:
+
 /usr/include/c++/11/bits/fs_dir.h:
+
+/usr/include/x86_64-linux-gnu/bits/signum-generic.h:
 
 /usr/include/c++/11/bits/quoted_string.h:
 
 /usr/include/c++/11/bits/locale_facets_nonio.tcc:
 
 /usr/include/libintl.h:
+
+/usr/include/c++/11/cuchar:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h:
 
@@ -1319,6 +1741,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/c++/11/ctime:
 
 /usr/include/c++/11/thread:
+
+/usr/include/c++/11/condition_variable:
 
 /usr/include/c++/11/ratio:
 
@@ -1352,9 +1776,13 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/nlohmann/detail/exceptions.hpp:
 
+/usr/include/c++/11/cinttypes:
+
 /usr/include/c++/11/bits/indirect_array.h:
 
 /usr/include/c++/11/bits/mask_array.h:
+
+/usr/include/c++/11/bits/stl_set.h:
 
 /usr/include/c++/11/bits/gslice_array.h:
 
@@ -1365,6 +1793,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/c++/11/bits/slice_array.h:
 
 /usr/include/c++/11/bits/valarray_array.h:
+
+/usr/include/c++/11/memory_resource:
 
 /usr/include/c++/11/tr1/riemann_zeta.tcc:
 
@@ -1380,9 +1810,13 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/tr1/bessel_function.tcc:
 
+/usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h:
+
 /usr/include/c++/11/tr1/special_function_util.h:
 
 /usr/include/c++/11/bits/specfun.h:
+
+/usr/include/c++/11/bits/stl_list.h:
 
 /usr/include/x86_64-linux-gnu/bits/iscanonical.h:
 
@@ -1412,9 +1846,13 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/numeric:
 
+/usr/include/c++/11/csignal:
+
 /usr/include/c++/11/forward_list:
 
 /usr/include/c++/11/pstl/glue_memory_defs.h:
+
+/usr/include/c++/11/list:
 
 /usr/include/c++/11/bits/uses_allocator_args.h:
 
@@ -1443,6 +1881,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/linux/close_range.h:
 
 /usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
+
+/usr/include/c++/11/cfenv:
 
 /usr/include/x86_64-linux-gnu/asm/bitsperlong.h:
 
@@ -1494,11 +1934,15 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/ext/concurrence.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h:
+
 /usr/include/c++/11/bits/ios_base.h:
 
 /usr/include/x86_64-linux-gnu/bits/endianness.h:
 
 /usr/include/x86_64-linux-gnu/bits/endian.h:
+
+/usr/include/c++/11/bits/stl_deque.h:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs.h:
 
@@ -1512,6 +1956,10 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/bits/localefwd.h:
 
+/usr/include/c++/11/regex:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/stdc++.h:
+
 /usr/include/x86_64-linux-gnu/asm/socket.h:
 
 /usr/include/x86_64-linux-gnu/sys/select.h:
@@ -1523,6 +1971,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/c++/11/cctype:
 
 /usr/include/c++/11/unordered_map:
+
+/usr/include/c++/11/cfloat:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 
@@ -1580,6 +2030,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/x86_64-linux-gnu/bits/timesize.h:
 
+/usr/include/c++/11/complex:
+
 /usr/include/x86_64-linux-gnu/c++/11/bits/cpu_defines.h:
 
 /usr/include/c++/11/exception:
@@ -1602,11 +2054,17 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/bits/stringfwd.h:
 
+/usr/include/c++/11/span:
+
 /usr/include/c++/11/pstl/pstl_config.h:
+
+/usr/include/c++/11/ccomplex:
 
 /usr/include/c++/11/cmath:
 
 /usr/include/c++/11/bits/allocator.h:
+
+/usr/include/c++/11/cstdarg:
 
 /usr/include/c++/11/type_traits:
 
@@ -1646,6 +2104,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/compare:
 
+/usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
@@ -1672,9 +2132,13 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/bits/node_handle.h:
 
+/usr/include/c++/11/bits/regex_executor.tcc:
+
 /usr/include/x86_64-linux-gnu/bits/time64.h:
 
 /usr/include/c++/11/ext/type_traits.h:
+
+/usr/include/c++/11/unordered_set:
 
 /usr/include/x86_64-linux-gnu/bits/types/FILE.h:
 
@@ -1683,6 +2147,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
 
 /usr/include/c++/11/bits/char_traits.h:
+
+/usr/include/c++/11/ciso646:
 
 /usr/include/asm-generic/errno-base.h:
 
@@ -1700,6 +2166,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h:
 
+/usr/include/c++/11/typeindex:
+
 /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
 
 /usr/include/nlohmann/detail/meta/type_traits.hpp:
@@ -1715,6 +2183,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
 
 /usr/include/c++/11/cwchar:
+
+/usr/include/x86_64-linux-gnu/bits/fenv.h:
 
 /usr/include/c++/11/bits/forward_list.h:
 
@@ -1744,6 +2214,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/bits/stl_tempbuf.h:
 
+/usr/include/c++/11/bits/stl_queue.h:
+
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
@@ -1751,6 +2223,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/x86_64-linux-gnu/sys/sem.h:
 
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h:
 
 /usr/include/x86_64-linux-gnu/bits/local_lim.h:
 
@@ -1762,9 +2236,13 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
 
+/usr/include/c++/11/cstdbool:
+
 /usr/include/c++/11/bits/exception_ptr.h:
 
-../src/utils/leader.cpp:
+/usr/include/c++/11/bits/regex_automaton.tcc:
+
+/usr/include/c++/11/bits/atomic_futex.h:
 
 /usr/include/c++/11/ext/string_conversions.h:
 
@@ -1794,6 +2272,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h:
+
 /usr/include/c++/11/bits/functexcept.h:
 
 /usr/include/asm-generic/bitsperlong.h:
@@ -1804,17 +2284,23 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/streambuf:
 
+/usr/include/c++/11/bits/regex.tcc:
+
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:
 
 /usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
 
 /usr/include/c++/11/ext/numeric_traits.h:
 
+/usr/include/c++/11/syncstream:
+
 /usr/include/c++/11/bits/atomic_base.h:
 
 /usr/include/features.h:
 
 /usr/include/c++/11/bits/iterator_concepts.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigstack.h:
 
 /usr/include/c++/11/clocale:
 
@@ -1825,6 +2311,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/stdlib.h:
 
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
+
+/usr/include/c++/11/future:
 
 ../include/assistantUtils.h:
 
@@ -1841,6 +2329,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/c++/11/bits/shared_ptr.h:
 
 /usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
+
+/usr/include/c++/11/bits/random.tcc:
 
 /usr/include/c++/11/bits/fs_path.h:
 
@@ -1885,6 +2375,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/c++/11/cerrno:
 
 /usr/include/errno.h:
+
+/usr/include/x86_64-linux-gnu/bits/signum-arch.h:
 
 /usr/include/x86_64-linux-gnu/bits/errno.h:
 
@@ -1968,11 +2460,17 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/iterator:
 
+/usr/include/c++/11/any:
+
 /usr/include/c++/11/bits/unique_ptr.h:
+
+/usr/include/c++/11/bits/regex_scanner.h:
 
 /usr/include/c++/11/bits/istream.tcc:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h:
+
+/usr/include/uchar.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h:
 
@@ -1981,6 +2479,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/c++/11/bits/fstream.tcc:
 
 /usr/include/nlohmann/json.hpp:
+
+/usr/include/c++/11/bits/regex_compiler.tcc:
 
 /usr/include/limits.h:
 
@@ -1991,6 +2491,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/features-time64.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h:
+
+/usr/include/c++/11/csetjmp:
 
 /usr/include/x86_64-linux-gnu/asm/posix_types.h:
 
@@ -2008,6 +2510,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 
 /usr/include/c++/11/climits:
 
+/usr/include/c++/11/bits/unique_lock.h:
+
 /usr/include/c++/11/bits/uses_allocator.h:
 
 /usr/include/linux/stddef.h:
@@ -2017,6 +2521,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/c++/11/bits/hashtable.h:
 
 /usr/include/c++/11/bits/hashtable_policy.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/opt_random.h:
 
 /usr/include/c++/11/bits/codecvt.h:
 
@@ -2031,6 +2537,8 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/endian.h:
 
 /usr/include/c++/11/bits/erase_if.h:
+
+/usr/include/c++/11/coroutine:
 
 /usr/include/c++/11/vector:
 
@@ -2059,6 +2567,10 @@ CMakeFiles/assistant.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElec
 /usr/include/c++/11/memory:
 
 /usr/include/c++/11/bits/stl_raw_storage_iter.h:
+
+/usr/include/c++/11/bits/regex.h:
+
+/usr/include/c++/11/queue:
 
 /usr/include/c++/11/bits/shared_ptr_atomic.h:
 

@@ -1,4 +1,4 @@
-# Install script for directory: /home/datta/Documents/KGPkeeper
+# Install script for directory: /home/mayukha/Documents/DS/KGPKeeper
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/datta/Documents/KGPkeeper/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/mayukha/Documents/DS/KGPKeeper/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
