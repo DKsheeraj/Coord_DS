@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/datta/Documents/KGPkeeper
+CMAKE_SOURCE_DIR = /home/mayukha/Documents/DS/KGPKeeper
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/datta/Documents/KGPkeeper/build
+CMAKE_BINARY_DIR = /home/mayukha/Documents/DS/KGPKeeper/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/server.dir/depend.make
@@ -72,64 +72,49 @@ include CMakeFiles/server.dir/flags.make
 CMakeFiles/server.dir/src/server.cpp.o: CMakeFiles/server.dir/flags.make
 CMakeFiles/server.dir/src/server.cpp.o: ../src/server.cpp
 CMakeFiles/server.dir/src/server.cpp.o: CMakeFiles/server.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/server.dir/src/server.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/server.dir/src/server.cpp.o -MF CMakeFiles/server.dir/src/server.cpp.o.d -o CMakeFiles/server.dir/src/server.cpp.o -c /home/datta/Documents/KGPkeeper/src/server.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mayukha/Documents/DS/KGPKeeper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/server.dir/src/server.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/server.dir/src/server.cpp.o -MF CMakeFiles/server.dir/src/server.cpp.o.d -o CMakeFiles/server.dir/src/server.cpp.o -c /home/mayukha/Documents/DS/KGPKeeper/src/server.cpp
 
 CMakeFiles/server.dir/src/server.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/server.dir/src/server.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/datta/Documents/KGPkeeper/src/server.cpp > CMakeFiles/server.dir/src/server.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mayukha/Documents/DS/KGPKeeper/src/server.cpp > CMakeFiles/server.dir/src/server.cpp.i
 
 CMakeFiles/server.dir/src/server.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/server.dir/src/server.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/datta/Documents/KGPkeeper/src/server.cpp -o CMakeFiles/server.dir/src/server.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mayukha/Documents/DS/KGPKeeper/src/server.cpp -o CMakeFiles/server.dir/src/server.cpp.s
 
 CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o: CMakeFiles/server.dir/flags.make
 CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o: ../src/utils/assistantUtils.cpp
 CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o: CMakeFiles/server.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o -MF CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o.d -o CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o -c /home/datta/Documents/KGPkeeper/src/utils/assistantUtils.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mayukha/Documents/DS/KGPKeeper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o -MF CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o.d -o CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o -c /home/mayukha/Documents/DS/KGPKeeper/src/utils/assistantUtils.cpp
 
 CMakeFiles/server.dir/src/utils/assistantUtils.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/server.dir/src/utils/assistantUtils.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/datta/Documents/KGPkeeper/src/utils/assistantUtils.cpp > CMakeFiles/server.dir/src/utils/assistantUtils.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mayukha/Documents/DS/KGPKeeper/src/utils/assistantUtils.cpp > CMakeFiles/server.dir/src/utils/assistantUtils.cpp.i
 
 CMakeFiles/server.dir/src/utils/assistantUtils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/server.dir/src/utils/assistantUtils.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/datta/Documents/KGPkeeper/src/utils/assistantUtils.cpp -o CMakeFiles/server.dir/src/utils/assistantUtils.cpp.s
-
-CMakeFiles/server.dir/src/utils/leader.cpp.o: CMakeFiles/server.dir/flags.make
-CMakeFiles/server.dir/src/utils/leader.cpp.o: ../src/utils/leader.cpp
-CMakeFiles/server.dir/src/utils/leader.cpp.o: CMakeFiles/server.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/server.dir/src/utils/leader.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/server.dir/src/utils/leader.cpp.o -MF CMakeFiles/server.dir/src/utils/leader.cpp.o.d -o CMakeFiles/server.dir/src/utils/leader.cpp.o -c /home/datta/Documents/KGPkeeper/src/utils/leader.cpp
-
-CMakeFiles/server.dir/src/utils/leader.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/server.dir/src/utils/leader.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/datta/Documents/KGPkeeper/src/utils/leader.cpp > CMakeFiles/server.dir/src/utils/leader.cpp.i
-
-CMakeFiles/server.dir/src/utils/leader.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/server.dir/src/utils/leader.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/datta/Documents/KGPkeeper/src/utils/leader.cpp -o CMakeFiles/server.dir/src/utils/leader.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mayukha/Documents/DS/KGPKeeper/src/utils/assistantUtils.cpp -o CMakeFiles/server.dir/src/utils/assistantUtils.cpp.s
 
 CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: CMakeFiles/server.dir/flags.make
 CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: ../src/utils/leaderElection.cpp
 CMakeFiles/server.dir/src/utils/leaderElection.cpp.o: CMakeFiles/server.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/server.dir/src/utils/leaderElection.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/server.dir/src/utils/leaderElection.cpp.o -MF CMakeFiles/server.dir/src/utils/leaderElection.cpp.o.d -o CMakeFiles/server.dir/src/utils/leaderElection.cpp.o -c /home/datta/Documents/KGPkeeper/src/utils/leaderElection.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mayukha/Documents/DS/KGPKeeper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/server.dir/src/utils/leaderElection.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/server.dir/src/utils/leaderElection.cpp.o -MF CMakeFiles/server.dir/src/utils/leaderElection.cpp.o.d -o CMakeFiles/server.dir/src/utils/leaderElection.cpp.o -c /home/mayukha/Documents/DS/KGPKeeper/src/utils/leaderElection.cpp
 
 CMakeFiles/server.dir/src/utils/leaderElection.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/server.dir/src/utils/leaderElection.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/datta/Documents/KGPkeeper/src/utils/leaderElection.cpp > CMakeFiles/server.dir/src/utils/leaderElection.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mayukha/Documents/DS/KGPKeeper/src/utils/leaderElection.cpp > CMakeFiles/server.dir/src/utils/leaderElection.cpp.i
 
 CMakeFiles/server.dir/src/utils/leaderElection.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/server.dir/src/utils/leaderElection.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/datta/Documents/KGPkeeper/src/utils/leaderElection.cpp -o CMakeFiles/server.dir/src/utils/leaderElection.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mayukha/Documents/DS/KGPKeeper/src/utils/leaderElection.cpp -o CMakeFiles/server.dir/src/utils/leaderElection.cpp.s
 
 # Object files for target server
 server_OBJECTS = \
 "CMakeFiles/server.dir/src/server.cpp.o" \
 "CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o" \
-"CMakeFiles/server.dir/src/utils/leader.cpp.o" \
 "CMakeFiles/server.dir/src/utils/leaderElection.cpp.o"
 
 # External object files for target server
@@ -137,11 +122,10 @@ server_EXTERNAL_OBJECTS =
 
 server: CMakeFiles/server.dir/src/server.cpp.o
 server: CMakeFiles/server.dir/src/utils/assistantUtils.cpp.o
-server: CMakeFiles/server.dir/src/utils/leader.cpp.o
 server: CMakeFiles/server.dir/src/utils/leaderElection.cpp.o
 server: CMakeFiles/server.dir/build.make
 server: CMakeFiles/server.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/datta/Documents/KGPkeeper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mayukha/Documents/DS/KGPKeeper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable server"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/server.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -153,6 +137,6 @@ CMakeFiles/server.dir/clean:
 .PHONY : CMakeFiles/server.dir/clean
 
 CMakeFiles/server.dir/depend:
-	cd /home/datta/Documents/KGPkeeper/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/datta/Documents/KGPkeeper /home/datta/Documents/KGPkeeper /home/datta/Documents/KGPkeeper/build /home/datta/Documents/KGPkeeper/build /home/datta/Documents/KGPkeeper/build/CMakeFiles/server.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mayukha/Documents/DS/KGPKeeper/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mayukha/Documents/DS/KGPKeeper /home/mayukha/Documents/DS/KGPKeeper /home/mayukha/Documents/DS/KGPKeeper/build /home/mayukha/Documents/DS/KGPKeeper/build /home/mayukha/Documents/DS/KGPKeeper/build/CMakeFiles/server.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/server.dir/depend
 

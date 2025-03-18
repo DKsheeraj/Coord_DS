@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/datta/Documents/KGPkeeper
+CMAKE_SOURCE_DIR = /home/mayukha/Documents/DS/KGPKeeper
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/datta/Documents/KGPkeeper/build
+CMAKE_BINARY_DIR = /home/mayukha/Documents/DS/KGPKeeper/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles /home/datta/Documents/KGPkeeper/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mayukha/Documents/DS/KGPKeeper/build/CMakeFiles /home/mayukha/Documents/DS/KGPKeeper/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/datta/Documents/KGPkeeper/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mayukha/Documents/DS/KGPKeeper/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -297,39 +297,6 @@ src/utils/assistantUtils.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/assistant.dir/build.make CMakeFiles/assistant.dir/src/utils/assistantUtils.cpp.s
 .PHONY : src/utils/assistantUtils.cpp.s
 
-src/utils/leader.o: src/utils/leader.cpp.o
-.PHONY : src/utils/leader.o
-
-# target to build an object file
-src/utils/leader.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/src/utils/leader.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/src/utils/leader.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/admin.dir/build.make CMakeFiles/admin.dir/src/utils/leader.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/assistant.dir/build.make CMakeFiles/assistant.dir/src/utils/leader.cpp.o
-.PHONY : src/utils/leader.cpp.o
-
-src/utils/leader.i: src/utils/leader.cpp.i
-.PHONY : src/utils/leader.i
-
-# target to preprocess a source file
-src/utils/leader.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/src/utils/leader.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/src/utils/leader.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/admin.dir/build.make CMakeFiles/admin.dir/src/utils/leader.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/assistant.dir/build.make CMakeFiles/assistant.dir/src/utils/leader.cpp.i
-.PHONY : src/utils/leader.cpp.i
-
-src/utils/leader.s: src/utils/leader.cpp.s
-.PHONY : src/utils/leader.s
-
-# target to generate assembly for a file
-src/utils/leader.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/src/utils/leader.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/src/utils/leader.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/admin.dir/build.make CMakeFiles/admin.dir/src/utils/leader.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/assistant.dir/build.make CMakeFiles/assistant.dir/src/utils/leader.cpp.s
-.PHONY : src/utils/leader.cpp.s
-
 src/utils/leaderElection.o: src/utils/leaderElection.cpp.o
 .PHONY : src/utils/leaderElection.o
 
@@ -390,9 +357,6 @@ help:
 	@echo "... src/utils/assistantUtils.o"
 	@echo "... src/utils/assistantUtils.i"
 	@echo "... src/utils/assistantUtils.s"
-	@echo "... src/utils/leader.o"
-	@echo "... src/utils/leader.i"
-	@echo "... src/utils/leader.s"
 	@echo "... src/utils/leaderElection.o"
 	@echo "... src/utils/leaderElection.i"
 	@echo "... src/utils/leaderElection.s"
