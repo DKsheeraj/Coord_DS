@@ -39,11 +39,20 @@ void sendHeartbeat(Node &node) {
         serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
     }
 
-    
 
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);  
     if (sockfd < 0) {
         perror("UDP Socket creation failed");
+        return;
+    }
+
+    struct sockaddr_in address;
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = inet_addr(node.ip.c_str());
+    address.sin_port = htons(node.port);
+
+    if (bind(sockfd, (struct sockaddr*)&address, sizeof(address)) < 0) {
+        perror("Bind failed");
         return;
     }
 
@@ -188,7 +197,7 @@ void receiveHeartbeat(Node &node){
 
     double randomDecimal = dist(gen);
 
-    timeout.tv_sec = 100*randomDecimal;
+    timeout.tv_sec = 10*randomDecimal;
 
     cout<<"Timeout: "<<timeout.tv_sec<<endl;
 
@@ -485,9 +494,6 @@ void startElection(Node &node, int& sockfd){
 
     }
 
-
-
-
     if(node.isLeader){
         P(semid1);
 
@@ -512,10 +518,4 @@ void startElection(Node &node, int& sockfd){
 
         V(semid1);
     }
-
-
-    
-
 }
-
-

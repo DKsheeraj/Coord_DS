@@ -6,12 +6,12 @@
     },
     {
         "ip": "127.0.0.1",
-        "isLeader": true,
+        "isLeader": false,
         "port": 8081
     },
     {
         "ip": "127.0.0.1",
-        "isLeader": false,
+        "isLeader": true,
         "port": 8082
     },
     {
