@@ -1,42 +1,27 @@
 [
     {
         "ip": "127.0.0.1",
-        "isLeader": false,
-        "port": 8080,
-        "role": 0,
-        "termNumber": 0,
-        "votedFor": -1
-    },
-    {
-        "ip": "127.0.0.1",
         "isLeader": true,
-        "port": 8081,
-        "role": 0,
-        "termNumber": 0,
-        "votedFor": -1
+        "port": 8080
     },
     {
         "ip": "127.0.0.1",
         "isLeader": false,
-        "port": 8082,
-        "role": 0,
-        "termNumber": 0,
-        "votedFor": -1
+        "port": 8081
     },
     {
         "ip": "127.0.0.1",
         "isLeader": false,
-        "port": 8083,
-        "role": 0,
-        "termNumber": 0,
-        "votedFor": -1
+        "port": 8082
     },
     {
         "ip": "127.0.0.1",
         "isLeader": false,
-        "port": 8084,
-        "role": 0,
-        "termNumber": 0,
-        "votedFor": -1
+        "port": 8083
+    },
+    {
+        "ip": "127.0.0.1",
+        "isLeader": false,
+        "port": 8084
     }
 ]
