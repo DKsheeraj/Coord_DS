@@ -17,7 +17,6 @@ void sendHeartbeat(Node &node) {
 	pop.sem_flg = vop.sem_flg = 0;
 	pop.sem_op = -1 ; vop.sem_op = 1 ;
 
-
     int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
     
     vector<Node> serverList;
@@ -38,7 +37,6 @@ void sendHeartbeat(Node &node) {
     for (auto& s : serverData) {
         serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
     }
-
 
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);  
     if (sockfd < 0) {
@@ -83,7 +81,6 @@ void sendHeartbeat(Node &node) {
             }
         }
         V(semid1);
-
     
         if(node.isLeader){
             for (Node &follower : serverList) {
@@ -99,8 +96,10 @@ void sendHeartbeat(Node &node) {
                 sprintf(heartbeatMsg, "HEARTBEAT %d %d", node.port, node.termNumber);
                 sendto(sockfd, heartbeatMsg, strlen(heartbeatMsg), 0, 
                     (struct sockaddr*)&followerAddr, sizeof(followerAddr));
-
-                cout << "Sent heartbeat to " << follower.ip << ":" << follower.port << endl;
+                
+                P(semid1);
+                cout << "Sent heartbeat to " << follower.ip << " : " << follower.port << endl;
+                V(semid1);
 
                 char buffer[1024];
                 socklen_t addrLen = sizeof(followerAddr);
@@ -112,10 +111,15 @@ void sendHeartbeat(Node &node) {
                 int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&followerAddr, &addrLen);
                 if (bytesReceived > 0) {
                     buffer[bytesReceived] = '\0';
-                    cout << "Received: " << buffer << endl;
+
+                    P(semid1);
+                    cout << "Received : " << buffer << endl;
+                    V(semid1);
 
                     if (strcmp(buffer, "ACK") == 0) {
-                        cout << "Follower " << follower.ip << ":" << follower.port << " is alive\n";
+                        P(semid1);
+                        cout << "Follower " << follower.ip << " : " << follower.port << " is alive\n";
+                        V(semid1);
                     }
                     else if(strncmp(buffer, "REQUEST VOTE", 12) == 0){
                         int term;
@@ -140,17 +144,13 @@ void sendHeartbeat(Node &node) {
                         else{
                             
                         }
-
-                        
                     }
                 } else {
-                    cout << "No ACK from follower " << follower.ip << ":" << follower.port << endl;
+                    P(semid1);
+                    cout << "No ACK from follower " << follower.ip << " : " << follower.port << endl;
+                    V(semid1);
                 }
-
-                
             }
-
-            
 
             this_thread::sleep_for(chrono::seconds(5));
         }
@@ -169,7 +169,6 @@ void receiveHeartbeat(Node &node){
     pop.sem_num = vop.sem_num = 0;
 	pop.sem_flg = vop.sem_flg = 0;
 	pop.sem_op = -1 ; vop.sem_op = 1 ;
-
 
     int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
     
@@ -199,11 +198,11 @@ void receiveHeartbeat(Node &node){
 
     timeout.tv_sec = 10*randomDecimal;
 
-    cout<<"Timeout: "<<timeout.tv_sec<<endl;
+    P(semid1);
+    cout << "Timeout : " << timeout.tv_sec << endl;
+    V(semid1);
 
     timeout.tv_usec = 0;
-
-
 
     while (1) {
         P(semid1);
@@ -239,7 +238,10 @@ void receiveHeartbeat(Node &node){
             int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&clientAddr, &addrLen);
             if (bytesReceived > 0) {
                 buffer[bytesReceived] = '\0';
-                cout << "Received: " << buffer << endl;
+
+                P(semid1);
+                cout << "Received : " << buffer << endl;
+                V(semid1);
 
                 if(strncmp(buffer, "HEARTBEAT", 9) == 0){
                     const char *ackMsg = "ACK";
@@ -268,8 +270,6 @@ void receiveHeartbeat(Node &node){
                     else{
                         
                     }
-
-                    
                 }
             }
             else{
@@ -294,9 +294,6 @@ void receiveVotes(Node &node, int &sockfd){
     pop.sem_op = -1 ; vop.sem_op = 1 ;
 
     int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
-
-
-    
 
     P(semid1);
     vector<Node> serverList;
@@ -329,7 +326,11 @@ void receiveVotes(Node &node, int &sockfd){
         if(node.role != 1) return;
 
         int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&clientAddr, &addrLen);
-        cout<<"Received: "<<buffer<<endl;
+
+        P(semid1);
+        cout << "Received : " << buffer << endl;
+        V(semid1);
+
         if (bytesReceived > 0) {
             buffer[bytesReceived] = '\0';
             if(strncmp(buffer, "REQUEST VOTE", 12) == 0){
@@ -360,6 +361,10 @@ void receiveVotes(Node &node, int &sockfd){
                 int voterPort;
                 int term;
                 sscanf(buffer, "VOTE %d %d", &term, &voterPort);
+
+                P(semid1);
+                cout << "Received vote from " << voterPort << " now have " << node.votes.size() << " / " << node.totalNodes << endl;
+                V(semid1);
 
                 if(term > node.termNumber){
                     node.termNumber = term;
@@ -396,8 +401,6 @@ void receiveVotes(Node &node, int &sockfd){
             
         }
     }
-
-
 }
 
 void startElection(Node &node, int& sockfd){
@@ -406,10 +409,7 @@ void startElection(Node &node, int& sockfd){
 	pop.sem_flg = vop.sem_flg = 0;
 	pop.sem_op = -1 ; vop.sem_op = 1 ;
 
-
     int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
-    
-    
 
     P(semid1);
     vector<Node> serverList;
@@ -419,7 +419,6 @@ void startElection(Node &node, int& sockfd){
         cerr << "Error opening servers.json" << endl;
         return;
     }
-
 
     json serverData;
     inFile >> serverData;
@@ -449,7 +448,6 @@ void startElection(Node &node, int& sockfd){
     node.role = 1;
     node.votedFor = node.port;
 
-
     while(1){
         int numOfVotesRecieved = 0;
         numOfVotesRecieved = (node.votes).size();
@@ -460,7 +458,6 @@ void startElection(Node &node, int& sockfd){
         }
 
         if(node.role != 1) break;
-
 
         multiset<pair<long long, pair<int,string>>> Mnew;
 
@@ -483,15 +480,15 @@ void startElection(Node &node, int& sockfd){
                 sendto(sockfd, requestVote, strlen(requestVote), 0, 
                     (struct sockaddr*)&followerAddr, sizeof(followerAddr));
                 
-
-                cout << "Sent request vote to " << u.second.second << ":" << u.second.first << endl;
+                P(semid1);
+                cout << "Sent request vote to " << u.second.second << " : " << u.second.first << endl;
+                V(semid1);
 
                 Mnew.insert({curtime, u.second});
             }
         }
 
         M = Mnew;
-
     }
 
     if(node.isLeader){
