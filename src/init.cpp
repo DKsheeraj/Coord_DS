@@ -10,7 +10,7 @@ const int voteTimeout = 5;
 
 int main() {
     // Path to the JSON file
-    const string filePath = "../../data/servers.json";
+    const string filePath = "../data/servers.json";
 
     // Read the JSON file
     ifstream inputFile(filePath);
@@ -42,7 +42,7 @@ int main() {
 
     // Update JSON files for ports 8080 to 8084
     for (int port = 8080; port <= 8084; ++port) {
-        string portFilePath = "../../data/" + to_string(port) + ".json";
+        string portFilePath = "../data/" + to_string(port) + ".json";
 
         // Read the JSON file
         ifstream portInputFile(portFilePath);
@@ -57,7 +57,7 @@ int main() {
 
         // Update the fields
         portData["isLeader"] = false;
-        portData["leaderPort"] = nullptr;
+        portData["leaderPort"] = -1;
         portData["role"] = 0;
         portData["sockfd"] = -1;
         portData["termNumber"] = 0;

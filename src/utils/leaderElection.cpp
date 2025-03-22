@@ -383,6 +383,9 @@ void receiveVotes(Node &node, int &sockfd, struct timeval &timeout, long long &s
                     int numOfVotesRecieved = 0;
                     numOfVotesRecieved = (node.votes).size();
                     if(2*numOfVotesRecieved > node.totalNodes){
+                        cout << "Election WON with " << numOfVotesRecieved << " / " << node.totalNodes << " votes\n";
+                        cout << endl;
+                        
                         node.isLeader = true;
                         node.role = 0;
                         node.saveToJson();

@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 int main(int argc, char* argv[]) {
     if (argc != 3) {
         cerr << "Usage: " << argv[0] << " <IP> <Port>" << endl;
@@ -39,11 +38,12 @@ int main(int argc, char* argv[]) {
     }
 
     serverNode.loadFromJson();
-    
+
+    serverNode.isLeader = false;
+    serverNode.role = 0;
 
     thread hbThread(assignType, ref(serverNode));
     hbThread.detach();
-
 
     serverNode.sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverNode.sockfd == -1) {
