@@ -16,7 +16,7 @@
     },
     {
         "ip": "127.0.0.1",
-        "isLeader": true,
+        "isLeader": false,
         "port": 8083
     },
     {

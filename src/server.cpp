@@ -14,19 +14,29 @@ int main(int argc, char* argv[]) {
     int port = stoi(argv[2]);
 
     Node serverNode(ip, port, false);
-    if(port == 8080) {
-        serverNode.isLeader = true;
-        serverNode.role = 2;
-    }
 
     struct sembuf pop, vop ;
     pop.sem_num = vop.sem_num = 0;
 	pop.sem_flg = vop.sem_flg = 0;
 	pop.sem_op = -1 ; vop.sem_op = 1 ;
 
-
-    int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
-    if(serverNode.port == 8080) semctl(semid1, 0, SETVAL, 1); 
+    key_t key = ftok("/tmp", 1);
+    int semid1 = semget(key, 1, IPC_CREAT | IPC_EXCL | 0666);
+    if (semid1 != -1) {
+        // This server successfully created the semaphore
+        // Safe to initialize it here
+        semctl(semid1, 0, SETVAL, 1);
+    } else {
+        if (errno == EEXIST) {
+            // The semaphore set already exists
+            // Get the semaphore ID without creating it
+            semid1 = semget(key, 1, 0666);
+        } else {
+            // Handle other errors appropriately
+            perror("semget");
+            exit(EXIT_FAILURE);
+        }
+    }
 
     serverNode.loadFromJson();
     

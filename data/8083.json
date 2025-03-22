@@ -1,18 +1,14 @@
 {
     "ip": "127.0.0.1",
-    "isLeader": true,
+    "isLeader": false,
     "leaderIp": "127.0.0.1",
     "leaderPort": 8080,
     "port": 8083,
     "role": 0,
     "sockfd": 3,
-    "termNumber": 6,
+    "termNumber": 17,
     "totalNodes": 5,
-    "voteTimeout": 5,
-    "votedFor": 8083,
-    "votes": [
-        8082,
-        8083,
-        8084
-    ]
+    "voteTimeout": 3,
+    "votedFor": -1,
+    "votes": []
 }

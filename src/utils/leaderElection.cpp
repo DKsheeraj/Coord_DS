@@ -143,6 +143,7 @@ void sendHeartbeat(Node &node) {
                     cout << "No ACK from follower " << follower.ip << " : " << follower.port << endl;
                 }
             }
+            cout << endl;
 
             this_thread::sleep_for(chrono::seconds(5));
         }
@@ -191,6 +192,7 @@ void receiveHeartbeat(Node &node){
     timeout.tv_sec = 10*randomDecimal;
 
     cout << "Timeout : " << timeout.tv_sec << endl;
+    cout << endl;
 
     timeout.tv_usec = 0;
 
@@ -367,6 +369,7 @@ void receiveVotes(Node &node, int &sockfd, struct timeval &timeout, long long &s
                 sscanf(buffer, "VOTE %d %d", &term, &voterPort);
 
                 cout << "Received vote from " << voterPort << " now have " << (node.votes.size() + 1) << " / " << node.totalNodes << endl;
+                cout << endl;
 
                 if(term > node.termNumber){
                     node.termNumber = term;
@@ -459,6 +462,9 @@ void startElection(Node &node, int& sockfd){
     node.role = 1;
     node.votedFor = node.port;
     node.saveToJson();
+
+    cout << "Starting election with term number " << node.termNumber << endl;
+    cout << endl;
 
     multiset<pair<long long, pair<int,string>>> M;
     for(Node &server : serverList){
