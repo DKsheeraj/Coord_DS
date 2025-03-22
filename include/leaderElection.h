@@ -22,6 +22,6 @@ void sendHeartbeat(Node &node);
 void receiveHeartbeat(Node &node);
 bool isValidAckMessage(const char* buffer, int* port);
 void startElection(Node &node, int &sockfd);
-void receiveVotes(Node &node, int &sockfd);
+void receiveVotes(Node &node, int &sockfd, struct timeval &timeout, long long &startTime);
 
 #endif

@@ -84,6 +84,68 @@ public:
         return {{"ip", ip}, {"port", port}, {"isLeader", isLeader}};
     }
 
+    // Load Node data from its corresponding JSON file
+    void loadFromJson() {
+        std::string filename = "../data/" + std::to_string(port) + ".json";
+        std::ifstream inFile(filename);
+
+        if (!inFile) {
+            std::cerr << "Error opening file: " << filename << std::endl;
+            return;
+        }
+
+        try {
+            json j;
+            inFile >> j; // Read JSON data into j
+
+            totalNodes = j.value("totalNodes", totalNodes);
+            ip = j.value("ip", ip);
+            port = j.value("port", port);
+            sockfd = j.value("sockfd", sockfd);
+            isLeader = j.value("isLeader", isLeader);
+            leaderIp = j.value("leaderIp", leaderIp);
+            leaderPort = j.value("leaderPort", leaderPort);
+            termNumber = j.value("termNumber", termNumber);
+            votes = j.value("votes", std::set<int>{});
+            votedFor = j.value("votedFor", votedFor);
+            voteTimeout = j.value("voteTimeout", voteTimeout);
+            role = j.value("role", role);
+        } catch (const std::exception& e) {
+            std::cerr << "JSON parsing error: " << e.what() << std::endl;
+        }
+
+        inFile.close();
+    }
+
+    // Save Node data to its corresponding JSON file
+    void saveToJson() {
+        std::string filename = "../data/" + std::to_string(port) + ".json";
+        std::ofstream outFile(filename);
+
+        if (!outFile) {
+            std::cerr << "Error opening file: " << filename << std::endl;
+            return;
+        }
+
+        json j = {
+            {"totalNodes", totalNodes},
+            {"ip", ip},
+            {"port", port},
+            {"sockfd", sockfd},
+            {"isLeader", isLeader},
+            {"leaderIp", leaderIp},
+            {"leaderPort", leaderPort},
+            {"termNumber", termNumber},
+            {"votes", votes},
+            {"votedFor", votedFor},
+            {"voteTimeout", voteTimeout},
+            {"role", role}
+        };
+
+        outFile << j.dump(4); // Pretty print JSON with 4-space indentation
+        outFile.close();
+    }
+    
 public:
     Node(string ip, int port, bool isLeader = false) {
         this->ip = ip;

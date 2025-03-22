@@ -28,6 +28,9 @@ int main(int argc, char* argv[]) {
     int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
     if(serverNode.port == 8080) semctl(semid1, 0, SETVAL, 1); 
 
+    serverNode.loadFromJson();
+    
+
     thread hbThread(assignType, ref(serverNode));
     hbThread.detach();
 

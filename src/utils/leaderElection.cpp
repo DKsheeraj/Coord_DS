@@ -1,4 +1,5 @@
 #include "../../include/leaderElection.h"
+#include <algorithm> // For std::max
 
 void assignType(Node &node){
     while(1){
@@ -10,6 +11,8 @@ void assignType(Node &node){
         }
     }
 }
+
+
 
 void sendHeartbeat(Node &node) {
     struct sembuf pop, vop ;
@@ -54,33 +57,8 @@ void sendHeartbeat(Node &node) {
         return;
     }
 
-    int cnt = 0;
 
     while(1){
-        cnt++;
-
-        P(semid1);
-        vector<Node> serverList;
-        ifstream inFile("../data/servers.json");
-
-        if (!inFile) {
-            cerr << "Error opening servers.json" << endl;
-            return;
-        }
-
-        json serverData;
-        inFile >> serverData;
-        inFile.close();
-
-        for (auto& s : serverData) {
-            serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
-        }
-        for(Node &server : serverList){
-            if(server.ip == node.ip && server.port == node.port){
-                node.isLeader = server.isLeader;
-            }
-        }
-        V(semid1);
     
         if(node.isLeader){
             for (Node &follower : serverList) {
@@ -92,7 +70,9 @@ void sendHeartbeat(Node &node) {
                 followerAddr.sin_port = htons(follower.port);
                 inet_pton(AF_INET, follower.ip.c_str(), &followerAddr.sin_addr);
 
-                char heartbeatMsg[50];
+                char heartbeatMsg[1024];
+                memset(heartbeatMsg, '0', sizeof(heartbeatMsg));
+                heartbeatMsg[1023] = '\0';
                 sprintf(heartbeatMsg, "HEARTBEAT %d %d", node.port, node.termNumber);
                 sendto(sockfd, heartbeatMsg, strlen(heartbeatMsg), 0, 
                     (struct sockaddr*)&followerAddr, sizeof(followerAddr));
@@ -100,13 +80,15 @@ void sendHeartbeat(Node &node) {
                 cout << "Sent heartbeat to " << follower.ip << " : " << follower.port << endl;
 
                 char buffer[1024];
+                memset(buffer, '0', sizeof(buffer));
+                buffer[1023] = '\0';
                 socklen_t addrLen = sizeof(followerAddr);
                 struct timeval timeout;
                 timeout.tv_sec = 2;  
                 timeout.tv_usec = 0;
                 setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
-                int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&followerAddr, &addrLen);
+                int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), MSG_WAITALL, (struct sockaddr*)&followerAddr, &addrLen);
                 if (bytesReceived > 0) {
                     buffer[bytesReceived] = '\0';
 
@@ -120,7 +102,9 @@ void sendHeartbeat(Node &node) {
                         int requesterPort;
                         sscanf(buffer, "REQUEST VOTE %d %d", &requesterPort, &term);
     
-                        char vote[50];
+                        char vote[1024];
+                        memset(vote, '0', sizeof(vote));
+                        vote[1023] = '\0';
 
                         if(term > node.termNumber){
                             node.termNumber = term;
@@ -128,6 +112,7 @@ void sendHeartbeat(Node &node) {
                             node.isLeader = false;
                             node.votedFor = -1;
                             node.votes.clear();
+                            node.saveToJson();
                         }
                         else if(term == node.termNumber && (node.votedFor == requesterPort || node.votedFor == -1)){
                             node.votedFor = requesterPort;
@@ -137,6 +122,21 @@ void sendHeartbeat(Node &node) {
                         }
                         else{
                             
+                        }
+                    }
+                    else if(strncmp(buffer, "HEARTBEAT", 9) == 0){
+                        int term;
+                        int leaderPort;
+                        sscanf(buffer, "HEARTBEAT %d %d", &leaderPort, &term);
+    
+                        if(term >= node.termNumber){
+                            node.termNumber = term;
+                            node.role = 0;
+                            node.isLeader = false;
+                            node.votedFor = -1;
+                            node.votes.clear();
+                            node.saveToJson();
+                            break;
                         }
                     }
                 } else {
@@ -194,53 +194,39 @@ void receiveHeartbeat(Node &node){
 
     timeout.tv_usec = 0;
 
+    struct timeval timeout2;
+    timeout2 = timeout;
+
     while (1) {
-        P(semid1);
-        vector<Node> serverList;
-        ifstream inFile("../data/servers.json");
 
-        if (!inFile) {
-            cerr << "Error opening servers.json" << endl;
-            return;
-        }
-
-        json serverData;
-        inFile >> serverData;
-        inFile.close();
-
-        for (auto& s : serverData) {
-            serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
-        }
-        for(Node &server : serverList){
-            if(server.ip == node.ip && server.port == node.port){
-                node.isLeader = server.isLeader;
-            }
-        }
-        V(semid1);
-
-        if(!node.isLeader){
+        if(node.role == 0){
             char buffer[1024];
+            memset(buffer, '0', sizeof(buffer));
+            buffer[1023] = '\0';
             struct sockaddr_in clientAddr;
             socklen_t addrLen = sizeof(clientAddr);
+
+            long long startTime = time(0);
             
             setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
-            int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&clientAddr, &addrLen);
+            int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), MSG_WAITALL, (struct sockaddr*)&clientAddr, &addrLen);
+
+            long long endTime = time(0);
+
             if (bytesReceived > 0) {
                 buffer[bytesReceived] = '\0';
 
                 cout << "Received : " << buffer << endl;
 
                 if(strncmp(buffer, "HEARTBEAT", 9) == 0){
-                    const char *ackMsg = "ACK";
-                    sendto(sockfd, ackMsg, strlen(ackMsg), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
-                }
-                else if(strncmp(buffer, "REQUEST VOTE", 12) == 0){
-                    int requesterPort;
+                    char ackMsg[1024];
+                    memset(ackMsg, '0', sizeof(ackMsg));
+                    ackMsg[1023] = '\0';
+                    sprintf(ackMsg, "ACK");
                     int term;
-                    sscanf(buffer, "REQUEST VOTE %d %d", &requesterPort, &term);
-
-                    char vote[50];
+                    int leaderPort;
+                    sscanf(buffer, "HEARTBEAT %d %d", &leaderPort, &term);
 
                     if(term > node.termNumber){
                         node.termNumber = term;
@@ -248,6 +234,31 @@ void receiveHeartbeat(Node &node){
                         node.isLeader = false;
                         node.votedFor = -1;
                         node.votes.clear();
+                        node.saveToJson();
+                        sendto(sockfd, ackMsg, strlen(ackMsg), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+                    }
+                    else if(term == node.termNumber){
+                        sendto(sockfd, ackMsg, strlen(ackMsg), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+                    }
+
+
+                }
+                else if(strncmp(buffer, "REQUEST VOTE", 12) == 0){
+                    int requesterPort;
+                    int term;
+                    sscanf(buffer, "REQUEST VOTE %d %d", &requesterPort, &term);
+
+                    char vote[1024];
+                    memset(vote, '0', sizeof(vote));
+                    vote[1023] = '\0';
+
+                    if(term > node.termNumber){
+                        node.termNumber = term;
+                        node.role = 0;
+                        node.isLeader = false;
+                        node.votedFor = -1;
+                        node.votes.clear();
+                        node.saveToJson();
                     }
                     else if(term == node.termNumber && (node.votedFor == requesterPort || node.votedFor == -1)){
                         node.votedFor = requesterPort;
@@ -258,6 +269,8 @@ void receiveHeartbeat(Node &node){
                     else{
                         
                     }
+                    timeout.tv_sec = max(static_cast<time_t>((long long)(timeout2.tv_sec) - (endTime - startTime)), static_cast<time_t>(0));
+
                 }
             }
             else{
@@ -265,6 +278,11 @@ void receiveHeartbeat(Node &node){
                 close(sockfd);
                 return;
             }
+        }
+        else if(node.role == 1){
+            startElection(node, sockfd);
+            close(sockfd);
+            return;
         }
         else{
             close(sockfd);
@@ -275,7 +293,7 @@ void receiveHeartbeat(Node &node){
     close(sockfd);
 }
 
-void receiveVotes(Node &node, int &sockfd){
+void receiveVotes(Node &node, int &sockfd, struct timeval &timeout, long long &startTime){
     struct sembuf pop, vop ;
     pop.sem_num = vop.sem_num = 0;
     pop.sem_flg = vop.sem_flg = 0;
@@ -283,48 +301,46 @@ void receiveVotes(Node &node, int &sockfd){
 
     int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
 
-    P(semid1);
-    vector<Node> serverList;
-    ifstream inFile("../data/servers.json");
-
-    if (!inFile) {
-        cerr << "Error opening servers.json" << endl;
-        return;
-    }
-
-    json serverData;
-    inFile >> serverData;
-    inFile.close();
-
-    for (auto& s : serverData) {
-        serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
-    }
-    for(Node &server : serverList){
-        if(server.ip == node.ip && server.port == node.port){
-            node.isLeader = server.isLeader;
-        }
-    }
-    V(semid1);
+    
 
     while(1){
         char buffer[1024];
+        memset(buffer, '0', sizeof(buffer));
+        buffer[1023] = '\0';
+
         struct sockaddr_in clientAddr;
         socklen_t addrLen = sizeof(clientAddr);
 
         if(node.role != 1) return;
 
+        
+        setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+
         int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&clientAddr, &addrLen);
 
-        cout << "Received : " << buffer << endl;
+        long long curTime = time(0);
+        long long timeElapsed = curTime - startTime;
+
+        int diff = timeElapsed;
+
+        if(diff > timeout.tv_sec){
+            node.role = 3;
+            return;
+        }
+
+        
 
         if (bytesReceived > 0) {
             buffer[bytesReceived] = '\0';
+            cout << "Received : " << buffer << endl;
             if(strncmp(buffer, "REQUEST VOTE", 12) == 0){
                 int requesterPort;
                 int term;
                 sscanf(buffer, "REQUEST VOTE %d %d", &requesterPort, &term);
 
-                char vote[50];
+                char vote[1024];
+                memset(vote, '0', sizeof(vote));
+                vote[1023] = '\0';
                 sprintf(vote, "VOTE %d %d", node.termNumber, node.port);
 
                 if(term > node.termNumber){
@@ -332,10 +348,12 @@ void receiveVotes(Node &node, int &sockfd){
                     node.role = 0;
                     node.votedFor = -1;
                     node.votes.clear();
+                    node.saveToJson();
                 }
                 else if(term == node.termNumber && (node.votedFor == requesterPort || node.votedFor == -1)){
                     node.votedFor = requesterPort;
                     node.role = 0;
+                    node.saveToJson();
                     sendto(sockfd, vote, strlen(vote), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
                 }
                 else{
@@ -355,6 +373,7 @@ void receiveVotes(Node &node, int &sockfd){
                     node.role = 0;
                     node.votedFor = -1;
                     node.votes.clear();
+                    node.saveToJson();
                 }
                 if(term == node.termNumber && node.role == 1){
                     node.votes.insert(voterPort);
@@ -363,6 +382,7 @@ void receiveVotes(Node &node, int &sockfd){
                     if(2*numOfVotesRecieved > node.totalNodes){
                         node.isLeader = true;
                         node.role = 0;
+                        node.saveToJson();
                         return;
                     }
                 }
@@ -379,6 +399,7 @@ void receiveVotes(Node &node, int &sockfd){
                     node.isLeader = false;
                     node.votedFor = -1;
                     node.votes.clear();
+                    node.saveToJson();
                     return;
                 }
             }
@@ -388,6 +409,25 @@ void receiveVotes(Node &node, int &sockfd){
 }
 
 void startElection(Node &node, int& sockfd){
+
+    struct timeval timeout;
+    
+    std::random_device rd;  
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dist(1.0, 2.0); 
+
+    double randomDecimal = dist(gen);
+
+    timeout.tv_sec = 10*randomDecimal;
+
+    cout << "Timeout : " << timeout.tv_sec << endl;
+
+    timeout.tv_usec = 0;
+
+    long long startTime = time(0);
+
+
+
     struct sembuf pop, vop ;
     pop.sem_num = vop.sem_num = 0;
 	pop.sem_flg = vop.sem_flg = 0;
@@ -411,26 +451,23 @@ void startElection(Node &node, int& sockfd){
     for (auto& s : serverData) {
         serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
     }
-    for(Node &server : serverList){
-        if(server.ip == node.ip && server.port == node.port){
-            node.isLeader = server.isLeader;
-        }
-    }
     V(semid1);
 
     node.termNumber++;
     node.votes.clear();
     node.votes.insert(node.port);
+    node.role = 1;
+    node.votedFor = node.port;
+    node.saveToJson();
 
     multiset<pair<long long, pair<int,string>>> M;
     for(Node &server : serverList){
         if(server.ip != node.ip || server.port != node.port) M.insert({time(0), {server.port, server.ip}});
     }
 
-    thread receiveThread(receiveVotes, ref(node), ref(sockfd));
+    thread receiveThread(receiveVotes, ref(node), ref(sockfd), ref(timeout), ref(startTime));
     receiveThread.detach();
-    node.role = 1;
-    node.votedFor = node.port;
+    
 
     while(1){
         int numOfVotesRecieved = 0;
@@ -441,7 +478,15 @@ void startElection(Node &node, int& sockfd){
             break;
         }
 
-        if(node.role != 1) break;
+        if(node.role != 1){
+            if(node.role == 3){
+                node.role = 1;
+                node.votes.clear();
+                node.votedFor = -1;
+                node.saveToJson();
+            }
+            break;
+        }
 
         multiset<pair<long long, pair<int,string>>> Mnew;
 
@@ -458,7 +503,9 @@ void startElection(Node &node, int& sockfd){
                 followerAddr.sin_port = htons(u.second.first);
                 inet_pton(AF_INET, u.second.second.c_str(), &followerAddr.sin_addr);
 
-                char requestVote[50]; 
+                char requestVote[1024];
+                memset(requestVote, '0', sizeof(requestVote));
+                requestVote[1023] = '\0'; 
                 sprintf(requestVote, "REQUEST VOTE %d %d", node.port, node.termNumber);
 
                 sendto(sockfd, requestVote, strlen(requestVote), 0, 
@@ -473,28 +520,5 @@ void startElection(Node &node, int& sockfd){
         M = Mnew;
     }
 
-    if(node.isLeader){
-        P(semid1);
-
-        std::ofstream clearFile("../data/servers.json", std::ios::out | std::ios::trunc);
-        
-        clearFile.close();
-        json serverUpdatedData;
-
-        for (Node& server : serverList) {
-            if(server.ip == node.ip && server.port == node.port){
-                server.isLeader = true;
-            }
-            else{
-                server.isLeader = false;
-            }
-            serverUpdatedData.push_back(server.toJson());
-        }
-        std::ofstream outFile("../data/servers.json", std::ios::trunc);
-        outFile << serverUpdatedData.dump(4); 
-        outFile.flush();
-        outFile.close();
-
-        V(semid1);
-    }
+    
 }
