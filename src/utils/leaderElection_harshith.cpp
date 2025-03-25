@@ -213,14 +213,22 @@ void startElection(Node &node, int &sockfd) {
 
     int remainingTime = electionTimeout;
 
+    wait(semlocal);
     // Increment term, vote for self, and update state.
     node.termNumber++;
     node.votes.clear();
     node.votes.insert(node.port);
     node.role = 1;       // candidate
     node.votedFor = node.port;
+
+    if(node.totalNodes == 1) {
+        signal(semlocal);
+        return;
+    }
+
     node.saveToJson();
     cout << "Starting election with term " << node.termNumber << endl;
+    signal(semlocal);
 
     // Read server list from shared file.
     vector<Node> serverList;
@@ -246,8 +254,19 @@ void startElection(Node &node, int &sockfd) {
         signal(semlocal);
         // Send REQUEST VOTE to every other node.
         for (auto &server : serverList) {
-            if (server.ip == node.ip && server.port == node.port)
+            wait(semlocal);
+            if (server.ip == node.ip && server.port == node.port) {
+                signal(semlocal);
                 continue;
+            }
+            else if (node.votes.find(server.port) != node.votes.end()) {
+                signal(semlocal);
+                continue;
+            }
+            else {
+                signal(semlocal);
+            }
+
             struct sockaddr_in followerAddr;
             followerAddr.sin_family = AF_INET;
             followerAddr.sin_port = htons(server.port);
@@ -271,7 +290,10 @@ void startElection(Node &node, int &sockfd) {
             cout << "Stopping sending REQUEST VOTE messages." << endl;
             break;
         }
+
+        wait(semlocal);
     }
+    signal(semlocal);
 }
 
 // --- assignType ---
