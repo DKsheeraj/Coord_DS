@@ -17,11 +17,21 @@
 
 using json = nlohmann::json;
 
-void assignType(Node &node);
-void sendHeartbeat(Node &node);
-void receiveHeartbeat(Node &node);
-bool isValidAckMessage(const char* buffer, int* port);
+void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd);
+void sendAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd);
+void parseAppendRequest(const string &msg, int &term, int &prevLogIndex, vector<LogEntry> &tempLog, int &commitIndex);
+int storeEntries(Node &node, const char *msg);
+void handleAppendRequest(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd);
+void handleAppendReply(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd);
+void handleHeartbeat(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd);
+void handleRequestVote(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd);
+void handleVote(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd);
+void handleAck(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd);
+void receiveThreadFunction(Node &node, int sockfd);
 void startElection(Node &node, int &sockfd);
-void receiveVotes(Node &node, int &sockfd, struct timeval &timeout, long long &startTime);
+void assignType(Node &node);
+
+
+
 
 #endif

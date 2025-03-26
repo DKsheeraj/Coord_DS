@@ -25,8 +25,10 @@ int main(int argc, char* argv[]) {
         // This server successfully created the semaphore
         // Safe to initialize it here
         semctl(semid1, 0, SETVAL, 1);
+        cout<<"Setting semaphore value\n";
     } else {
         if (errno == EEXIST) {
+            cout<<"Already existing\n";
             // The semaphore set already exists
             // Get the semaphore ID without creating it
             semid1 = semget(key, 1, 0666);
@@ -37,22 +39,31 @@ int main(int argc, char* argv[]) {
         }
     }
 
+
+
+    
+
     serverNode.loadFromJson();
 
-    serverNode.isLeader = false;
-    serverNode.role = 0;
+    for(auto u: serverNode.log){
+        cout<<u.term<<" "<<u.command<<" JJJJJJJJj\n";
+    }
 
     thread hbThread(assignType, ref(serverNode));
     hbThread.detach();
+
+    cout<<"HE\n";
+    cout<<(serverNode.ip)<<" HERE\n";
 
     serverNode.sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverNode.sockfd == -1) {
         perror("Socket creation failed");
         exit(EXIT_FAILURE);
     }
+    
 
     serverNode.address.sin_family = AF_INET;
-    serverNode.address.sin_addr.s_addr = inet_addr(ip.c_str());
+    serverNode.address.sin_addr.s_addr = inet_addr((serverNode.ip).c_str());
     serverNode.address.sin_port = htons(serverNode.port);
 
     if (bind(serverNode.sockfd, (struct sockaddr*)&serverNode.address, sizeof(serverNode.address)) < 0) {

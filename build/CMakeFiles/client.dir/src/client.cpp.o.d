@@ -405,4 +405,12 @@ CMakeFiles/client.dir/src/client.cpp.o: \
  /usr/include/c++/11/barrier /usr/include/c++/11/coroutine \
  /usr/include/c++/11/latch /usr/include/c++/11/ranges \
  /usr/include/c++/11/span /usr/include/c++/11/source_location \
- /usr/include/c++/11/syncstream /usr/include/c++/11/version
+ /usr/include/c++/11/syncstream /usr/include/c++/11/version \
+ /usr/include/x86_64-linux-gnu/sys/ipc.h \
+ /usr/include/x86_64-linux-gnu/bits/ipctypes.h \
+ /usr/include/x86_64-linux-gnu/bits/ipc.h \
+ /usr/include/x86_64-linux-gnu/bits/ipc-perm.h \
+ /usr/include/x86_64-linux-gnu/sys/sem.h \
+ /usr/include/x86_64-linux-gnu/bits/sem.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_semid_ds.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_semid64_ds.h

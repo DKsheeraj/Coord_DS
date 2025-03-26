@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare CMakeFiles/assistant.dir/AssistantServer.cpp.o CMakeFiles/assistant.dir/utils/assistantUtils.cpp.o CMakeFiles/assistant.dir/utils/leaderElection.cpp.o -o assistant 

@@ -1,533 +1,834 @@
 #include "../../include/leaderElection.h"
-#include <algorithm> // For std::max
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <thread>
+#include <chrono>
+#include <random>
+#include <set>
+#include <cstring>
+#include <mutex>
+#include <condition_variable>
+#include <map>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+#include <unistd.h>
+#include <ctime>
+#include <algorithm>
+#include <nlohmann/json.hpp>
 
-void assignType(Node &node){
+using namespace std;
+using json = nlohmann::json;
+
+// Global synchronization for heartbeat notifications.
+mutex cv_mtx1, cv_mtx2, cv_mtx3;
+condition_variable cv1, cv2, cv3;
+
+// Global deltas
+int deltaHeartBeat = 5; // seconds
+int deltaRequestVote = 5; // seconds
+int deltaElection = 10; // seconds
+
+// Global election timeout.
+int electionTimeout; // seconds
+int sendAppendEntriesTimeout;
+
+// --- Semaphore helper functions ---
+int semmtx, semlocal;
+
+void wait(int semid) {
+    struct sembuf op;
+    op.sem_num = 0;
+    op.sem_op = -1;
+    op.sem_flg = 0;
+    semop(semid, &op, 1);
+}
+
+void signal(int semid) {
+    struct sembuf op;
+    op.sem_num = 0;
+    op.sem_op = 1;
+    op.sem_flg = 0;
+    semop(semid, &op, 1);
+}
+
+// --- Message Handlers ---
+
+void breakCommand(const string &command, vector<string> &V){
+    istringstream ss(command);
+    string word;
+    while(ss >> word){
+        V.push_back(word);
+    }
+}
+
+// Handles append requests from the client of the form : REQUEST <command>
+void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
+    cout<<"Received append request from Client with command: "<<msg<<endl;
+
+    string command;
+    vector<string> V;
+    breakCommand(msg, V);
+
+    command = V[1];
+
+    wait(semlocal);
+    bool st = node.isLeader;
+    signal(semlocal);
+
+    if(!st) return;
+
+    wait(semlocal);
+    LogEntry entry;
+    entry.term = node.termNumber;
+    entry.command = command;
+    node.log.push_back(entry);
+
+    node.saveToJson();
+
+    cout<<"Current status of log: \n";
+
+    for(auto u: node.log){
+        cout<<u.term<<" "<<u.command<<endl;
+    }
+
+    signal(semlocal);
+
+    cv3.notify_all();
+
+}
+
+void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const char *msg, int sockfd) {
+    cout<<"Became leader - Starting send append Entries thread\n";
+    
+    wait(semlocal);
+    bool st = node.isLeader;
+    signal(semlocal);
+    
+    if(!st) return;
+
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<double> dist(1.0, 2.0);
+    double randomFactor = dist(gen);
+    electionTimeout = static_cast<int>(deltaElection * randomFactor);
+
+    sendAppendEntriesTimeout = electionTimeout/2;
+
+    cout << "Append Entries Timeout: " << sendAppendEntriesTimeout << " seconds." << endl;
+
+    wait(semmtx);
+    vector<Node> serverList;
+    {
+        ifstream inFile("../data/servers.json");
+        if (!inFile) {
+            cerr << "Error opening servers.json" << endl;
+            signal(semmtx);
+            return;
+        }
+        json serverData;
+        inFile >> serverData;
+        inFile.close();
+        for (auto &s : serverData) {
+            serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
+        }
+    }
+    signal(semmtx); 
+
+
+
     while(1){
-        if(node.isLeader){
-            sendHeartbeat(node);
+        wait(semlocal);
+        bool st = node.isLeader;
+        signal(semlocal);
+
+        if(!st) break;
+        unique_lock<mutex> lock(cv_mtx3);
+
+        auto status = cv3.wait_for(lock, chrono::seconds(sendAppendEntriesTimeout));
+        cout<<"Sending Append Entries to all follower nodes"<<endl;
+        
+        for(auto server: serverList) {
+            if(server.ip == node.ip && server.port == node.port) continue;
+
+
+            struct sockaddr_in followerAddr;
+            followerAddr.sin_family = AF_INET;
+            followerAddr.sin_port = htons(server.port);
+            inet_pton(AF_INET, server.ip.c_str(), &followerAddr.sin_addr);
+
+            wait(semlocal);
+            int lastLogIndex = node.nextIndex[server.port];
+            
+            string sendAppendEntries = "APPEND REQUEST ";
+            sendAppendEntries += to_string(node.termNumber);
+            sendAppendEntries += " ";
+            sendAppendEntries += to_string(lastLogIndex -1);
+            sendAppendEntries += " ";
+
+            int sz = node.log.size();
+            
+
+
+            for(int i = (lastLogIndex - 1); i < sz; i++) {
+                if(i == -1){
+                    sendAppendEntries += to_string(-1);
+                    sendAppendEntries += " ";
+                    sendAppendEntries += "START ";
+                    continue;
+                }
+                sendAppendEntries += to_string(node.log[i].term);
+                sendAppendEntries += " ";
+                sendAppendEntries += node.log[i].command;
+                sendAppendEntries += " ";
+            }
+            // add commit index
+            sendAppendEntries += to_string(node.commitIndex);
+            cout<<"Sending: "<<sendAppendEntries;
+            cout << " to port "<< ntohs(followerAddr.sin_port) << endl;
+            signal(semlocal);
+
+            sendto(sockfd, sendAppendEntries.c_str(), strlen(sendAppendEntries.c_str()), 0, (struct sockaddr*)&followerAddr, sizeof(followerAddr));
+
+        }
+    }
+
+    return;
+}
+
+void parseAppendRequest(vector<string> &V, int &term, int &prevLogIndex, vector<LogEntry> &tempLog, int &commitIndex) {
+    
+    cout<<"Parsing Append Request"<<endl;
+
+    term = stoi(V[2]);
+
+    int sz = V.size();
+
+    for(int i = 4; (i+1) < sz; i+=2){
+        LogEntry temp;
+        temp.term = stoi(V[i]);
+        temp.command = V[i+1];
+        tempLog.push_back(temp);
+
+    }
+    
+    commitIndex = stoi(V[sz - 1]);
+    
+}
+
+int storeEntries(Node &node, const char *msg) {
+    cout<<"Storing Entries after success: "<<"message received: ";
+    cout<<msg<<" \n";
+    int term, prevLogIndex;
+    vector<string> V;
+    breakCommand(msg, V);
+    term = stoi(V[2]);
+    prevLogIndex = stoi(V[3]);
+
+    int index = prevLogIndex;
+
+    vector<LogEntry> tempLog;
+    int commitIndex;
+
+    parseAppendRequest(V, term, prevLogIndex, tempLog, commitIndex);
+    
+    if(prevLogIndex == -1){
+        wait(semlocal);
+        node.log.clear();
+        int sz = tempLog.size();
+        for(int i = 1; i < sz; i++){
+            node.log.push_back(tempLog[i]);
+        }
+        signal(semlocal);
+    }
+    else{
+        wait(semlocal);
+        int sz = tempLog.size();
+        int szlog = node.log.size();
+
+        for(int i = 0; i < szlog; i++){
+            if(node.log[i].term == tempLog[0].term && node.log[i].command == tempLog[0].command){
+                node.log.erase(node.log.begin() + i + 1, node.log.end());
+                for(int j = 1; j < sz; j++){
+                    node.log.push_back(tempLog[j]);
+                }
+                break;
+            }
+        }
+        signal(semlocal);
+    }
+    wait(semlocal);
+    index = node.log.size();
+    index--;
+
+    cout<<"Current status of log: \n";
+
+    for(auto u: node.log){
+        cout<<u.term<<" "<<u.command<<endl;
+    }
+
+    
+
+    node.commitIndex = min(commitIndex, index);
+    node.saveToJson();
+    signal(semlocal);
+
+    return index;
+
+}
+
+void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const char *msg, int sockfd) {
+    int term, prevLogIndex;
+    cout<<"Append request received as: "<<msg<<endl;
+    sscanf(msg, "APPEND REQUEST %d %d", &term, &prevLogIndex);
+
+    wait(semlocal);
+    if(term > node.termNumber){
+        node.termNumber = term;
+        node.role = 0;
+        node.isLeader = false;
+        node.votedFor = -1;
+        node.votes.clear();
+        node.saveToJson();
+    }
+    
+
+    if(term < node.termNumber){
+        // send APPEND REPLY currentTerm false
+
+        string sendAppendReply = "APPEND REPLY ";
+        sendAppendReply += to_string(node.termNumber);
+        sendAppendReply += " ";
+        sendAppendReply += "false";
+        sendAppendReply += " ";
+        sendAppendReply += to_string(prevLogIndex);
+        signal(semlocal);
+        cout<<"Failure because of term number\n";
+        cout<<"Sending reply as: "<<sendAppendReply<<endl;
+        sendto(sockfd, sendAppendReply.c_str(), strlen(sendAppendReply.c_str()), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+        return;
+    }
+    else{
+        int index = 0;
+        bool success = false;
+        cout<<prevLogIndex<<" "<<node.log.size()<<" \n";
+        // if(prevLogIndex >= 0) cout<<(node.log[prevLogIndex].term)<<" "<<term<<" \n";
+        if(prevLogIndex == -1 || ((prevLogIndex < node.log.size()) && (node.log[prevLogIndex].term == term))){
+            success = true; 
+        }
+        
+        signal(semlocal);
+        
+        if(success){
+            cout<<"Success!\n";
+            int index = storeEntries(node, msg);
+            
+            string sendAppendReply = "APPEND REPLY ";
+            wait(semlocal);
+            sendAppendReply += to_string(node.termNumber);
+            sendAppendReply += " ";
+            sendAppendReply += "true";
+            sendAppendReply += " ";
+            sendAppendReply += to_string(index);
+            cout<<"REPLYING WITH: "<<sendAppendReply<<" HI\n";
+            signal(semlocal);
+            cout<<"Sending reply as: "<<sendAppendReply<<endl;
+
+            sendto(sockfd, sendAppendReply.c_str(), strlen(sendAppendReply.c_str()), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+            return;
         }
         else{
-            receiveHeartbeat(node);
+            cout<<"Failure\n";
+
+            string sendAppendReply = "APPEND REPLY ";
+            wait(semlocal);
+            sendAppendReply += to_string(node.termNumber);
+            sendAppendReply += " ";
+            sendAppendReply += "false";
+            sendAppendReply += " ";
+            sendAppendReply += to_string(index);
+            signal(semlocal);
+            cout<<"Sending reply as: "<<sendAppendReply<<endl;
+            sendto(sockfd, sendAppendReply.c_str(), strlen(sendAppendReply.c_str()), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+            return;
         }
     }
 }
 
 
+void handleAppendReply(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
+    cout<<"Handling Append Reply as: " << msg << endl;
+    int term;
+    string success;
+    int index;
+    vector<string> V;
+    breakCommand(msg, V);
+    // sscanf(msg, "APPEND REPLY %d %s %d", &term, success, &index);
+    term = stoi(V[2]);
+    success = V[3];
+    index = stoi(V[4]);
 
-void sendHeartbeat(Node &node) {
-    struct sembuf pop, vop ;
-    pop.sem_num = vop.sem_num = 0;
-	pop.sem_flg = vop.sem_flg = 0;
-	pop.sem_op = -1 ; vop.sem_op = 1 ;
 
-    int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
+    wait(semlocal);
+    if(term > node.termNumber){
+        node.termNumber = term;
+        node.role = 0;
+        node.isLeader = false;
+        node.votedFor = -1;
+        node.votes.clear();
+        node.saveToJson();
+        signal(semlocal);
+    }
+    else if(term == node.termNumber && node.isLeader){
+        if(success == "true"){
+            cout<<"Updating next Index for port: "<<(ntohs(clientAddr.sin_port))<<endl;
+            node.nextIndex[(ntohs(clientAddr.sin_port))] = index + 1;
+            node.saveToJson();
+        }
+        else{
+            node.nextIndex[ntohs(clientAddr.sin_port)] = max(0, node.nextIndex[ntohs(clientAddr.sin_port)] - 1);
+            node.saveToJson();
+        }
+
+        if(node.nextIndex[ntohs(clientAddr.sin_port)] < node.log.size()){
+            cv3.notify_all();
+        }
+        signal(semlocal);
+    }
     
+
+}
+
+
+// Handles a HEARTBEAT message. Sends ACK only if term >= current term and notifies waiting threads.
+void handleHeartbeat(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
+    int leaderPort, term;
+    sscanf(msg, "HEARTBEAT %d %d", &leaderPort, &term);
+    cout << "Received HEARTBEAT from " << inet_ntoa(clientAddr.sin_addr)
+         << " (leader port: " << leaderPort << ", term: " << term << ")" << endl;
+
+    wait(semlocal);
+    if (term >= node.termNumber) {
+        node.leaderIp = inet_ntoa(clientAddr.sin_addr);
+        node.leaderPort = leaderPort;
+        node.termNumber = term;
+        node.role = 0;          // follower
+        node.isLeader = false;
+        node.votedFor = -1;
+        node.votes.clear();
+        node.saveToJson();
+        signal(semlocal);
+
+        // Notify any waiting thread that a heartbeat arrived.
+        cv1.notify_all();
+        cv2.notify_all();
+        // Send ACK only when term is sufficient.
+        const char *ackMsg = "ACK";
+        sendto(sockfd, ackMsg, strlen(ackMsg), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+    }
+    else {
+        signal(semlocal);
+    }
+}
+
+// Handles a REQUEST VOTE message.
+void handleRequestVote(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
+    int requesterPort, term;
+    sscanf(msg, "REQUEST VOTE %d %d", &requesterPort, &term);
+    cout << "Received REQUEST VOTE from " << inet_ntoa(clientAddr.sin_addr)
+         << " (requester port: " << requesterPort << ", term: " << term << ")" << endl;
+    char vote[1024] = {0};
+
+    wait(semlocal);
+    bool doo = 0;
+    if (term > node.termNumber) {
+        if(node.role == 1) doo = 1;
+        node.termNumber = term;
+        node.role = 0;
+        node.isLeader = false;
+        node.votedFor = -1;
+        node.votes.clear();
+        node.saveToJson();
+    }
+    signal(semlocal);
+
+    wait(semlocal);
+    if (term == node.termNumber && (node.votedFor == requesterPort || node.votedFor == -1)) {
+        node.votedFor = requesterPort;
+        node.role = 0;
+        node.isLeader = false;
+        node.saveToJson();
+        signal(semlocal);
+
+        sprintf(vote, "VOTE %d %d", node.termNumber, node.port);
+        sendto(sockfd, vote, strlen(vote), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+
+        cout << "Sent VOTE to " << inet_ntoa(clientAddr.sin_addr) << " : " << requesterPort << endl;
+
+        if(doo) cv2.notify_all(); // notify any waiting thread
+        cv1.notify_all(); // notify any waiting thread
+    }
+    else {
+        signal(semlocal);
+    }
+}
+
+// Handles a VOTE message.
+void handleVote(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
+    int voterPort, term;
+    sscanf(msg, "VOTE %d %d", &term, &voterPort);
+    cout << "Received VOTE from " << inet_ntoa(clientAddr.sin_addr) << " : "  << voterPort << " (term: " << term << ")" << endl;
+
+    wait(semlocal);
+    if (term > node.termNumber) {
+        node.termNumber = term;
+        node.role = 0;
+        node.isLeader = false;
+        node.votedFor = -1;
+        node.votes.clear();
+        node.saveToJson();
+        cv2.notify_all(); // notify any waiting thread
+    }
+    signal(semlocal);
+
+    wait(semlocal);
+    if (term == node.termNumber && node.role == 1) { // candidate mode
+        node.votes.insert(voterPort);
+        int numVotes = node.votes.size(); // include self vote
+        signal(semlocal);
+
+        if (2 * numVotes > node.totalNodes) {
+            cout << "Got enough votes to win election." << endl;
+            cv2.notify_all(); // notify any waiting thread
+        }
+    }
+    else {
+        signal(semlocal);
+    }
+}
+
+// Handles an ACK message (typically in response to a heartbeat).
+void handleAck(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
+    wait(semlocal);
+    if(node.isLeader) cout << "Received ACK from " << inet_ntoa(clientAddr.sin_addr) << " : " << ntohs(clientAddr.sin_port) << endl;
+    signal(semlocal);
+    // Update any heartbeat tracking if needed.
+}
+
+// --- Central Receive Thread ---
+// This thread continuously listens on the given UDP socket and dispatches messages.
+void receiveThreadFunction(Node &node, int sockfd) {
+    char buffer[1024];
+    while (true) {
+        struct sockaddr_in clientAddr;
+        socklen_t addrLen = sizeof(clientAddr);
+        int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer) - 1, 0,
+                                       (struct sockaddr*)&clientAddr, &addrLen);
+        if (bytesReceived > 0) {
+            buffer[bytesReceived] = '\0';
+            if (strncmp(buffer, "HEARTBEAT", 9) == 0) {
+                handleHeartbeat(node, clientAddr, buffer, sockfd);
+            }
+            else if (strncmp(buffer, "REQUEST VOTE", 12) == 0) {
+                handleRequestVote(node, clientAddr, buffer, sockfd);
+            }
+            else if (strncmp(buffer, "VOTE", 4) == 0) {
+                handleVote(node, clientAddr, buffer, sockfd);
+            }
+            else if (strncmp(buffer, "ACK", 3) == 0) {
+                handleAck(node, clientAddr, buffer, sockfd);
+            }
+            else if (strncmp(buffer, "REQUEST", 7) == 0) {
+                handleAppendEntries(node, clientAddr, buffer, sockfd);
+            }
+            else if (strncmp(buffer, "APPEND REQUEST", 14) == 0) {
+                handleAppendRequest(node, clientAddr, buffer, sockfd);
+            }
+            else if (strncmp(buffer, "APPEND REPLY", 12) == 0) {
+                handleAppendReply(node, clientAddr, buffer, sockfd);
+            }
+            // (Other message types can be added here.)
+        }
+        // Optionally, sleep briefly or check for exit conditions.
+    }
+}
+
+// --- Leader Election Timeout and Start Election ---
+// When a follower times out (i.e. does not receive a heartbeat within a dynamically computed timeout),
+// it starts an election.
+void startElection(Node &node, int &sockfd) {
+    // Randomized election timeout: e.g., base deltaElection seconds scaled by a factor between 1 and 2.
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<double> dist(1.0, 2.0);
+    double randomFactor = dist(gen);
+    electionTimeout = static_cast<int>(deltaElection * randomFactor);
+    cout << "Election timeout: " << electionTimeout << " seconds." << endl;
+
+    int remainingTime = electionTimeout;
+
+    wait(semlocal);
+    // Increment term, vote for self, and update state.
+    node.termNumber++;
+    node.votes.clear();
+    node.votes.insert(node.port);
+    node.role = 1;       // candidate
+    node.votedFor = node.port;
+
+    if(node.totalNodes == 1) {
+        signal(semlocal);
+        return;
+    }
+
+    node.saveToJson();
+    cout << "Starting election with term " << node.termNumber << endl;
+    signal(semlocal);
+
+    // Read server list from shared file.
     vector<Node> serverList;
+    wait(semmtx);
+    {
+        ifstream inFile("../data/servers.json");
+        if (!inFile) {
+            cerr << "Error opening servers.json" << endl;
+            signal(semmtx);
+            return;
+        }
+        json serverData;
+        inFile >> serverData;
+        inFile.close();
+        for (auto &s : serverData) {
+            serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
+        }
+    }
+    signal(semmtx);
 
-    P(semid1);
-    ifstream inFile("../data/servers.json");
+    wait(semlocal);
+    while(node.role == 1) {
+        signal(semlocal);
+        // Send REQUEST VOTE to every other node.
+        for (auto &server : serverList) {
+            wait(semlocal);
+            if (server.ip == node.ip && server.port == node.port) {
+                signal(semlocal);
+                continue;
+            }
+            else if (node.votes.find(server.port) != node.votes.end()) {
+                signal(semlocal);
+                continue;
+            }
+            else {
+                signal(semlocal);
+            }
 
-    if (!inFile) {
-        cerr << "Error opening servers.json" << endl;
+            struct sockaddr_in followerAddr;
+            followerAddr.sin_family = AF_INET;
+            followerAddr.sin_port = htons(server.port);
+            inet_pton(AF_INET, server.ip.c_str(), &followerAddr.sin_addr);
+
+            char requestVote[1024] = {0};
+            sprintf(requestVote, "REQUEST VOTE %d %d", node.port, node.termNumber);
+            sendto(sockfd, requestVote, strlen(requestVote), 0,
+                (struct sockaddr*)&followerAddr, sizeof(followerAddr));
+            cout << "Sent REQUEST VOTE to " << server.ip << " : " << server.port << endl;
+        }
+
+        // Instead of a fixed sleep, we wait on the condition variable.
+        unique_lock<mutex> lock(cv_mtx2);
+        // Wait up to electionTimeout seconds; if a heartbeat arrives, cv1.notify_all() will wake us early.
+        auto status = cv2.wait_for(lock, chrono::seconds(min(deltaRequestVote, remainingTime)));
+
+        remainingTime -= deltaRequestVote;
+
+        if (status != cv_status::timeout || remainingTime <= 0) {
+            cout << "Stopping sending REQUEST VOTE messages." << endl;
+            break;
+        }
+
+        wait(semlocal);
+    }
+    signal(semlocal);
+}
+
+// --- assignType ---
+// This function creates the UDP socket (binding it once) and spawns the central receive thread.
+// Then it continuously acts based on node state:
+// If leader, it periodically sends heartbeats; if follower, it waits with a timeout that
+// can be interrupted if a heartbeat is received.
+void assignType(Node &node) {
+    semmtx = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
+    semlocal = semget(ftok("/tmp", static_cast<int>(getpid() % 256)), 1, 0666 | IPC_CREAT);
+
+    if (semmtx == -1 || semlocal == -1) {
+        perror("semget");
         return;
     }
 
-    json serverData;
-    inFile >> serverData;
-    inFile.close();
-    V(semid1);
+    semctl(semlocal, 0, SETVAL, 1);
 
-    for (auto& s : serverData) {
-        serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
-    }
-
-    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);  
+    // Create and bind UDP socket.
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
-        perror("UDP Socket creation failed");
+        perror("UDP socket creation failed");
         return;
     }
-
     struct sockaddr_in address;
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = inet_addr(node.ip.c_str());
     address.sin_port = htons(node.port);
-
     if (bind(sockfd, (struct sockaddr*)&address, sizeof(address)) < 0) {
         perror("Bind failed");
+        close(sockfd);
         return;
     }
-
-
-    while(1){
     
-        if(node.isLeader){
-            for (Node &follower : serverList) {
-                if(follower.ip == node.ip && follower.port == node.port){
-                    continue;
+    // Spawn the central receive thread.
+    thread recvThread(receiveThreadFunction, ref(node), sockfd);
+    recvThread.detach();
+
+    // Randomized election timeout: e.g., base deltaElection seconds scaled by a factor between 1 and 2.
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<double> dist(1.0, 2.0);
+    double randomFactor = dist(gen);
+    electionTimeout = static_cast<int>(deltaElection * randomFactor);
+    cout << "Election timeout: " << electionTimeout << " seconds." << endl;
+    
+    // Main loop: if leader, send periodic heartbeats; if follower, wait on the condition variable.
+    while (true) {
+        wait(semlocal);
+        if (node.isLeader) {
+            signal(semlocal);
+            // Send heartbeats to all followers.
+            vector<Node> serverList;
+            {
+                wait(semmtx);
+                ifstream inFile("../data/servers.json");
+                if (!inFile) {
+                    cerr << "Error opening servers.json" << endl;
+                    signal(semmtx);
+                    break;
                 }
+                json serverData;
+                inFile >> serverData;
+                inFile.close();
+                signal(semmtx);
+                for (auto &s : serverData) {
+                    serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
+                }
+            }
+            for (Node &follower : serverList) {
+                if (follower.ip == node.ip && follower.port == node.port)
+                    continue;
                 struct sockaddr_in followerAddr;
                 followerAddr.sin_family = AF_INET;
                 followerAddr.sin_port = htons(follower.port);
                 inet_pton(AF_INET, follower.ip.c_str(), &followerAddr.sin_addr);
-
-                char heartbeatMsg[1024];
-                memset(heartbeatMsg, '0', sizeof(heartbeatMsg));
-                heartbeatMsg[1023] = '\0';
+                char heartbeatMsg[1024] = {0};
                 sprintf(heartbeatMsg, "HEARTBEAT %d %d", node.port, node.termNumber);
-                sendto(sockfd, heartbeatMsg, strlen(heartbeatMsg), 0, 
-                    (struct sockaddr*)&followerAddr, sizeof(followerAddr));
-                
-                cout << "Sent heartbeat to " << follower.ip << " : " << follower.port << endl;
+                sendto(sockfd, heartbeatMsg, strlen(heartbeatMsg), 0,
+                       (struct sockaddr*)&followerAddr, sizeof(followerAddr));
+                cout << "Sent HEARTBEAT to " << follower.ip << " : " << follower.port << endl;
+            }
 
-                char buffer[1024];
-                memset(buffer, '0', sizeof(buffer));
-                buffer[1023] = '\0';
-                socklen_t addrLen = sizeof(followerAddr);
-                struct timeval timeout;
-                timeout.tv_sec = 2;  
-                timeout.tv_usec = 0;
-                setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+            this_thread::sleep_for(chrono::seconds(deltaHeartBeat));
+        }
+        else {
+            if(node.role == 0) {
+                signal(semlocal);
+                // Instead of a fixed sleep, we wait on the condition variable.
+                unique_lock<mutex> lock(cv_mtx1);
+                // Wait up to electionTimeout seconds; if a heartbeat arrives, cv1.notify_all() will wake us early.
+                auto status = cv1.wait_for(lock, chrono::seconds(electionTimeout));
+        
+                if (status == cv_status::timeout) {
+                    cout << "Didn't receive Heartbeat. Timed out." << endl;
+                    wait(semlocal);
 
-                int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), MSG_WAITALL, (struct sockaddr*)&followerAddr, &addrLen);
-                if (bytesReceived > 0) {
-                    buffer[bytesReceived] = '\0';
-
-                    cout << "Received : " << buffer << endl;
-
-                    if (strcmp(buffer, "ACK") == 0) {
-                        cout << "Follower " << follower.ip << " : " << follower.port << " is alive\n";
-                    }
-                    else if(strncmp(buffer, "REQUEST VOTE", 12) == 0){
-                        int term;
-                        int requesterPort;
-                        sscanf(buffer, "REQUEST VOTE %d %d", &requesterPort, &term);
-    
-                        char vote[1024];
-                        memset(vote, '0', sizeof(vote));
-                        vote[1023] = '\0';
-
-                        if(term > node.termNumber){
-                            node.termNumber = term;
-                            node.role = 0;
-                            node.isLeader = false;
-                            node.votedFor = -1;
-                            node.votes.clear();
-                            node.saveToJson();
-                        }
-                        else if(term == node.termNumber && (node.votedFor == requesterPort || node.votedFor == -1)){
-                            node.votedFor = requesterPort;
-                            sprintf(vote, "VOTE %d %d", node.termNumber, node.port);
-    
-                            sendto(sockfd, vote, strlen(vote), 0, (struct sockaddr*)&followerAddr, sizeof(followerAddr));
-                        }
-                        else{
-                            
-                        }
-                    }
-                    else if(strncmp(buffer, "HEARTBEAT", 9) == 0){
-                        int term;
-                        int leaderPort;
-                        sscanf(buffer, "HEARTBEAT %d %d", &leaderPort, &term);
-    
-                        if(term >= node.termNumber){
-                            node.termNumber = term;
-                            node.role = 0;
-                            node.isLeader = false;
-                            node.votedFor = -1;
-                            node.votes.clear();
-                            node.saveToJson();
-                            break;
-                        }
-                    }
-                } else {
-                    cout << "No ACK from follower " << follower.ip << " : " << follower.port << endl;
+                    node.role = 1;
+                    node.saveToJson();
+                    signal(semlocal);
+                    // or
+                    // goto elect;
                 }
             }
-            cout << endl;
+            else if(node.role == 1) {
+                signal(semlocal);
 
-            this_thread::sleep_for(chrono::seconds(5));
-        }
-        else{
-            close(sockfd);
-            return;
-        }
-    }
-
-    close(sockfd);
-}
-
-
-void receiveHeartbeat(Node &node){
-    struct sembuf pop, vop ;
-    pop.sem_num = vop.sem_num = 0;
-	pop.sem_flg = vop.sem_flg = 0;
-	pop.sem_op = -1 ; vop.sem_op = 1 ;
-
-    int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
-    
-    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0) {
-        perror("UDP Socket creation failed");
-        return;
-    }
-
-    struct sockaddr_in address;
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = inet_addr(node.ip.c_str());
-    address.sin_port = htons(node.port);
-
-    if (bind(sockfd, (struct sockaddr*)&address, sizeof(address)) < 0) {
-        perror("Bind failed");
-        return;
-    }
-
-    struct timeval timeout;
-    
-    std::random_device rd;  
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dist(1.0, 2.0); 
-
-    double randomDecimal = dist(gen);
-
-    timeout.tv_sec = 10*randomDecimal;
-
-    cout << "Timeout : " << timeout.tv_sec << endl;
-    cout << endl;
-
-    timeout.tv_usec = 0;
-
-    struct timeval timeout2;
-    timeout2 = timeout;
-
-    while (1) {
-
-        if(node.role == 0){
-            char buffer[1024];
-            memset(buffer, '0', sizeof(buffer));
-            buffer[1023] = '\0';
-            struct sockaddr_in clientAddr;
-            socklen_t addrLen = sizeof(clientAddr);
-
-            long long startTime = time(0);
-            
-            setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-
-            int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), MSG_WAITALL, (struct sockaddr*)&clientAddr, &addrLen);
-
-            long long endTime = time(0);
-
-            if (bytesReceived > 0) {
-                buffer[bytesReceived] = '\0';
-
-                cout << "Received : " << buffer << endl;
-
-                if(strncmp(buffer, "HEARTBEAT", 9) == 0){
-                    char ackMsg[1024];
-                    memset(ackMsg, '0', sizeof(ackMsg));
-                    ackMsg[1023] = '\0';
-                    sprintf(ackMsg, "ACK");
-                    int term;
-                    int leaderPort;
-                    sscanf(buffer, "HEARTBEAT %d %d", &leaderPort, &term);
-
-                    if(term > node.termNumber){
-                        node.termNumber = term;
-                        node.role = 0;
-                        node.isLeader = false;
-                        node.votedFor = -1;
-                        node.votes.clear();
-                        node.saveToJson();
-                        sendto(sockfd, ackMsg, strlen(ackMsg), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
-                    }
-                    else if(term == node.termNumber){
-                        sendto(sockfd, ackMsg, strlen(ackMsg), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
-                    }
-
-
-                }
-                else if(strncmp(buffer, "REQUEST VOTE", 12) == 0){
-                    int requesterPort;
-                    int term;
-                    sscanf(buffer, "REQUEST VOTE %d %d", &requesterPort, &term);
-
-                    char vote[1024];
-                    memset(vote, '0', sizeof(vote));
-                    vote[1023] = '\0';
-
-                    if(term > node.termNumber){
-                        node.termNumber = term;
-                        node.role = 0;
-                        node.isLeader = false;
-                        node.votedFor = -1;
-                        node.votes.clear();
-                        node.saveToJson();
-                    }
-                    else if(term == node.termNumber && (node.votedFor == requesterPort || node.votedFor == -1)){
-                        node.votedFor = requesterPort;
-                        sprintf(vote, "VOTE %d %d", node.termNumber, node.port);
-
-                        sendto(sockfd, vote, strlen(vote), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
-                    }
-                    else{
-                        
-                    }
-                    timeout.tv_sec = max(static_cast<time_t>((long long)(timeout2.tv_sec) - (endTime - startTime)), static_cast<time_t>(0));
-
-                }
-            }
-            else{
+            // elect:;
                 startElection(node, sockfd);
-                close(sockfd);
-                return;
-            }
-        }
-        else if(node.role == 1){
-            startElection(node, sockfd);
-            close(sockfd);
-            return;
-        }
-        else{
-            close(sockfd);
-            return;
-        }
-    }
-
-    close(sockfd);
-}
-
-void receiveVotes(Node &node, int &sockfd, struct timeval &timeout, long long &startTime){
-    struct sembuf pop, vop ;
-    pop.sem_num = vop.sem_num = 0;
-    pop.sem_flg = vop.sem_flg = 0;
-    pop.sem_op = -1 ; vop.sem_op = 1 ;
-
-    int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
-
-    
-
-    while(1){
-        char buffer[1024];
-        memset(buffer, '0', sizeof(buffer));
-        buffer[1023] = '\0';
-
-        struct sockaddr_in clientAddr;
-        socklen_t addrLen = sizeof(clientAddr);
-
-        if(node.role != 1) return;
-
-        
-        setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-
-        int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&clientAddr, &addrLen);
-
-        long long curTime = time(0);
-        long long timeElapsed = curTime - startTime;
-
-        int diff = timeElapsed;
-
-        if(diff > timeout.tv_sec){
-            node.role = 3;
-            return;
-        }
-
-        
-
-        if (bytesReceived > 0) {
-            buffer[bytesReceived] = '\0';
-            cout << "Received : " << buffer << endl;
-            if(strncmp(buffer, "REQUEST VOTE", 12) == 0){
-                int requesterPort;
-                int term;
-                sscanf(buffer, "REQUEST VOTE %d %d", &requesterPort, &term);
-
-                char vote[1024];
-                memset(vote, '0', sizeof(vote));
-                vote[1023] = '\0';
-                sprintf(vote, "VOTE %d %d", node.termNumber, node.port);
-
-                if(term > node.termNumber){
-                    node.termNumber = term;
-                    node.role = 0;
-                    node.votedFor = -1;
-                    node.votes.clear();
-                    node.saveToJson();
-                }
-                else if(term == node.termNumber && (node.votedFor == requesterPort || node.votedFor == -1)){
-                    node.votedFor = requesterPort;
-                    node.role = 0;
-                    node.saveToJson();
-                    sendto(sockfd, vote, strlen(vote), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
-                }
-                else{
-
-                }
                 
-            }
-            else if(strncmp(buffer, "VOTE", 4) == 0){
-                int voterPort;
-                int term;
-                sscanf(buffer, "VOTE %d %d", &term, &voterPort);
+                wait(semlocal);
+                if(node.role == 0) {
+                    signal(semlocal);
+                    cout << "Received heartbeat. Exiting election." << endl;
+                    continue;
+                }
+                else {
+                    signal(semlocal);
+                }
 
-                cout << "Received vote from " << voterPort << " now have " << (node.votes.size() + 1) << " / " << node.totalNodes << endl;
-                cout << endl;
-
-                if(term > node.termNumber){
-                    node.termNumber = term;
-                    node.role = 0;
-                    node.votedFor = -1;
-                    node.votes.clear();
+                wait(semlocal);
+                // Check if majority was achieved.
+                int votesReceived = node.votes.size(); // including self vote
+                if (2 * votesReceived > node.totalNodes) {
+                    cout << "Election won with " << votesReceived << " votes out of " << node.totalNodes << endl;
+                    node.isLeader = true;
+                    node.role = 2;
                     node.saveToJson();
-                }
-                if(term == node.termNumber && node.role == 1){
-                    node.votes.insert(voterPort);
-                    int numOfVotesRecieved = 0;
-                    numOfVotesRecieved = (node.votes).size();
-                    if(2*numOfVotesRecieved > node.totalNodes){
-                        cout << "Election WON with " << numOfVotesRecieved << " / " << node.totalNodes << " votes\n";
-                        cout << endl;
-                        
-                        node.isLeader = true;
-                        node.role = 0;
-                        node.saveToJson();
-                        return;
+                    signal(semlocal);
+
+                    thread sendAppendEntriesThread(sendAppendEntries, ref(node), ref(address), "APPEND ENTRIES", sockfd);
+                    sendAppendEntriesThread.detach();
+
+                    // send client at port 9090 and ip = 127.0.0.1 about the current leader port
+                    struct sockaddr_in clientAddr;
+                    clientAddr.sin_family = AF_INET;
+                    clientAddr.sin_port = htons(9090);
+                    inet_pton(AF_INET, "127.0.0.1", &clientAddr.sin_addr);
+
+                    char leaderInfo[1024] = {0};
+                    sprintf(leaderInfo, "LEADER %d", node.port);
+                    sendto(sockfd, leaderInfo, strlen(leaderInfo), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+                    cout << "Sent LEADER info to client." << endl;
+
+
+                    // Update shared state: mark self as leader.
+                    wait(semmtx);
+                    {
+                        ifstream inFile("../data/servers.json");
+                        if (inFile) {
+                            json serverData;
+                            inFile >> serverData;
+                            inFile.close();
+                            for (auto &s : serverData) {
+                                if (s["ip"] == node.ip && s["port"] == node.port)
+                                    s["isLeader"] = true;
+                                else
+                                    s["isLeader"] = false;
+                            }
+                            ofstream outFile("../data/servers.json", ios::trunc);
+                            outFile << serverData.dump(4);
+                            outFile.close();
+                        }
                     }
+                    signal(semmtx);
                 }
-
-            }
-            else if(strncmp(buffer, "HEARTBEAT", 9) == 0){
-                int term;
-                int leaderPort;
-                sscanf(buffer, "HEARTBEAT %d %d", &leaderPort, &term);
-
-                if(term >= node.termNumber){
-                    node.termNumber = term;
-                    node.role = 0;
+                else {
+                    cout << "Election failed. Not enough votes." << endl;
+                    node.role = 1;
                     node.isLeader = false;
                     node.votedFor = -1;
                     node.votes.clear();
                     node.saveToJson();
-                    return;
+                    signal(semlocal);
                 }
             }
-            
         }
     }
-}
-
-void startElection(Node &node, int& sockfd){
-
-    struct timeval timeout;
     
-    std::random_device rd;  
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dist(1.0, 2.0); 
-
-    double randomDecimal = dist(gen);
-
-    timeout.tv_sec = 10*randomDecimal;
-
-    cout << "Timeout : " << timeout.tv_sec << endl;
-
-    timeout.tv_usec = 0;
-
-    long long startTime = time(0);
-
-
-
-    struct sembuf pop, vop ;
-    pop.sem_num = vop.sem_num = 0;
-	pop.sem_flg = vop.sem_flg = 0;
-	pop.sem_op = -1 ; vop.sem_op = 1 ;
-
-    int semid1 = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
-
-    P(semid1);
-    vector<Node> serverList;
-    ifstream inFile("../data/servers.json");
-
-    if (!inFile) {
-        cerr << "Error opening servers.json" << endl;
-        return;
-    }
-
-    json serverData;
-    inFile >> serverData;
-    inFile.close();
-
-    for (auto& s : serverData) {
-        serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
-    }
-    V(semid1);
-
-    node.termNumber++;
-    node.votes.clear();
-    node.votes.insert(node.port);
-    node.role = 1;
-    node.votedFor = node.port;
-    node.saveToJson();
-
-    cout << "Starting election with term number " << node.termNumber << endl;
-    cout << endl;
-
-    multiset<pair<long long, pair<int,string>>> M;
-    for(Node &server : serverList){
-        if(server.ip != node.ip || server.port != node.port) M.insert({time(0), {server.port, server.ip}});
-    }
-
-    thread receiveThread(receiveVotes, ref(node), ref(sockfd), ref(timeout), ref(startTime));
-    receiveThread.detach();
-    
-
-    while(1){
-        int numOfVotesRecieved = 0;
-        numOfVotesRecieved = (node.votes).size();
-
-        if(2*numOfVotesRecieved > node.totalNodes){
-            node.isLeader = true;
-            break;
-        }
-
-        if(node.role != 1){
-            if(node.role == 3){
-                node.role = 1;
-                node.votes.clear();
-                node.votedFor = -1;
-                node.saveToJson();
-            }
-            break;
-        }
-
-        multiset<pair<long long, pair<int,string>>> Mnew;
-
-        for(auto u: M){
-            long long time_rec = u.first;
-            long long curtime = time(nullptr);
-            if(curtime - time_rec < 3){
-                if(node.votes.find(u.second.first) == node.votes.end()) Mnew.insert(u);
-            }
-            else{
-                if(node.votes.find(u.second.first) != node.votes.end()) continue;
-                struct sockaddr_in followerAddr;
-                followerAddr.sin_family = AF_INET;
-                followerAddr.sin_port = htons(u.second.first);
-                inet_pton(AF_INET, u.second.second.c_str(), &followerAddr.sin_addr);
-
-                char requestVote[1024];
-                memset(requestVote, '0', sizeof(requestVote));
-                requestVote[1023] = '\0'; 
-                sprintf(requestVote, "REQUEST VOTE %d %d", node.port, node.termNumber);
-
-                sendto(sockfd, requestVote, strlen(requestVote), 0, 
-                    (struct sockaddr*)&followerAddr, sizeof(followerAddr));
-                
-                cout << "Sent request vote to " << u.second.second << " : " << u.second.first << endl;
-
-                Mnew.insert({curtime, u.second});
-            }
-        }
-
-        M = Mnew;
-    }
-
-    
+    close(sockfd);
 }

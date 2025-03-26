@@ -1,0 +1,21 @@
+{
+    "commitIndex": 0,
+    "ip": "127.0.0.1",
+    "isLeader": true,
+    "lastApplied": 0,
+    "leaderIp": "",
+    "leaderPort": -1,
+    "log": [],
+    "port": 8085,
+    "role": 2,
+    "sockfd": 3,
+    "termNumber": 6,
+    "totalNodes": 5,
+    "voteTimeout": -1,
+    "votedFor": 8085,
+    "votes": [
+        8080,
+        8081,
+        8085
+    ]
+}

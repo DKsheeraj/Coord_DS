@@ -7,6 +7,7 @@ using json = nlohmann::json;
 
 const int totalNodes = 5;
 const int voteTimeout = 5;
+const int basePort = 8080;
 
 int main() {
     // Path to the JSON file
@@ -43,6 +44,7 @@ int main() {
     // Update JSON files for ports 8080 to 8084
     for (int port = 8080; port <= 8084; ++port) {
         string portFilePath = "../data/" + to_string(port) + ".json";
+        
 
         // Read the JSON file
         ifstream portInputFile(portFilePath);
@@ -51,9 +53,13 @@ int main() {
             continue;
         }
 
+        
+
         json portData;
         portInputFile >> portData;
         portInputFile.close();
+
+        
 
         // Update the fields
         portData["isLeader"] = false;
@@ -65,6 +71,31 @@ int main() {
         portData["voteTimeout"] = voteTimeout;
         portData["votedFor"] = -1;
         portData["votes"] = json::array();
+
+        // portData["ip"] = "";
+        portData["leaderIp"] = "";
+
+        // Integer fields should be initialized to -1 or 0, not null
+        // portData["port"] = -1;
+        portData["commitIndex"] = 0;
+        portData["lastApplied"] = 0;
+
+        // Log storage should be an empty array
+        portData["log"] = json::array();
+
+        json nextIndexJson = json::object();
+        json matchIndexJson = json::object();
+
+        // If total nodes are known, pre-fill default nextIndex and matchIndex
+        for (int i = 0; i < totalNodes; i++) {
+            int nodePort = basePort + i;  // Example way to derive ports
+            nextIndexJson[to_string(nodePort)] = 0;  // Start index at 0
+            matchIndexJson[to_string(nodePort)] = 0; // Start index at 0
+        }
+
+        portData["nextIndex"] = nextIndexJson;
+        portData["matchIndex"] = matchIndexJson;
+
 
         // Write the modified JSON back to the file
         ofstream portOutputFile(portFilePath);

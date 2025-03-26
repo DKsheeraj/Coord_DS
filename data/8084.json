@@ -1,8 +1,25 @@
 {
+    "commitIndex": 0,
     "ip": "127.0.0.1",
     "isLeader": false,
-    "leaderIp": "127.0.0.1",
+    "lastApplied": 0,
+    "leaderIp": "",
     "leaderPort": -1,
+    "log": [],
+    "matchIndex": {
+        "8080": 0,
+        "8081": 0,
+        "8082": 0,
+        "8083": 0,
+        "8084": 0
+    },
+    "nextIndex": {
+        "8080": 0,
+        "8081": 0,
+        "8082": 0,
+        "8083": 0,
+        "8084": 0
+    },
     "port": 8084,
     "role": 0,
     "sockfd": -1,

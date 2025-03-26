@@ -18,7 +18,19 @@ using namespace std;
 struct LogEntry {
     int term;
     string command;
+
+    // Convert LogEntry to JSON
+    json toJson() const {
+        return {{"term", term}, {"command", command}};
+    }
+
+    // Create LogEntry from JSON
+    static LogEntry fromJson(const json &j) {
+        return LogEntry{j.at("term").get<int>(), j.at("command").get<string>()};
+    }
 };
+
+
 
 const int TOTAL_NODES = 5;
 
@@ -58,10 +70,14 @@ public:
         return {{"ip", ip}, {"port", port}, {"isLeader", isLeader}};
     }
 
+    
+
     // Load Node data from its corresponding JSON file
     void loadFromJson() {
         string filename = "../data/" + to_string(port) + ".json";
         ifstream inFile(filename);
+
+        
 
         if (!inFile) {
             cerr << "Error opening file: " << filename << endl;
@@ -84,17 +100,57 @@ public:
             votedFor = j.value("votedFor", votedFor);
             voteTimeout = j.value("voteTimeout", voteTimeout);
             role = j.value("role", role);
+            commitIndex = j.value("commitIndex", commitIndex);
+            nextIndex.clear();
+            if (j.contains("nextIndex") && j["nextIndex"].is_object()) {
+                for (auto& [key, value] : j["nextIndex"].items()) {
+                    nextIndex[stoi(key)] = value.get<int>();  // Convert key back to int
+                }
+            }
+
+            matchIndex.clear();
+            if (j.contains("matchIndex") && j["matchIndex"].is_object()) {
+                for (auto& [key, value] : j["matchIndex"].items()) {
+                    matchIndex[stoi(key)] = value.get<int>();  // Convert key back to int
+                }
+            }
+
+
+            log.clear(); // Ensure log is empty before inserting entries
+            if (j.contains("log") && j["log"].is_array()) {
+                for (const auto &entry : j["log"]) {
+                    log.push_back(LogEntry::fromJson(entry));
+                }
+            }
+            
         } catch (const exception& e) {
             cerr << "JSON parsing error: " << e.what() << endl;
         }
+        
 
         inFile.close();
     }
 
     // Save Node data to its corresponding JSON file
     void saveToJson() {
+        vector<json> logJson;
+        for (const auto &entry : log) {
+            logJson.push_back(entry.toJson());
+        }
+
         string filename = "../data/" + to_string(port) + ".json";
         ofstream outFile(filename);
+
+        json nextIndexJson = json::object();
+        for (const auto &entry : nextIndex) {
+            nextIndexJson[to_string(entry.first)] = entry.second;
+        }
+
+        json matchIndexJson = json::object();
+        for (const auto &entry : matchIndex) {
+            matchIndexJson[to_string(entry.first)] = entry.second;
+        }
+
 
         if (!outFile) {
             cerr << "Error opening file: " << filename << endl;
@@ -113,7 +169,15 @@ public:
             {"votes", votes},
             {"votedFor", votedFor},
             {"voteTimeout", voteTimeout},
-            {"role", role}
+            {"role", role},
+            {"log", logJson},  // Storing log entries as JSON array
+            {"commitIndex", commitIndex},
+            {"lastApplied", lastApplied},
+
+            {"nextIndex", nextIndexJson},  // Store as object with string keys
+            {"matchIndex", matchIndexJson}
+
+            
         };
 
         outFile << j.dump(4); // Pretty print JSON with 4-space indentation
