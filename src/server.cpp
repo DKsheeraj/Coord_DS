@@ -45,15 +45,10 @@ int main(int argc, char* argv[]) {
 
     serverNode.loadFromJson();
 
-    for(auto u: serverNode.log){
-        cout<<u.term<<" "<<u.command<<" JJJJJJJJj\n";
-    }
 
     thread hbThread(assignType, ref(serverNode));
     hbThread.detach();
 
-    cout<<"HE\n";
-    cout<<(serverNode.ip)<<" HERE\n";
 
     serverNode.sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverNode.sockfd == -1) {

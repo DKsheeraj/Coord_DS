@@ -22,11 +22,14 @@
 #include <nlohmann/json.hpp>
 
 using namespace std;
+int st = 0;
 
 
 
 void sendingMessages(Node &node, int sockfd, string &leaderIp, int &leaderPort) {
     while(1){
+        while(!st){}
+        cout<<"TYPE THE MESSAGE TO BE SENT: ";
         string msg;
         cin>>msg;
 
@@ -88,9 +91,12 @@ int main() {
             buffer[bytesReceived] = '\0';
             cout << "Received: " << buffer << endl;
             if(strncmp(buffer, "LEADER", 6) == 0){
+                st = 1;
+                cout<<"WAIT A SEC, LEADER CHANGED!\n";
                 cout << "Received LEADER message from server." << endl;
                 sscanf(buffer, "LEADER %d", &leaderPort);
                 cout << "Leader port: " << leaderPort << endl;
+                cout<<"TYPE THE MESSAGE TO BE SENT: ";
             }
         }
 

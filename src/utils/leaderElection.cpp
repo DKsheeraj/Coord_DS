@@ -282,8 +282,9 @@ int storeEntries(Node &node, const char *msg) {
 
 void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const char *msg, int sockfd) {
     int term, prevLogIndex;
+    int prevterm;
     cout<<"Append request received as: "<<msg<<endl;
-    sscanf(msg, "APPEND REQUEST %d %d", &term, &prevLogIndex);
+    sscanf(msg, "APPEND REQUEST %d %d %d", &term, &prevLogIndex, &prevterm);
 
     wait(semlocal);
     if(term > node.termNumber){
@@ -314,9 +315,7 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
     else{
         int index = 0;
         bool success = false;
-        cout<<prevLogIndex<<" "<<node.log.size()<<" \n";
-        // if(prevLogIndex >= 0) cout<<(node.log[prevLogIndex].term)<<" "<<term<<" \n";
-        if(prevLogIndex == -1 || ((prevLogIndex < node.log.size()) && (node.log[prevLogIndex].term == term))){
+        if(prevLogIndex == -1 || ((prevLogIndex < node.log.size()) && (node.log[prevLogIndex].term == prevterm))){
             success = true; 
         }
         
@@ -366,7 +365,6 @@ void handleAppendReply(Node &node, const struct sockaddr_in &clientAddr, const c
     int index;
     vector<string> V;
     breakCommand(msg, V);
-    // sscanf(msg, "APPEND REPLY %d %s %d", &term, success, &index);
     term = stoi(V[2]);
     success = V[3];
     index = stoi(V[4]);
@@ -394,6 +392,7 @@ void handleAppendReply(Node &node, const struct sockaddr_in &clientAddr, const c
         }
 
         if(node.nextIndex[ntohs(clientAddr.sin_port)] < node.log.size()){
+            cout<<" PKP\n";
             cv3.notify_all();
         }
         signal(semlocal);
