@@ -32,6 +32,9 @@ int deltaHeartBeat = 5; // seconds
 int deltaRequestVote = 5; // seconds
 int deltaElection = 10; // seconds
 
+int noOfACKs = 0; // Number of ACKs received
+int ACK_SEQ = 0; // Sequence number for ACKs
+
 // Global election timeout.
 int electionTimeout; // seconds
 int sendAppendEntriesTimeout;
@@ -76,10 +79,11 @@ void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const
     command = V[1];
 
     wait(semlocal);
-    bool st = node.isLeader;
+    if(!node.isLeader) {
+        signal(semlocal);
+        return;
+    }
     signal(semlocal);
-
-    if(!st) return;
 
     wait(semlocal);
     LogEntry entry;
@@ -105,10 +109,11 @@ void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const c
     cout<<"Became leader - Starting send append Entries thread\n";
     
     wait(semlocal);
-    bool st = node.isLeader;
+    if(!node.isLeader) {
+        signal(semlocal);
+        return;
+    }
     signal(semlocal);
-    
-    if(!st) return;
 
     random_device rd;
     mt19937 gen(rd());
@@ -141,15 +146,18 @@ void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const c
 
 
     while(1){
-        wait(semlocal);
-        bool st = node.isLeader;
-        signal(semlocal);
-
-        if(!st) break;
         unique_lock<mutex> lock(cv_mtx3);
 
         auto status = cv3.wait_for(lock, chrono::seconds(sendAppendEntriesTimeout));
-        cout<<"Sending Append Entries to all follower nodes"<<endl;
+
+        wait(semlocal);
+        if(!node.isLeader) {
+            signal(semlocal);
+            return;
+        }
+        signal(semlocal);
+
+        cout << "Sending Append Entries to all follower nodes" << endl;
         
         for(auto server: serverList) {
             if(server.ip == node.ip && server.port == node.port) continue;
@@ -404,8 +412,8 @@ void handleAppendReply(Node &node, const struct sockaddr_in &clientAddr, const c
 
 // Handles a HEARTBEAT message. Sends ACK only if term >= current term and notifies waiting threads.
 void handleHeartbeat(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
-    int leaderPort, term;
-    sscanf(msg, "HEARTBEAT %d %d", &leaderPort, &term);
+    int leaderPort, term, recv_ack_seq;
+    sscanf(msg, "HEARTBEAT %d %d %d", &leaderPort, &term, &recv_ack_seq);
     cout << "Received HEARTBEAT from " << inet_ntoa(clientAddr.sin_addr)
          << " (leader port: " << leaderPort << ", term: " << term << ")" << endl;
 
@@ -425,7 +433,8 @@ void handleHeartbeat(Node &node, const struct sockaddr_in &clientAddr, const cha
         cv1.notify_all();
         cv2.notify_all();
         // Send ACK only when term is sufficient.
-        const char *ackMsg = "ACK";
+        char ackMsg[1024] = {0};
+        sprintf(ackMsg, "ACK %d", recv_ack_seq);
         sendto(sockfd, ackMsg, strlen(ackMsg), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
     }
     else {
@@ -435,8 +444,8 @@ void handleHeartbeat(Node &node, const struct sockaddr_in &clientAddr, const cha
 
 // Handles a REQUEST VOTE message.
 void handleRequestVote(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
-    int requesterPort, term;
-    sscanf(msg, "REQUEST VOTE %d %d", &requesterPort, &term);
+    int requesterPort, term, lastLogTermC, lastLogIndexC;
+    sscanf(msg, "REQUEST VOTE %d %d %d %d", &requesterPort, &term, &lastLogTermC, &lastLogIndexC);
     cout << "Received REQUEST VOTE from " << inet_ntoa(clientAddr.sin_addr)
          << " (requester port: " << requesterPort << ", term: " << term << ")" << endl;
     char vote[1024] = {0};
@@ -456,6 +465,14 @@ void handleRequestVote(Node &node, const struct sockaddr_in &clientAddr, const c
 
     wait(semlocal);
     if (term == node.termNumber && (node.votedFor == requesterPort || node.votedFor == -1)) {
+        int lastLogTermV = (node.log.size()) ? node.log.back().term : 0;
+        int lastLogIndexV = node.log.size() - 1;
+        if (lastLogTermC < lastLogTermV || (lastLogTermC == lastLogTermV && lastLogIndexC < lastLogIndexV)) {
+            cout << "Vote denied to " << requesterPort << endl;
+            signal(semlocal);
+            return;
+        }
+
         node.votedFor = requesterPort;
         node.role = 0;
         node.isLeader = false;
@@ -512,7 +529,19 @@ void handleVote(Node &node, const struct sockaddr_in &clientAddr, const char *ms
 // Handles an ACK message (typically in response to a heartbeat).
 void handleAck(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
     wait(semlocal);
-    if(node.isLeader) cout << "Received ACK from " << inet_ntoa(clientAddr.sin_addr) << " : " << ntohs(clientAddr.sin_port) << endl;
+    if(!node.isLeader) {
+        signal(semlocal);
+        return;
+    }
+    signal(semlocal);
+
+    int ack_seq;
+    sscanf(msg, "ACK %d", &ack_seq);
+    if(ack_seq != ACK_SEQ) return;
+    
+    wait(semlocal);
+    noOfACKs++;
+    cout << "Received ACK from " << inet_ntoa(clientAddr.sin_addr) << " : " << ntohs(clientAddr.sin_port) << endl;
     signal(semlocal);
     // Update any heartbeat tracking if needed.
 }
@@ -629,7 +658,7 @@ void startElection(Node &node, int &sockfd) {
             inet_pton(AF_INET, server.ip.c_str(), &followerAddr.sin_addr);
 
             char requestVote[1024] = {0};
-            sprintf(requestVote, "REQUEST VOTE %d %d", node.port, node.termNumber);
+            sprintf(requestVote, "REQUEST VOTE %d %d %d %d", node.port, node.termNumber, (node.log.size()) ? node.log.back().term : 0, (int)(node.log.size() - 1));
             sendto(sockfd, requestVote, strlen(requestVote), 0,
                 (struct sockaddr*)&followerAddr, sizeof(followerAddr));
             cout << "Sent REQUEST VOTE to " << server.ip << " : " << server.port << endl;
@@ -719,6 +748,12 @@ void assignType(Node &node) {
                     serverList.emplace_back(s["ip"], s["port"], s["isLeader"]);
                 }
             }
+
+            // Reset ACK count for this heartbeat.
+            noOfACKs = 0;
+            ACK_SEQ++;
+
+            // Send heartbeats to all followers.
             for (Node &follower : serverList) {
                 if (follower.ip == node.ip && follower.port == node.port)
                     continue;
@@ -727,13 +762,24 @@ void assignType(Node &node) {
                 followerAddr.sin_port = htons(follower.port);
                 inet_pton(AF_INET, follower.ip.c_str(), &followerAddr.sin_addr);
                 char heartbeatMsg[1024] = {0};
-                sprintf(heartbeatMsg, "HEARTBEAT %d %d", node.port, node.termNumber);
+                sprintf(heartbeatMsg, "HEARTBEAT %d %d %d", node.port, node.termNumber, ACK_SEQ);
                 sendto(sockfd, heartbeatMsg, strlen(heartbeatMsg), 0,
                        (struct sockaddr*)&followerAddr, sizeof(followerAddr));
                 cout << "Sent HEARTBEAT to " << follower.ip << " : " << follower.port << endl;
             }
 
             this_thread::sleep_for(chrono::seconds(deltaHeartBeat));
+            
+            wait(semlocal);
+            if(noOfACKs < node.totalNodes / 2) {
+                cout << "Not enough ACKs received. Starting election." << endl;
+                node.role = 1; // candidate
+                node.isLeader = false;
+                node.votedFor = -1;
+                node.votes.clear();
+                node.saveToJson();
+            }
+            signal(semlocal);
         }
         else {
             if(node.role == 0) {
