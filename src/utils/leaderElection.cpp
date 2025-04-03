@@ -42,6 +42,10 @@ int sendAppendEntriesTimeout;
 // --- Semaphore helper functions ---
 int semmtx, semlocal;
 
+int fileNo = 0;
+
+int reply = 0;
+
 void wait(int semid) {
     struct sembuf op;
     op.sem_num = 0;
@@ -72,11 +76,12 @@ void breakCommand(const string &command, vector<string> &V){
 void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
     cout<<"Received append request from Client with command: "<<msg<<endl;
 
-    string command;
     vector<string> V;
     breakCommand(msg, V);
 
-    command = V[1];
+    string requestType = V[1];
+    string fullCommand = msg;
+    fullCommand = fullCommand.substr(8);
 
     wait(semlocal);
     if(!node.isLeader) {
@@ -88,18 +93,85 @@ void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const
     wait(semlocal);
     LogEntry entry;
     entry.term = node.termNumber;
-    entry.command = command;
+    entry.command = fullCommand;
     node.log.push_back(entry);
-
+    cout<<(entry.term)<<" "<<endl;
     node.saveToJson();
 
-    cout<<"Current status of log: \n";
 
-    for(auto u: node.log){
-        cout<<u.term<<" "<<u.command<<endl;
+    int port = node.port;
+    signal(semlocal);
+
+    string response;
+
+    if (requestType == "CREATE") {
+        fileNo++;
+        // string filename = to_string(port) + "_" + id + ".txt";
+        string folder = "../serverfiles";  // Folder name
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(fileNo) + ".txt";
+
+
+        ofstream file(filename);
+        if (!file) {
+            cerr << "Error creating file: " << filename << endl;
+            return;
+        }
+        file.close();
+
+        response = "ID " + to_string(fileNo);
+    } 
+    else if (requestType == "WRITE" && V.size() >= 4) {
+        string id = V[2];
+        // string filename = to_string(port) + "_" + id + ".txt";
+        string folder = "../serverfiles";  // Folder name
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
+
+
+        ofstream file(filename, ios::trunc);
+        if (!file) {
+            cerr << "File not found: " << filename << endl;
+            return;
+        }
+
+        string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
+        file << message;
+        file.close();
+    } 
+    else if (requestType == "READ" && V.size() >= 3) {
+        string id = V[2];
+        // string filename = to_string(port) + "_" + id + ".txt";
+        string folder = "../serverfiles";  // Folder name
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
+
+        ifstream file(filename);
+        if (!file) {
+            response = "ERROR: File not found";
+        } else {
+            string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+            response = content;
+            file.close();
+        }
+    } 
+    else if (requestType == "APPEND" && V.size() >= 4) {
+        string id = V[2];
+        // string filename = to_string(port) + "_" + id + ".txt";
+        string folder = "../serverfiles";  // Folder name
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
+
+        ofstream file(filename, ios::app);
+        if (!file) {
+            cerr << "File not found: " << filename << endl;
+            return;
+        }
+
+        string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
+        file << message;
+        file.close();
     }
 
-    signal(semlocal);
+    if (!response.empty()) {
+        sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
+    }
 
     cv3.notify_all();
 
@@ -175,7 +247,7 @@ void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const c
             sendAppendEntries += to_string(node.termNumber);
             sendAppendEntries += " ";
             sendAppendEntries += to_string(lastLogIndex -1);
-            sendAppendEntries += " ";
+            sendAppendEntries += " | ";
 
             int sz = node.log.size();
             
@@ -185,13 +257,13 @@ void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const c
                 if(i == -1){
                     sendAppendEntries += to_string(-1);
                     sendAppendEntries += " ";
-                    sendAppendEntries += "START ";
+                    sendAppendEntries += "START | ";
                     continue;
                 }
                 sendAppendEntries += to_string(node.log[i].term);
                 sendAppendEntries += " ";
                 sendAppendEntries += node.log[i].command;
-                sendAppendEntries += " ";
+                sendAppendEntries += " | ";
             }
             // add commit index
             sendAppendEntries += to_string(node.commitIndex);
@@ -207,25 +279,140 @@ void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const c
     return;
 }
 
-void parseAppendRequest(vector<string> &V, int &term, int &prevLogIndex, vector<LogEntry> &tempLog, int &commitIndex) {
+void parseAppendRequest(const char * msg, vector<string> &V, int &term, int &prevLogIndex, vector<LogEntry> &tempLog, int &commitIndex) {
     
-    cout<<"Parsing Append Request"<<endl;
+    cout << "Parsing Append Request" << endl;
 
-    term = stoi(V[2]);
+    stringstream ss(msg);
+    string word;
+
+    // Read first four values (fixed structure: "APPEND REQUEST term prevLogIndex")
+    string commandType, requestType;
+    ss >> commandType >> requestType >> term >> prevLogIndex;
+
+    tempLog.clear();
+    LogEntry temp;
+    string logEntry;
+    string ty = "0";
+    
+    // Read log entries, separated by "|"
+    while (getline(ss, logEntry, '|')) {  
+        stringstream entrySS(logEntry);
+        string part;
+        vector<string> entryParts;
+
+        
+        ty = "0";
+        while (entrySS >> part) {
+            if(ty == "0") ty = part;  
+            entryParts.push_back(part);
+        }
+
+        if(ty == "-1") continue;
+
+        if (entryParts.size() >= 2) {  
+            temp.term = stoi(entryParts[0]);  
+            temp.command = "";
+
+            for (size_t i = 1; i < entryParts.size(); i++) {  
+                if (!temp.command.empty()) temp.command += " ";  
+                temp.command += entryParts[i];
+            }
+
+            tempLog.push_back(temp);
+        }
+        
+    }
 
     int sz = V.size();
 
-    for(int i = 4; (i+1) < sz; i+=2){
-        LogEntry temp;
-        temp.term = stoi(V[i]);
-        temp.command = V[i+1];
-        tempLog.push_back(temp);
-
-    }
-    
-    commitIndex = stoi(V[sz - 1]);
+    commitIndex = stoi(V[sz-1]);
     
 }
+
+
+
+void processLogEntry(Node &node, const LogEntry &entry) {
+    vector<string> V;
+    breakCommand(entry.command, V);
+
+    string requestType = V[0];
+
+    string fullCommand = entry.command;
+    // fullCommand = fullCommand.substr(8);
+
+    string response;
+
+    wait(semlocal);
+    int port = node.port;
+    signal(semlocal);
+
+    cout<<fullCommand<<" HERE\n";
+
+
+    if (requestType == "CREATE") {
+        fileNo++;
+        // string filename = to_string(port) + "_" + id + ".txt";
+        string folder = "../serverfiles";  // Folder name
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(fileNo) + ".txt";
+
+        ofstream file(filename);
+        if (!file) {
+            cerr << "Error creating file: " << filename << endl;
+            return;
+        }
+        file.close();
+    } 
+    else if (requestType == "WRITE") {
+        string id = V[1];
+        cout<<"HERE "<<fullCommand<<" IDL\n";
+        // string filename = to_string(port) + "_" + id + ".txt";
+        string folder = "../serverfiles";  // Folder name
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
+
+        ofstream file(filename, ios::trunc);
+        if (!file) {
+            cerr << "File not found: " << filename << endl;
+            return;
+        }
+
+        string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
+        file << message;
+        file.close();
+    } 
+    else if (requestType == "READ") {
+        string id = V[1];
+        // string filename = to_string(port) + "_" + id + ".txt";
+        string folder = "../serverfiles";  // Folder name
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
+
+        ifstream file(filename);
+        if (!file) {
+            response = "ERROR: File not found";
+        } else {
+            string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+            response = content;
+            file.close();
+        }
+    } 
+    else if (requestType == "APPEND") {
+        string id = V[1];
+        // string filename = to_string(port) + "_" + id + ".txt";
+        string folder = "../serverfiles";  // Folder name
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
+
+        ofstream file(filename, ios::app);
+        if (!file) {
+            cerr << "File not found: " << filename << endl;
+            return;
+        }
+
+        string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
+        file << message;
+        file.close();
+    }
+}
+
 
 int storeEntries(Node &node, const char *msg) {
     cout<<"Storing Entries after success: "<<"message received: ";
@@ -241,15 +428,32 @@ int storeEntries(Node &node, const char *msg) {
     vector<LogEntry> tempLog;
     int commitIndex;
 
-    parseAppendRequest(V, term, prevLogIndex, tempLog, commitIndex);
-    
+    parseAppendRequest(msg, V, term, prevLogIndex, tempLog, commitIndex);
+
     if(prevLogIndex == -1){
         wait(semlocal);
-        node.log.clear();
-        int sz = tempLog.size();
-        for(int i = 1; i < sz; i++){
-            node.log.push_back(tempLog[i]);
+        cout<<"Entries sent from the start\n";
+        
+        size_t j = 0;
+        size_t i = 0;
+        size_t sz1 = tempLog.size();
+        size_t sz2 = node.log.size();
+        while(j < sz1 && i < sz2){
+            if(node.log[i].term == tempLog[j].term && node.log[i].command == tempLog[j].command){
+                j++;
+                i++;
+            }
+            else break;
         }
+        
+        while(j < sz1){
+            signal(semlocal);
+            processLogEntry(node, tempLog[j]); // Process file operation
+            wait(semlocal);
+            node.log.push_back(tempLog[j]);
+            j++;
+        }
+
         signal(semlocal);
     }
     else{
@@ -257,28 +461,37 @@ int storeEntries(Node &node, const char *msg) {
         int sz = tempLog.size();
         int szlog = node.log.size();
 
-        for(int i = 0; i < szlog; i++){
-            if(node.log[i].term == tempLog[0].term && node.log[i].command == tempLog[0].command){
-                node.log.erase(node.log.begin() + i + 1, node.log.end());
-                for(int j = 1; j < sz; j++){
-                    node.log.push_back(tempLog[j]);
+        for (int i = 0; i < szlog; i++) {
+            if (node.log[i].term == tempLog[0].term && node.log[i].command == tempLog[0].command) {
+                
+                size_t j = 0;
+                while(j < sz){
+                    if(node.log[i].term == tempLog[j].term && node.log[i].command == tempLog[j].command){
+                        i++;
+                        j++;
+                    }
+                    else break;
                 }
+
+                while(j < sz){
+                    signal(semlocal);
+                    processLogEntry(node, tempLog[j]); // Process file operation
+                    wait(semlocal);
+                    node.log.push_back(tempLog[j]);
+                    j++;
+                }
+
                 break;
             }
         }
         signal(semlocal);
     }
+
+
     wait(semlocal);
     index = node.log.size();
     index--;
-
-    cout<<"Current status of log: \n";
-
-    for(auto u: node.log){
-        cout<<u.term<<" "<<u.command<<endl;
-    }
-
-    
+  
 
     node.commitIndex = min(commitIndex, index);
     node.saveToJson();
@@ -292,7 +505,7 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
     int term, prevLogIndex;
     int prevterm;
     cout<<"Append request received as: "<<msg<<endl;
-    sscanf(msg, "APPEND REQUEST %d %d %d", &term, &prevLogIndex, &prevterm);
+    sscanf(msg, "APPEND REQUEST %d %d | %d", &term, &prevLogIndex, &prevterm);
 
     wait(semlocal);
     if(term > node.termNumber){
@@ -323,6 +536,7 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
     else{
         int index = 0;
         bool success = false;
+
         if(prevLogIndex == -1 || ((prevLogIndex < node.log.size()) && (node.log[prevLogIndex].term == prevterm))){
             success = true; 
         }
@@ -389,6 +603,7 @@ void handleAppendReply(Node &node, const struct sockaddr_in &clientAddr, const c
         signal(semlocal);
     }
     else if(term == node.termNumber && node.isLeader){
+        reply++;
         if(success == "true"){
             cout<<"Updating next Index for port: "<<(ntohs(clientAddr.sin_port))<<endl;
             node.nextIndex[(ntohs(clientAddr.sin_port))] = index + 1;
@@ -401,7 +616,7 @@ void handleAppendReply(Node &node, const struct sockaddr_in &clientAddr, const c
 
         if(node.nextIndex[ntohs(clientAddr.sin_port)] < node.log.size()){
             cout<<" PKP\n";
-            cv3.notify_all();
+            if(reply == (node.totalNodes - 1)) cv3.notify_all();
         }
         signal(semlocal);
     }

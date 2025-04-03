@@ -26,27 +26,69 @@ int st = 0;
 
 
 
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+using namespace std;
+
 void sendingMessages(Node &node, int sockfd, string &leaderIp, int &leaderPort) {
-    while(1){
+    while (1) {
         while(!st){}
-        cout<<"TYPE THE MESSAGE TO BE SENT: ";
-        string msg;
-        cin>>msg;
+        cout<<"TYPE THE MESSAGE TO BE SENT: "<<endl;
+        string msgType;
+        cin >> msgType;
 
-        // send as REQUEST msg
-        string sendMsg = "REQUEST " + msg;
+        string sendMsg;
+
+        if (msgType == "CREATE") {
+            sendMsg = "REQUEST CREATE";
+        } 
+        else if (msgType == "WRITE") {
+            cout << "Enter ID: ";
+            string id;
+            cin >> id;
+            cin.ignore();  // Clear input buffer
+            cout << "Enter message to WRITE (less than 1024 characters): ";
+            string msg;
+            getline(cin, msg);
+            sendMsg = "REQUEST WRITE " + id + " " + msg;
+        } 
+        else if (msgType == "READ") {
+            cout << "Enter ID to READ: ";
+            string id;
+            cin >> id;
+            sendMsg = "REQUEST READ " + id;
+        } 
+        else if (msgType == "APPEND") {
+            cout << "Enter ID to APPEND to: ";
+            string id;
+            cin >> id;
+            cin.ignore();
+            cout << "Enter message to APPEND (less than 1024 characters): ";
+            string msg;
+            getline(cin, msg);
+            sendMsg = "REQUEST APPEND " + id + " " + msg;
+        } 
+        else {
+            cout << "Invalid message type. Please try again.\n";
+            continue;
+        }
+
         cout << "Sending: " << sendMsg << endl;
-        cout<<leaderIp<<" "<<leaderPort<<endl;
+        cout << "Leader Address: " << leaderIp << " " << leaderPort << endl;
 
-        // send to leader 
         struct sockaddr_in leaderAddr;
         leaderAddr.sin_family = AF_INET;
         leaderAddr.sin_port = htons(leaderPort);
         inet_pton(AF_INET, leaderIp.c_str(), &leaderAddr.sin_addr);
 
-        sendto(sockfd, sendMsg.c_str(), strlen(sendMsg.c_str()), 0, (struct sockaddr*)&leaderAddr, sizeof(leaderAddr));
+        sendto(sockfd, sendMsg.c_str(), sendMsg.length(), 0, (struct sockaddr*)&leaderAddr, sizeof(leaderAddr));
     }
 }
+
 
 int main() {
     Node clientNode("127.0.0.1", 9090); 
@@ -89,14 +131,25 @@ int main() {
 
         if (bytesReceived > 0) {
             buffer[bytesReceived] = '\0';
-            cout << "Received: " << buffer << endl;
             if(strncmp(buffer, "LEADER", 6) == 0){
                 st = 1;
-                cout<<"WAIT A SEC, LEADER CHANGED!\n";
+                cout<<"\n";
                 cout << "Received LEADER message from server." << endl;
                 sscanf(buffer, "LEADER %d", &leaderPort);
                 cout << "Leader port: " << leaderPort << endl;
-                cout<<"TYPE THE MESSAGE TO BE SENT: ";
+                cout<<"TYPE THE MESSAGE TO BE SENT: "<<endl;
+            }
+            else if(strncmp(buffer, "ID", 2) == 0){
+                int id;
+                sscanf(buffer, "ID %d", &id);
+                cout<<"ID: "<<id<<endl;
+                cout<<"TYPE THE MESSAGE TO BE SENT: "<<endl;
+            }
+            else{
+                cout << endl;
+                cout << "READ REPLY: \n";
+                cout<<buffer<<endl;
+                cout<<"TYPE THE MESSAGE TO BE SENT: "<<endl;
             }
         }
 

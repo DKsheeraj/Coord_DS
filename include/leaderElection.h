@@ -30,7 +30,7 @@ void handleAck(Node &node, const struct sockaddr_in &clientAddr, const char *msg
 void receiveThreadFunction(Node &node, int sockfd);
 void startElection(Node &node, int &sockfd);
 void assignType(Node &node);
-
+void processLogEntry(Node &node, const LogEntry &entry);
 
 
 

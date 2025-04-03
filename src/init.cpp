@@ -53,7 +53,17 @@ int main() {
             continue;
         }
 
-        
+        for(int id = 1; id <= 100; id++){
+            string folder = "../serverfiles";  // Folder name
+            string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(id) + ".txt";
+
+
+            if (remove(filename.c_str()) == 0) {
+                // cout << "File deleted successfully: " << filename << endl;
+            } else {
+                // perror("Error deleting file");
+            }
+        }
 
         json portData;
         portInputFile >> portData;
