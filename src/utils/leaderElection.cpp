@@ -42,8 +42,6 @@ int sendAppendEntriesTimeout;
 // --- Semaphore helper functions ---
 int semmtx, semlocal;
 
-int fileNo = 0;
-
 int reply = 0;
 
 void wait(int semid) {
@@ -105,10 +103,12 @@ void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const
     string response;
 
     if (requestType == "CREATE") {
-        fileNo++;
+        wait(semlocal);
+        node.fileNo++;
+        node.saveToJson();
         // string filename = to_string(port) + "_" + id + ".txt";
         string folder = "../serverfiles";  // Folder name
-        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(fileNo) + ".txt";
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(node.fileNo) + ".txt";
 
 
         ofstream file(filename);
@@ -118,7 +118,8 @@ void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const
         }
         file.close();
 
-        response = "ID " + to_string(fileNo);
+        response = "ID " + to_string(node.fileNo);
+        signal(semlocal);
     } 
     else if (requestType == "WRITE" && V.size() >= 4) {
         string id = V[2];
@@ -351,10 +352,12 @@ void processLogEntry(Node &node, const LogEntry &entry) {
 
 
     if (requestType == "CREATE") {
-        fileNo++;
+        wait(semlocal);
+        node.fileNo++;
+        node.saveToJson();
         // string filename = to_string(port) + "_" + id + ".txt";
         string folder = "../serverfiles";  // Folder name
-        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(fileNo) + ".txt";
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(node.fileNo) + ".txt";
 
         ofstream file(filename);
         if (!file) {
@@ -362,10 +365,10 @@ void processLogEntry(Node &node, const LogEntry &entry) {
             return;
         }
         file.close();
+        signal(semlocal);
     } 
     else if (requestType == "WRITE") {
         string id = V[1];
-        cout<<"HERE "<<fullCommand<<" IDL\n";
         // string filename = to_string(port) + "_" + id + ".txt";
         string folder = "../serverfiles";  // Folder name
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";

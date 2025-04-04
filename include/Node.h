@@ -60,6 +60,7 @@ public:
     int lastApplied;    // highest log entry applied to state machine
     map<int,int> nextIndex;  // for each follower (by port) next log index to send
     map<int,int> matchIndex; // for each follower, highest replicated index
+    int fileNo = 0;
 
     Node(string ip_, int port_, bool isLeader_ = false) 
       : ip(ip_), port(port_), isLeader(isLeader_), termNumber(0), role(0), 
