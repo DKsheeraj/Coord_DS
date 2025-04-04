@@ -89,6 +89,7 @@ int main() {
         // portData["port"] = -1;
         portData["commitIndex"] = 0;
         portData["lastApplied"] = 0;
+        portData["fileNo"] = 0;
 
         // Log storage should be an empty array
         portData["log"] = json::array();
