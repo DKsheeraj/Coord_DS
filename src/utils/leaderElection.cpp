@@ -44,6 +44,87 @@ int semmtx, semlocal;
 
 int reply = 0;
 
+const int numFiles = 5;
+const int maxRead = 5;
+
+std::vector<int> readSemaphores;
+std::vector<int> writeSemaphores;
+
+union semun {
+    int val;
+    struct semid_ds *buf;
+    unsigned short *array;
+};
+
+int state = 0;
+
+void printSemaphoreStatus(int readSemId, int fileNo) {
+    // Get the current value of the read semaphore
+    int semValue = semctl(readSemId, 0, GETVAL);
+    
+    if (semValue == -1) {
+        perror("semctl");
+        std::cerr << "Failed to get the semaphore value for file " << fileNo << std::endl;
+    } else {
+        std::cout << "Current read semaphore value for file " << fileNo << ": " << semValue << std::endl;
+    }
+}
+
+
+int createOrGetSemaphore_leader(key_t key, int initialValue) {
+    int semid = semget(key, 1, IPC_CREAT | 0666);
+    if (semid == -1) {
+        perror("semget");
+        throw std::runtime_error("Failed to create/get semaphore");
+    }
+
+    semun arg;
+    arg.val = initialValue;
+    semctl(semid, 0, SETVAL, arg);
+
+    return semid;
+}
+
+void initFileLocks(int port, int numFiles, int maxRead) {
+    for (int i = 0; i < numFiles; i++) {
+        key_t readKey = ftok("/tmp", 100 + port * 10 + i);
+        key_t writeKey = ftok("/tmp", 200 + port * 10 + i);
+
+        int readSem = createOrGetSemaphore_leader(readKey, maxRead);
+        int writeSem = createOrGetSemaphore_leader(writeKey, 1);
+
+        readSemaphores.push_back(readSem);
+        writeSemaphores.push_back(writeSem);
+
+        std::cout << "[Semaphore] File " << i << " — ReadSem: " << readSem << ", WriteSem: " << writeSem << std::endl;
+    }
+}
+
+void acquireRead(int fileIdx) {
+    struct sembuf op = {0, -1, 0};
+    int ac = semop(readSemaphores[fileIdx], &op, 1);
+    cout<<ac<<endl;
+    printSemaphoreStatus(readSemaphores[fileIdx], 1);
+}
+
+void releaseRead(int fileIdx) {
+    struct sembuf op = {0, 1, 0};
+    semop(readSemaphores[fileIdx], &op, 1);
+    printSemaphoreStatus(readSemaphores[fileIdx], 1);
+}
+
+void acquireWrite(int fileIdx) {
+    struct sembuf op = {0, -1, 0};
+    semop(writeSemaphores[fileIdx], &op, 1);
+    printSemaphoreStatus(writeSemaphores[fileIdx], 1);
+}
+
+void releaseWrite(int fileIdx) {
+    struct sembuf op = {0, 1, 0};
+    semop(writeSemaphores[fileIdx], &op, 1);
+    printSemaphoreStatus(writeSemaphores[fileIdx], 1);
+}
+
 void wait(int semid) {
     struct sembuf op;
     op.sem_num = 0;
@@ -60,6 +141,28 @@ void signal(int semid) {
     semop(semid, &op, 1);
 }
 
+void initLeaderLocks(Node& node, int numFiles, int maxRead) {
+    // Initialize semaphores for each file on this node/port
+    for (int i = 0; i < numFiles; i++) {
+        // Generate unique semaphore keys for the current port and file index
+        key_t readKey = ftok("/tmp", 100 + node.port * 10 + i);
+        key_t writeKey = ftok("/tmp", 200 + node.port * 10 + i);
+
+        // Create or get the semaphores for read and write
+        int readSem = createOrGetSemaphore_leader(readKey, maxRead);
+        int writeSem = createOrGetSemaphore_leader(writeKey, 1);
+
+        // Store the semaphores for future use
+        readSemaphores.push_back(readSem);
+        writeSemaphores.push_back(writeSem);
+
+        std::cout << "[Leader] Initialized semaphores for file " << i 
+                  << " on port " << node.port 
+                  << " — ReadSem: " << readSem 
+                  << ", WriteSem: " << writeSem << std::endl;
+    }
+}
+
 // --- Message Handlers ---
 
 void breakCommand(const string &command, vector<string> &V){
@@ -71,7 +174,7 @@ void breakCommand(const string &command, vector<string> &V){
 }
 
 // Handles append requests from the client of the form : REQUEST <command>
-void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
+void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const char *msg, int sockfd) {
     cout<<"Received append request from Client with command: "<<msg<<endl;
 
     vector<string> V;
@@ -99,6 +202,7 @@ void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const
 
     int port = node.port;
     signal(semlocal);
+    cv3.notify_all();
 
     string response;
 
@@ -106,7 +210,6 @@ void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const
         wait(semlocal);
         node.fileNo++;
         node.saveToJson();
-        // string filename = to_string(port) + "_" + id + ".txt";
         string folder = "../serverfiles";  // Folder name
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(node.fileNo) + ".txt";
 
@@ -119,11 +222,18 @@ void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const
         file.close();
 
         response = "ID " + to_string(node.fileNo);
+        if (!response.empty()) {
+            sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
+        }
         signal(semlocal);
     } 
     else if (requestType == "WRITE" && V.size() >= 4) {
         string id = V[2];
-        // string filename = to_string(port) + "_" + id + ".txt";
+        int filenum = stoi(id);
+        acquireWrite(filenum - 1);
+        for(int i = 0; i < maxRead; i++){
+            acquireRead(filenum - 1);
+        }
         string folder = "../serverfiles";  // Folder name
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
 
@@ -137,9 +247,16 @@ void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const
         string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
         file << message;
         file.close();
+        for(int i = 0; i < maxRead; i++){
+            releaseRead(filenum - 1);
+        }
+        releaseWrite(filenum - 1);        
     } 
     else if (requestType == "READ" && V.size() >= 3) {
         string id = V[2];
+        int filenum = stoi(id);
+        acquireRead(filenum - 1);
+        printSemaphoreStatus(readSemaphores[filenum - 1], filenum);
         // string filename = to_string(port) + "_" + id + ".txt";
         string folder = "../serverfiles";  // Folder name
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
@@ -152,9 +269,19 @@ void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const
             response = content;
             file.close();
         }
+        if (!response.empty()) {
+            sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
+        }
+        sleep(10);
+        releaseRead(filenum - 1);
     } 
     else if (requestType == "APPEND" && V.size() >= 4) {
         string id = V[2];
+        int filenum = stoi(id);
+        acquireWrite(filenum - 1);
+        for(int i = 0; i < maxRead; i++){
+            acquireRead(filenum - 1);
+        }
         // string filename = to_string(port) + "_" + id + ".txt";
         string folder = "../serverfiles";  // Folder name
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
@@ -168,13 +295,15 @@ void handleAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const
         string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
         file << message;
         file.close();
+        for(int i = 0; i < maxRead; i++){
+            releaseRead(filenum - 1);
+        }
+        releaseWrite(filenum - 1);
     }
 
-    if (!response.empty()) {
-        sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
-    }
+    
 
-    cv3.notify_all();
+    
 
 }
 
@@ -369,6 +498,11 @@ void processLogEntry(Node &node, const LogEntry &entry) {
     } 
     else if (requestType == "WRITE") {
         string id = V[1];
+        int filenum = stoi(id);
+        acquireWrite(filenum - 1);
+        for(int i = 0; i < maxRead; i++){
+            acquireRead(filenum - 1);
+        }
         // string filename = to_string(port) + "_" + id + ".txt";
         string folder = "../serverfiles";  // Folder name
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
@@ -382,9 +516,16 @@ void processLogEntry(Node &node, const LogEntry &entry) {
         string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
         file << message;
         file.close();
+        for(int i = 0; i < maxRead; i++){
+            releaseRead(filenum - 1);
+        }
+        releaseWrite(filenum - 1);
     } 
     else if (requestType == "READ") {
         string id = V[1];
+        int filenum = stoi(id);
+        acquireRead(filenum - 1);
+        printSemaphoreStatus(readSemaphores[filenum - 1], 1);
         // string filename = to_string(port) + "_" + id + ".txt";
         string folder = "../serverfiles";  // Folder name
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
@@ -397,9 +538,17 @@ void processLogEntry(Node &node, const LogEntry &entry) {
             response = content;
             file.close();
         }
+        // sleep(10);
+        releaseRead(filenum - 1);
+
     } 
     else if (requestType == "APPEND") {
         string id = V[1];
+        int filenum = stoi(id);
+        acquireWrite(filenum - 1);
+        for(int i = 0; i < maxRead; i++){
+            acquireRead(filenum - 1);
+        }
         // string filename = to_string(port) + "_" + id + ".txt";
         string folder = "../serverfiles";  // Folder name
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
@@ -413,11 +562,16 @@ void processLogEntry(Node &node, const LogEntry &entry) {
         string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
         file << message;
         file.close();
+        for(int i = 0; i < maxRead; i++){
+            releaseRead(filenum - 1);
+        }
+        releaseWrite(filenum - 1);
     }
 }
 
 
 int storeEntries(Node &node, const char *msg) {
+    
     cout<<"Storing Entries after success: "<<"message received: ";
     cout<<msg<<" \n";
     int term, prevLogIndex;
@@ -507,6 +661,7 @@ int storeEntries(Node &node, const char *msg) {
 void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const char *msg, int sockfd) {
     int term, prevLogIndex;
     int prevterm;
+    if(state == 1) return;
     cout<<"Append request received as: "<<msg<<endl;
     sscanf(msg, "APPEND REQUEST %d %d | %d", &term, &prevLogIndex, &prevterm);
 
@@ -548,6 +703,7 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
         
         if(success){
             cout<<"Success!\n";
+            state = 1;
             int index = storeEntries(node, msg);
             
             string sendAppendReply = "APPEND REPLY ";
@@ -562,6 +718,7 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
             cout<<"Sending reply as: "<<sendAppendReply<<endl;
 
             sendto(sockfd, sendAppendReply.c_str(), strlen(sendAppendReply.c_str()), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+            state = 0;
             return;
         }
         else{
@@ -768,6 +925,7 @@ void handleAck(Node &node, const struct sockaddr_in &clientAddr, const char *msg
 // This thread continuously listens on the given UDP socket and dispatches messages.
 void receiveThreadFunction(Node &node, int sockfd) {
     char buffer[1024];
+    
     while (true) {
         struct sockaddr_in clientAddr;
         socklen_t addrLen = sizeof(clientAddr);
@@ -788,10 +946,15 @@ void receiveThreadFunction(Node &node, int sockfd) {
                 handleAck(node, clientAddr, buffer, sockfd);
             }
             else if (strncmp(buffer, "REQUEST", 7) == 0) {
-                handleAppendEntries(node, clientAddr, buffer, sockfd);
+                //create a thread to do this
+                thread hbThread1(handleAppendEntries, ref(node), ref(clientAddr), ref(buffer), ref(sockfd));
+                hbThread1.detach();
+                // handleAppendEntries(node, clientAddr, buffer, sockfd);
             }
             else if (strncmp(buffer, "APPEND REQUEST", 14) == 0) {
-                handleAppendRequest(node, clientAddr, buffer, sockfd);
+                // handleAppendRequest(node, clientAddr, buffer, sockfd);
+                thread hbThread2(handleAppendRequest, ref(node), ref(clientAddr), ref(buffer), ref(sockfd));
+                hbThread2.detach();
             }
             else if (strncmp(buffer, "APPEND REPLY", 12) == 0) {
                 handleAppendReply(node, clientAddr, buffer, sockfd);
@@ -905,6 +1068,7 @@ void startElection(Node &node, int &sockfd) {
 // If leader, it periodically sends heartbeats; if follower, it waits with a timeout that
 // can be interrupted if a heartbeat is received.
 void assignType(Node &node) {
+    initLeaderLocks(node, numFiles, maxRead);
     semmtx = semget(ftok("/tmp", 1), 1, 0666 | IPC_CREAT);
     semlocal = semget(ftok("/tmp", static_cast<int>(getpid() % 256)), 1, 0666 | IPC_CREAT);
 
@@ -1048,15 +1212,17 @@ void assignType(Node &node) {
                     sendAppendEntriesThread.detach();
 
                     // send client at port 9090 and ip = 127.0.0.1 about the current leader port
-                    struct sockaddr_in clientAddr;
-                    clientAddr.sin_family = AF_INET;
-                    clientAddr.sin_port = htons(9090);
-                    inet_pton(AF_INET, "127.0.0.1", &clientAddr.sin_addr);
+                    for(int ipadd = 9090; ipadd <= 9096; ipadd++){
+                        struct sockaddr_in clientAddr;
+                        clientAddr.sin_family = AF_INET;
+                        clientAddr.sin_port = htons(ipadd);
+                        inet_pton(AF_INET, "127.0.0.1", &clientAddr.sin_addr);
 
-                    char leaderInfo[1024] = {0};
-                    sprintf(leaderInfo, "LEADER %d", node.port);
-                    sendto(sockfd, leaderInfo, strlen(leaderInfo), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
-                    cout << "Sent LEADER info to client." << endl;
+                        char leaderInfo[1024] = {0};
+                        sprintf(leaderInfo, "LEADER %d", node.port);
+                        sendto(sockfd, leaderInfo, strlen(leaderInfo), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+                        cout << "Sent LEADER info to client." << endl;
+                    }
 
 
                     // Update shared state: mark self as leader.

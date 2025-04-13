@@ -3,6 +3,62 @@
 
 using namespace std;
 
+const int numFiles = 5;
+const int maxRead = 5;
+
+void initFileLocks(int port, int numFiles, int maxRead);
+void acquireRead(int fileIdx);
+void releaseRead(int fileIdx);
+void acquireWrite(int fileIdx);
+void releaseWrite(int fileIdx);
+
+
+
+union semun {
+    int val;
+    struct semid_ds *buf;
+    unsigned short *array;
+};
+
+int createOrGetSemaphore(key_t key, int initialValue) {
+    int semid = semget(key, 1, IPC_CREAT | 0666);
+    
+    if (semid != -1) {
+        semun arg;
+        arg.val = initialValue;
+        semctl(semid, 0, SETVAL, arg);
+        cout<<"Setting semaphore value\n";
+    } else {
+        if (errno == EEXIST) {
+            cout<<"Already existing\n";
+            semid = semget(key, 1, 0666);
+        } else {
+            // Handle other errors appropriately
+            perror("semget");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    return semid;
+}
+
+void initFileLocks(int port, int maxRead, std::vector<int> &readSemaphores, std::vector<int> &writeSemaphores) {
+    for (int i = 0; i < numFiles; i++) {
+        key_t readKey = ftok("/tmp", 100 + port * 10 + i);
+        key_t writeKey = ftok("/tmp", 200 + port * 10 + i);
+
+        int readSem = createOrGetSemaphore(readKey, maxRead);
+        int writeSem = createOrGetSemaphore(writeKey, 1);
+
+        readSemaphores.push_back(readSem);
+        writeSemaphores.push_back(writeSem);
+
+        std::cout << "[Semaphore] File " << i << " — ReadSem: " << readSem << ", WriteSem: " << writeSem << std::endl;
+    }
+}
+
+
+
 int main(int argc, char* argv[]) {
     if (argc != 3) {
         cerr << "Usage: " << argv[0] << " <IP> <Port>" << endl;
@@ -39,9 +95,11 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // create maxRead mutex for each file and one write mutex for each file in this port
+    std::vector<int> readSemaphores;
+    std::vector<int> writeSemaphores;
+    initFileLocks(port, maxRead, readSemaphores, writeSemaphores);
 
-
-    
 
     serverNode.loadFromJson();
 

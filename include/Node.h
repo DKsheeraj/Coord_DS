@@ -102,6 +102,7 @@ public:
             voteTimeout = j.value("voteTimeout", voteTimeout);
             role = j.value("role", role);
             commitIndex = j.value("commitIndex", commitIndex);
+            fileNo = j.value("fileNo", fileNo);
             nextIndex.clear();
             if (j.contains("nextIndex") && j["nextIndex"].is_object()) {
                 for (auto& [key, value] : j["nextIndex"].items()) {
@@ -174,7 +175,7 @@ public:
             {"log", logJson},  // Storing log entries as JSON array
             {"commitIndex", commitIndex},
             {"lastApplied", lastApplied},
-
+            {"fileNo", fileNo},
             {"nextIndex", nextIndexJson},  // Store as object with string keys
             {"matchIndex", matchIndexJson}
 

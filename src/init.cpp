@@ -107,6 +107,8 @@ int main() {
         portData["nextIndex"] = nextIndexJson;
         portData["matchIndex"] = matchIndexJson;
 
+        portData["fileNo"] = 0;
+
 
         // Write the modified JSON back to the file
         ofstream portOutputFile(portFilePath);

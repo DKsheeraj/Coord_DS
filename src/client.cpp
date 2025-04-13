@@ -90,8 +90,16 @@ void sendingMessages(Node &node, int sockfd, string &leaderIp, int &leaderPort) 
 }
 
 
-int main() {
-    Node clientNode("127.0.0.1", 9090); 
+int main(int argc, char* argv[]) {
+    if (argc != 3) {
+        cerr << "Usage: " << argv[0] << " <IP> <Port>" << endl;
+        return EXIT_FAILURE;
+    }
+
+    string ip = argv[1];
+    int port = stoi(argv[2]);
+
+    Node clientNode(ip, port, false);
 
     // Create a socket, udp and wait for messages
 

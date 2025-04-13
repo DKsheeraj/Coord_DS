@@ -1,5 +1,6 @@
 {
     "commitIndex": 0,
+    "fileNo": 0,
     "ip": "127.0.0.1",
     "isLeader": false,
     "lastApplied": 0,
