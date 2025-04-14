@@ -110,14 +110,25 @@ void getStatus(const string &serverUrl) {
     if(curl) {
         string url = serverUrl + "/status";
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L); // Set timeout to 5 seconds
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L); // Set connection timeout to 5 seconds
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         res = curl_easy_perform(curl);
         if(res != CURLE_OK) {
-            cerr << "[ERROR] curl_easy_perform() failed: " 
-                 << curl_easy_strerror(res) << endl;
+            if(res == CURLE_OPERATION_TIMEDOUT) {
+                cerr << "[ERROR] Request timed out." << endl;
+            }
+            else if(res == CURLE_COULDNT_CONNECT) {
+                cerr << "[ERROR] Could not connect to server." << endl;
+            }
+            else {
+                cerr << "[ERROR] curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
+            }
+            curl_easy_cleanup(curl);
+            return;
         } else {
-            cout << "[INFO] Status response: " << readBuffer << endl;
+            cout << "[INFO] Server Response: " << readBuffer << endl;
         }
         curl_easy_cleanup(curl);
     }
@@ -133,12 +144,23 @@ void getLeader(const string &serverUrl) {
     if(curl) {
         string url = serverUrl + "/leader";
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L); // Set timeout to 5 seconds
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L); // Set connection timeout to 5 seconds
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         res = curl_easy_perform(curl);
         if(res != CURLE_OK) {
-            cerr << "[ERROR] curl_easy_perform() failed: " 
-                 << curl_easy_strerror(res) << endl;
+            if(res == CURLE_OPERATION_TIMEDOUT) {
+                cerr << "[ERROR] Request timed out." << endl;
+            }
+            else if(res == CURLE_COULDNT_CONNECT) {
+                cerr << "[ERROR] Could not connect to server." << endl;
+            }
+            else {
+                cerr << "[ERROR] curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
+            }
+            curl_easy_cleanup(curl);
+            return;
         } else {
             cout << "[INFO] Server Response: " << readBuffer << endl;
         }
@@ -194,6 +216,7 @@ int main(int argc, char* argv[]) {
             cin >> serverUrl;
             getStatus(serverUrl);
         } else if(choice == 3) {
+            cout << "Currently speaking to server: " << serverUrl << endl;
             getLeader(serverUrl);
         } else if(choice == 4) {
             cout << "Exiting client." << endl;

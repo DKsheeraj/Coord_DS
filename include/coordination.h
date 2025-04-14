@@ -1,5 +1,5 @@
-#ifndef LEADER_ELECTION_H
-#define LEADER_ELECTION_H
+#ifndef COORDINATION_H
+#define COORDINATION_H
 
 #include <vector>
 #include "Node.h"

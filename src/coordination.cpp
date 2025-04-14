@@ -1,4 +1,4 @@
-#include "../../include/leaderElection.h"
+#include "../include/coordination.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

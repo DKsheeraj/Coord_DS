@@ -1,5 +1,5 @@
 #include "../include/Node.h"
-#include "../include/leaderElection.h"
+#include "../include/coordination.h"
 #include "crow.h"          // Include Crow’s single header
 #include <thread>
 #include <fstream>

@@ -41,8 +41,8 @@ int main() {
 
     cout << "Updated all 'isLeader' fields to false in " << filePath << endl;
 
-    // Update JSON files for ports 8080 to 8086
-    for (int port = 8080; port <= 8086; ++port) {
+    // Update JSON files for ports 8080 to 8084
+    for (int port = 8080; port <= 8084; ++port) {
         string portFilePath = "../data/" + to_string(port) + ".json";
         
         json portData;

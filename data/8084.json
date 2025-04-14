@@ -1,7 +1,7 @@
 {
     "commitIndex": 0,
     "fileNo": 0,
-    "ip": "127.0.0.1",
+    "ip": "",
     "isLeader": false,
     "lastApplied": 0,
     "leaderIp": "",
@@ -21,7 +21,7 @@
         "8083": 0,
         "8084": 0
     },
-    "port": 8084,
+    "port": -1,
     "role": 0,
     "sockfd": -1,
     "termNumber": 0,
