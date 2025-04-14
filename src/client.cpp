@@ -34,9 +34,27 @@ int st = 0;
 
 using namespace std;
 
+int semmtx_client;
+
+void wait_sem(int semid) {
+    struct sembuf sb = {0, -1, 0};
+    if (semop(semid, &sb, 1) == -1) {
+        perror("semop wait");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void signal_sem(int semid) {
+    struct sembuf sb = {0, 1, 0};
+    if (semop(semid, &sb, 1) == -1) {
+        perror("semop signal");
+        exit(EXIT_FAILURE);
+    }
+}
+
 void sendingMessages(Node &node, int sockfd, string &leaderIp, int &leaderPort) {
     while (1) {
-        while(!st){}
+        wait_sem(semmtx_client);
         cout<<"TYPE THE MESSAGE TO BE SENT: "<<endl;
         string msgType;
         cin >> msgType;
@@ -125,6 +143,13 @@ int main(int argc, char* argv[]) {
     string leaderIp = "127.0.0.1";
     int leaderPort = 8080;
 
+    semmtx_client = semget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
+    if (semmtx_client == -1) {
+        perror("semget");
+        exit(EXIT_FAILURE);
+    }
+    semctl(semmtx_client, 0, SETVAL, 0);
+
     // create a thread for sending messages whenever something is recieved on cout
 
     thread sendingThread(sendingMessages, ref(clientNode), clientNode.sockfd, ref(leaderIp), ref(leaderPort));
@@ -141,23 +166,31 @@ int main(int argc, char* argv[]) {
             buffer[bytesReceived] = '\0';
             if(strncmp(buffer, "LEADER", 6) == 0){
                 st = 1;
-                cout<<"\n";
                 cout << "Received LEADER message from server." << endl;
                 sscanf(buffer, "LEADER %d", &leaderPort);
                 cout << "Leader port: " << leaderPort << endl;
-                cout<<"TYPE THE MESSAGE TO BE SENT: "<<endl;
+                signal_sem(semmtx_client);
             }
-            else if(strncmp(buffer, "ID", 2) == 0){
+            else if(strncmp(buffer, "CREATE REPLY ID", 15) == 0){
                 int id;
-                sscanf(buffer, "ID %d", &id);
-                cout<<"ID: "<<id<<endl;
-                cout<<"TYPE THE MESSAGE TO BE SENT: "<<endl;
+                sscanf(buffer, "CREATE REPLY ID %d", &id);
+                cout<<buffer<<endl;
+                signal_sem(semmtx_client);
+            }
+            else if(strncmp(buffer, "WRITE REPLY", 11) == 0){
+                cout<<buffer<<endl;
+                signal_sem(semmtx_client);
+            }
+            else if(strncmp(buffer, "READ REPLY", 10) == 0){
+                cout<<buffer<<endl;
+                signal_sem(semmtx_client);
+            }
+            else if(strncmp(buffer, "APPEND REPLY", 12) == 0){
+                cout<<buffer<<endl;
+                signal_sem(semmtx_client);
             }
             else{
-                cout << endl;
-                cout << "READ REPLY: \n";
-                cout<<buffer<<endl;
-                cout<<"TYPE THE MESSAGE TO BE SENT: "<<endl;
+                cout<<"Unknown message: "<<buffer<<endl;
             }
         }
 
