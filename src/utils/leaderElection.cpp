@@ -319,6 +319,179 @@ void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const 
 
 }
 
+// --- JSON API Handler ---
+// Handles append requests from the client of the form : REQUEST <command>
+void handleAPIAppendEntries(Node &node, const char *msg, json &responseJson) {
+    cout<<"Received append request from Client with command: "<<msg<<endl;
+
+    vector<string> V;
+    breakCommand(msg, V);
+
+    string requestType = V[1];
+    string fullCommand = msg;
+    fullCommand = fullCommand.substr(8);
+
+    wait(semlocal);
+    if(!node.isLeader) {
+        signal(semlocal);
+        responseJson["status"] = "error";
+        responseJson["message"] = "Not the leader";
+        return;
+    }
+    signal(semlocal);
+
+    wait(semlocal);
+    LogEntry entry;
+    entry.term = node.termNumber;
+    entry.command = fullCommand;
+    node.log.push_back(entry);
+    cout<<(entry.term)<<" "<<endl;
+    node.saveToJson();
+
+    int port = node.port;
+    signal(semlocal);
+    cv3.notify_all();
+
+    string folder = "../serverfiles";  // Folder name
+    string subfolder = folder + "/" + to_string(port); // Subfolder name
+
+    // Create the folder if it doesn't exist
+    if(!filesystem::exists(folder)){
+        filesystem::create_directory(folder);
+    }
+    // Create the subfolder if it doesn't exist
+    if(!filesystem::exists(subfolder)){
+        filesystem::create_directory(subfolder);
+    }
+
+    if (requestType == "CREATE") {
+        wait(semlocal);
+        node.fileNo++;
+        node.saveToJson();
+        
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(node.fileNo) + ".txt";
+
+        ofstream file(filename);
+        if (!file) {
+            cerr << "Error creating file: " << filename << endl;
+            responseJson["status"] = "error";
+            responseJson["message"] = "File creation failed";
+            signal(semlocal);
+            return;
+        }
+        file.close();
+
+        signal(semlocal);
+        responseJson["status"] = "success";
+        responseJson["message"] = "File created successfully";
+        responseJson["fileId"] = to_string(node.fileNo);
+        responseJson["filePath"] = filename;
+        return;
+    } 
+    else if (requestType == "WRITE" && V.size() >= 4) {
+        string id = V[2];
+        int filenum = stoi(id);
+        acquireWrite(filenum - 1);
+        for(int i = 0; i < maxRead; i++){
+            acquireRead(filenum - 1);
+        }
+        
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
+
+        ofstream file(filename, ios::trunc);
+        if (!file) {
+            cerr << "File not found: " << filename << endl;
+            responseJson["status"] = "error";
+            responseJson["message"] = "File not found";
+            responseJson["fileId"] = id;
+            responseJson["filePath"] = filename;
+            return;
+        }
+
+        string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
+        file << message;
+        file.close();
+        for(int i = 0; i < maxRead; i++){
+            releaseRead(filenum - 1);
+        }
+        releaseWrite(filenum - 1);
+        
+        responseJson["status"] = "success";
+        responseJson["message"] = "File written successfully";
+        responseJson["fileId"] = id;
+        responseJson["filePath"] = filename;
+        return;
+    } 
+    else if (requestType == "READ" && V.size() >= 3) {
+        string id = V[2];
+        int filenum = stoi(id);
+        acquireRead(filenum - 1);
+        printSemaphoreStatus(readSemaphores[filenum - 1], filenum);
+        // string filename = to_string(port) + "_" + id + ".txt";
+        
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
+
+        ifstream file(filename);
+        if (!file) {
+            responseJson["status"] = "error";
+            responseJson["message"] = "File not found";
+        } else {
+            string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+            file.close();
+            responseJson["status"] = "success";
+            responseJson["message"] = "File read successfully";
+            responseJson["response"] = content;
+        }
+
+        responseJson["fileId"] = id;
+        responseJson["filePath"] = filename;
+
+        // sleep(10); // Simulate delay
+
+        releaseRead(filenum - 1);
+        return;
+    } 
+    else if (requestType == "APPEND" && V.size() >= 4) {
+        string id = V[2];
+        int filenum = stoi(id);
+        acquireWrite(filenum - 1);
+        for(int i = 0; i < maxRead; i++){
+            acquireRead(filenum - 1);
+        }
+        // string filename = to_string(port) + "_" + id + ".txt";
+        
+        string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + id + ".txt";
+
+        ofstream file(filename, ios::app);
+        if (!file) {
+            cerr << "File not found: " << filename << endl;
+            responseJson["status"] = "error";
+            responseJson["message"] = "File not found";
+            responseJson["fileId"] = id;
+            responseJson["filePath"] = filename;
+            return;
+        }
+
+        string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
+        file << message;
+        file.close();
+        for(int i = 0; i < maxRead; i++){
+            releaseRead(filenum - 1);
+        }
+        releaseWrite(filenum - 1);
+        
+        responseJson["status"] = "success";
+        responseJson["message"] = "File appended successfully";
+        responseJson["fileId"] = id;
+        responseJson["filePath"] = filename;
+        return;
+    }
+
+    responseJson["status"] = "error";
+    responseJson["message"] = "Invalid request type";
+    return;
+}
+
 void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const char *msg, int sockfd) {
     cout<<"Became leader - Starting send append Entries thread\n";
     
@@ -1084,7 +1257,7 @@ void assignType(Node &node) {
         return;
     }
 
-    semctl(semlocal, 0, SETVAL, 1);
+    // semctl(semlocal, 0, SETVAL, 1);
 
     // Create and bind UDP socket.
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -1212,6 +1385,8 @@ void assignType(Node &node) {
                     cout << "Election won with " << votesReceived << " votes out of " << node.totalNodes << endl;
                     node.isLeader = true;
                     node.role = 2;
+                    node.leaderIp = node.ip;
+                    node.leaderPort = node.port;
                     node.saveToJson();
                     signal(semlocal);
 
