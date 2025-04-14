@@ -1,12 +1,49 @@
 {
     "commitIndex": 0,
-    "fileNo": 0,
+    "fileNo": 1,
     "ip": "127.0.0.1",
     "isLeader": false,
     "lastApplied": 0,
-    "leaderIp": "",
-    "leaderPort": -1,
-    "log": [],
+    "leaderIp": "127.0.0.1",
+    "leaderPort": 8081,
+    "log": [
+        {
+            "command": "CREATE",
+            "term": 1
+        },
+        {
+            "command": "WRITE 1 rama",
+            "term": 1
+        },
+        {
+            "command": "READ 1",
+            "term": 1
+        },
+        {
+            "command": "READ 1",
+            "term": 1
+        },
+        {
+            "command": "READ 1",
+            "term": 1
+        },
+        {
+            "command": "READ 1",
+            "term": 1
+        },
+        {
+            "command": "WRITE 1 afadf",
+            "term": 1
+        },
+        {
+            "command": "WRITE 1 afadf",
+            "term": 1
+        },
+        {
+            "command": "WRITE 1 afadf",
+            "term": 1
+        }
+    ],
     "matchIndex": {
         "8080": 0,
         "8081": 0,
@@ -23,8 +60,8 @@
     },
     "port": 8082,
     "role": 0,
-    "sockfd": -1,
-    "termNumber": 0,
+    "sockfd": 3,
+    "termNumber": 1,
     "totalNodes": 5,
     "voteTimeout": 5,
     "votedFor": -1,

@@ -56,7 +56,6 @@ union semun {
     unsigned short *array;
 };
 
-int state = 0;
 
 void printSemaphoreStatus(int readSemId, int fileNo) {
     // Get the current value of the read semaphore
@@ -221,7 +220,7 @@ void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const 
         }
         file.close();
 
-        response = "ID " + to_string(node.fileNo);
+        response = "CREATE REPLY ID " + to_string(node.fileNo);
         if (!response.empty()) {
             sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
         }
@@ -247,6 +246,11 @@ void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const 
         string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
         file << message;
         file.close();
+        response = "WRITE REPLY ID " + id;
+        cout << "Sending response: " << response << endl;
+        if (!response.empty()) {
+            sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
+        }
         for(int i = 0; i < maxRead; i++){
             releaseRead(filenum - 1);
         }
@@ -269,6 +273,9 @@ void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const 
             response = content;
             file.close();
         }
+        response = "READ REPLY " + response;
+        cout << "Sending response: " << response << endl;
+        
         if (!response.empty()) {
             sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
         }
@@ -295,6 +302,11 @@ void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const 
         string message = fullCommand.substr(fullCommand.find(id) + id.length() + 1);
         file << message;
         file.close();
+        response = "APPEND REPLY ID " + id;
+        cout << "Sending response: " << response << endl;
+        if (!response.empty()) {
+            sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
+        }
         for(int i = 0; i < maxRead; i++){
             releaseRead(filenum - 1);
         }
@@ -477,7 +489,6 @@ void processLogEntry(Node &node, const LogEntry &entry) {
     int port = node.port;
     signal(semlocal);
 
-    cout<<fullCommand<<" HERE\n";
 
 
     if (requestType == "CREATE") {
@@ -661,7 +672,6 @@ int storeEntries(Node &node, const char *msg) {
 void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const char *msg, int sockfd) {
     int term, prevLogIndex;
     int prevterm;
-    if(state == 1) return;
     cout<<"Append request received as: "<<msg<<endl;
     sscanf(msg, "APPEND REQUEST %d %d | %d", &term, &prevLogIndex, &prevterm);
 
@@ -703,7 +713,6 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
         
         if(success){
             cout<<"Success!\n";
-            state = 1;
             int index = storeEntries(node, msg);
             
             string sendAppendReply = "APPEND REPLY ";
@@ -718,7 +727,6 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
             cout<<"Sending reply as: "<<sendAppendReply<<endl;
 
             sendto(sockfd, sendAppendReply.c_str(), strlen(sendAppendReply.c_str()), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
-            state = 0;
             return;
         }
         else{
@@ -775,7 +783,6 @@ void handleAppendReply(Node &node, const struct sockaddr_in &clientAddr, const c
         }
 
         if(node.nextIndex[ntohs(clientAddr.sin_port)] < node.log.size()){
-            cout<<" PKP\n";
             if(reply == (node.totalNodes - 1)) cv3.notify_all();
         }
         signal(semlocal);
