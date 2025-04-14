@@ -18,6 +18,7 @@
 using json = nlohmann::json;
 
 void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const char *msg, int sockfd);
+void handleAPIAppendEntries(Node &node, const char *msg, json &responseJson);
 void sendAppendEntries(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd);
 void parseAppendRequest(const string &msg, int &term, int &prevLogIndex, vector<LogEntry> &tempLog, int &commitIndex);
 int storeEntries(Node &node, const char *msg);

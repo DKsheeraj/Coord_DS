@@ -49,6 +49,10 @@ CMake 3.10+
 
 nlohmann-json library (Install with sudo apt install nlohmann-json3-dev on Ubuntu)
 
+crow
+
+asio
+
 ## Build Instructions
 
 ```python

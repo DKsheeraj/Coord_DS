@@ -41,10 +41,11 @@ int main() {
 
     cout << "Updated all 'isLeader' fields to false in " << filePath << endl;
 
-    // Update JSON files for ports 8080 to 8084
-    for (int port = 8080; port <= 8084; ++port) {
+    // Update JSON files for ports 8080 to 8086
+    for (int port = 8080; port <= 8086; ++port) {
         string portFilePath = "../data/" + to_string(port) + ".json";
         
+        json portData;
 
         // Read the JSON file
         ifstream portInputFile(portFilePath);
@@ -65,12 +66,6 @@ int main() {
             }
         }
 
-        json portData;
-        portInputFile >> portData;
-        portInputFile.close();
-
-        
-
         // Update the fields
         portData["isLeader"] = false;
         portData["leaderPort"] = -1;
@@ -82,11 +77,11 @@ int main() {
         portData["votedFor"] = -1;
         portData["votes"] = json::array();
 
-        // portData["ip"] = "";
+        portData["ip"] = "";
         portData["leaderIp"] = "";
 
         // Integer fields should be initialized to -1 or 0, not null
-        // portData["port"] = -1;
+        portData["port"] = -1;
         portData["commitIndex"] = 0;
         portData["lastApplied"] = 0;
         portData["fileNo"] = 0;
@@ -106,9 +101,6 @@ int main() {
 
         portData["nextIndex"] = nextIndexJson;
         portData["matchIndex"] = matchIndexJson;
-
-        portData["fileNo"] = 0;
-
 
         // Write the modified JSON back to the file
         ofstream portOutputFile(portFilePath);
