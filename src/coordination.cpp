@@ -279,7 +279,7 @@ void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const 
         if (!response.empty()) {
             sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
         }
-        sleep(10);
+        sleep(30);
         releaseRead(filenum - 1);
     } 
     else if (requestType == "APPEND" && V.size() >= 4) {
@@ -446,7 +446,7 @@ void handleAPIAppendEntries(Node &node, const char *msg, json &responseJson) {
         responseJson["fileId"] = id;
         responseJson["filePath"] = filename;
 
-        // sleep(10); // Simulate delay
+        sleep(30); // Simulate delay
 
         releaseRead(filenum - 1);
         return;

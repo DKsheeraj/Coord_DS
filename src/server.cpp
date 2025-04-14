@@ -1,5 +1,5 @@
 #include "../include/Node.h"
-#include "../include/leaderElection.h"
+#include "../include/coordination.h"
 
 using namespace std;
 
@@ -76,24 +76,32 @@ int main(int argc, char* argv[]) {
 	pop.sem_op = -1 ; vop.sem_op = 1 ;
 
     key_t key = ftok("/tmp", 1);
-    int semid1 = semget(key, 1, IPC_CREAT | IPC_EXCL | 0666);
-    if (semid1 != -1) {
+    int semmtx = semget(key, 1, IPC_CREAT | IPC_EXCL | 0666);
+    if (semmtx != -1) {
         // This server successfully created the semaphore
         // Safe to initialize it here
-        semctl(semid1, 0, SETVAL, 1);
+        semctl(semmtx, 0, SETVAL, 1);
         cout<<"Setting semaphore value\n";
     } else {
         if (errno == EEXIST) {
             cout<<"Already existing\n";
             // The semaphore set already exists
             // Get the semaphore ID without creating it
-            semid1 = semget(key, 1, 0666);
+            semmtx = semget(key, 1, 0666);
         } else {
             // Handle other errors appropriately
             perror("semget");
             exit(EXIT_FAILURE);
         }
     }
+
+    int semlocal = semget(ftok("/tmp", static_cast<int>(getpid() % 256)), 1, 0666 | IPC_CREAT);
+
+    if (semmtx == -1 || semlocal == -1) {
+        perror("semget");
+        return 0;
+    }
+    semctl(semlocal, 0, SETVAL, 1);
 
     // create maxRead mutex for each file and one write mutex for each file in this port
     std::vector<int> readSemaphores;
@@ -102,7 +110,9 @@ int main(int argc, char* argv[]) {
 
 
     serverNode.loadFromJson();
-
+    serverNode.port = port;
+    serverNode.ip = ip;
+    serverNode.saveToJson();
 
     thread hbThread(assignType, ref(serverNode));
     hbThread.detach();
