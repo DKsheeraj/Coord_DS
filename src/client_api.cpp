@@ -128,6 +128,7 @@ void Command(const string &serverUrl, const string &command) {
 
     curl = curl_easy_init();
     if(curl) {
+        cout<<leaderURL<<endl;
         string url = leaderURL + "/command";
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payloadStr.c_str());
@@ -254,6 +255,7 @@ int main() {
     cout << "Server URL: " << serverUrl << endl;
 
     int choice = 0;
+    leaderURL = serverUrl;
     while (true) {
         cout << "\n========== Client Menu ==========" << endl;
         cout << "1. Command" << endl;

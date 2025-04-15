@@ -21,6 +21,7 @@
 #include <ctime>
 #include <algorithm>
 #include <nlohmann/json.hpp>
+#include <curl/curl.h>
 
 using namespace std;
 using json = nlohmann::json;
@@ -50,6 +51,7 @@ int reply = 0;
 
 const int numFiles = 5;
 const int maxRead = 5;
+
 
 std::vector<int> readSemaphores;
 std::vector<int> writeSemaphores;
@@ -143,6 +145,7 @@ void signal(int semid) {
     op.sem_flg = 0;
     semop(semid, &op, 1);
 }
+
 
 void initLeaderLocks(Node& node, int numFiles, int maxRead) {
     // Initialize semaphores for each file on this node/port
@@ -336,8 +339,7 @@ void handleAPIAppendEntries(Node &node, const char *msg, json &responseJson) {
     node.loadFromJson();
     if(!node.isLeader) {
         signal(semlocal);
-        responseJson["status"] = "error";
-        responseJson["message"] = "Not the leader";
+        
         return;
     }
     LogEntry entry;

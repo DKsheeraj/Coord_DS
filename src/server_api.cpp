@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <nlohmann/json.hpp>
+#include <curl/curl.h>
 
 using namespace std;
 
@@ -26,11 +27,18 @@ void releaseRead(int fileIdx);
 void acquireWrite(int fileIdx);
 void releaseWrite(int fileIdx);
 
+string leaderURL;
+
 union semun {
     int val;
     struct semid_ds *buf;
     unsigned short *array;
 };
+
+size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+    ((string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
 
 // Recursive helper function to convert nlohmann::json to crow::json::wvalue.
 crow::json::wvalue convertToWvalue(const json& j) {
@@ -190,14 +198,55 @@ int main(int argc, char* argv[]) {
         wait(semlocal);
         serverNode.loadFromJson();
         if (!serverNode.isLeader) {
-            crow::json::wvalue res;
-            res["error"] = "Not the leader";
-            res["leaderIp"] = serverNode.leaderIp;
-            res["leaderPort"] = serverNode.leaderPort;
-            LOG_INFO("API /command rejected: not the leader. Current leader: " << serverNode.leaderIp 
-                << ":" << serverNode.leaderPort);
+            // crow::json::wvalue res;
+            json responseJson;
+            // redirect to leader and send the response back to client
+            CURL *curl;
+            CURLcode res;
+            string readBuffer;
+            json payload = { {"command", command} };
+            string payloadStr = payload.dump();
+
+            curl = curl_easy_init();
+            if(curl) {
+                string url = leaderURL + "/command";
+                curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payloadStr.c_str());
+
+                struct curl_slist *headers = NULL;
+                headers = curl_slist_append(headers, "Content-Type: application/json");
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+                res = curl_easy_perform(curl);
+                if(res != CURLE_OK) {
+                    cerr << "[ERROR] curl_easy_perform() failed: " 
+                        << curl_easy_strerror(res) << endl;
+                } else {
+                    cout << "[INFO] Append response: " << readBuffer << endl;
+                    // Parse the response JSON
+                    responseJson = json::parse(readBuffer);
+                    if (responseJson.contains("status") && responseJson["status"] == "success") {
+                        cout << "[INFO] Command executed successfully on leader." << endl;
+                    } else {
+                        cout << "[ERROR] Command execution failed on leader." << endl;
+                    }
+                    
+                    
+                }
+                curl_easy_cleanup(curl);
+                curl_slist_free_all(headers);
+            }
             signal(semlocal);
-            return crow::response(503, res);
+            if (responseJson["status"] == "success") {
+                LOG_INFO("API /command success: " << responseJson["message"]);
+            } else {
+                LOG_ERROR("API /command failed: " << responseJson["message"]);
+            }
+            return crow::response{convertToWvalue(res)};
+            // return crow::response(503, res);
         }
         signal(semlocal);
 
