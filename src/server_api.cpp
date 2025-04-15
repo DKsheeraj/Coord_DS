@@ -138,7 +138,11 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    int semlocal = semget(ftok("/tmp", static_cast<int>(getpid() % 256)), 1, 0666 | IPC_CREAT);
+    key_t localkey = ftok("/tmp", static_cast<int>(getpid() % 256));
+
+    cout << "localkey: " << localkey << endl;
+    
+    int semlocal = semget(localkey, 1, 0666 | IPC_CREAT);
 
     if (semmtx == -1 || semlocal == -1) {
         perror("semget");

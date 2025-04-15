@@ -77,7 +77,7 @@ void appendCommand(const string &serverUrl, const string &command) {
 
     curl = curl_easy_init();
     if(curl) {
-        string url = serverUrl + "/append";
+        string url = leaderURL + "/append";
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payloadStr.c_str());
 
