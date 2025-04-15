@@ -1,4 +1,6 @@
 #include "../include/coordination.h"
+#include "../include/Node.h"
+#include "../include/loadbalancer.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -32,6 +34,8 @@ int deltaHeartBeat = 5; // seconds
 int deltaRequestVote = 5; // seconds
 int deltaElection = 10; // seconds
 
+// Global variables for leader election
+set<pair<string, int>> acks; // acks received
 int noOfACKs = 0; // Number of ACKs received
 int ACK_SEQ = 0; // Sequence number for ACKs
 
@@ -1144,6 +1148,7 @@ void handleAck(Node &node, const struct sockaddr_in &clientAddr, const char *msg
     wait(semlocal);
     node.loadFromJson();
     noOfACKs++;
+    acks.insert({inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port)});
     cout << "Received ACK from " << inet_ntoa(clientAddr.sin_addr) << " : " << ntohs(clientAddr.sin_port) << endl;
     node.saveToJson();
     signal(semlocal);
@@ -1369,6 +1374,7 @@ void assignType(Node &node) {
             }
 
             // Reset ACK count for this heartbeat.
+            acks.clear();
             noOfACKs = 0;
             ACK_SEQ++;
 
@@ -1395,6 +1401,40 @@ void assignType(Node &node) {
             }
 
             this_thread::sleep_for(chrono::seconds(deltaHeartBeat));
+
+            string sendloadbalancer = "HEALTHCHECK " + to_string(acks.size());
+            for(auto ack: acks) {
+                sendloadbalancer += " ";
+                sendloadbalancer += ack.first;
+                sendloadbalancer += " ";
+                sendloadbalancer += to_string(ack.second);
+            }
+
+            vector<LoadBalancer> loadbalancerslist;
+    
+            ifstream inFile("../data/loadbalancers.json");
+            if (!inFile) {
+                cerr << "Error opening loadbalancers.json" << endl;
+                break;
+            }
+            json serverData;
+            inFile >> serverData;
+            inFile.close();
+            
+            for (auto &s : serverData) {
+                loadbalancerslist.emplace_back(s["ip"], s["port"]);
+            }
+
+            for (auto &loadbalancer : loadbalancerslist) {
+                struct sockaddr_in loadbalancerAddr;
+                loadbalancerAddr.sin_family = AF_INET;
+                loadbalancerAddr.sin_port = htons(loadbalancer.port);
+                inet_pton(AF_INET, loadbalancer.ip.c_str(), &loadbalancerAddr.sin_addr);
+
+                cout << "Sending HEALTHCHECK to LoadBalancer " << loadbalancer.ip << " : " << loadbalancer.port << endl;
+                sendto(sockfd, sendloadbalancer.c_str(), strlen(sendloadbalancer.c_str()), 0,
+                       (struct sockaddr*)&loadbalancerAddr, sizeof(loadbalancerAddr));
+            }
             
             wait(semlocal);
             node.loadFromJson();
@@ -1460,20 +1500,6 @@ void assignType(Node &node) {
 
                     thread sendAppendEntriesThread(sendAppendEntries, ref(node), ref(address), "APPEND ENTRIES", sockfd);
                     sendAppendEntriesThread.detach();
-
-                    // send client at port 9090 and ip = 127.0.0.1 about the current leader port
-                    for(int ipadd = 9090; ipadd <= 9096; ipadd++){
-                        struct sockaddr_in clientAddr;
-                        clientAddr.sin_family = AF_INET;
-                        clientAddr.sin_port = htons(ipadd);
-                        inet_pton(AF_INET, "127.0.0.1", &clientAddr.sin_addr);
-
-                        char leaderInfo[1024] = {0};
-                        sprintf(leaderInfo, "LEADER %d", node.port);
-                        sendto(sockfd, leaderInfo, strlen(leaderInfo), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
-                        cout << "Sent LEADER info to client." << endl;
-                    }
-
 
                     // Update shared state: mark self as leader.
                     wait(semmtx);

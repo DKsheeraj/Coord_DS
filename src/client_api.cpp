@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <chrono>
 #include <thread>
+#include "../include/loadbalancer.h"
 
 using json = nlohmann::json;
 using namespace std;
@@ -184,23 +185,82 @@ void getStatus(const string &serverUrl) {
     }
 }
 
-int main(int argc, char* argv[]) {
-    // The client now interacts with the server using HTTP.
-    // Usage: ./client http://<server_ip>:<api_port>
-    if(argc != 2) {
-        cerr << "Usage: " << argv[0] << " <server_api_url>" << endl;
-        cerr << "Example: ./" << argv[0] << "http://127.0.0.1:8080" << endl;
-        return EXIT_FAILURE;
+// Sends a GET request to /server endpoint to retrieve a random server IP and port from the load balancer.
+void getServer(const string &loadbalancerurl) {
+    CURL *curl;
+    CURLcode res;
+    string readBuffer;
+
+    curl = curl_easy_init();
+    if(curl) {
+        string url = loadbalancerurl + "/server";
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L); // Set timeout to 5 seconds
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L); // Set connection timeout to 5 seconds
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        res = curl_easy_perform(curl);
+        if(res != CURLE_OK) {
+            if(res == CURLE_OPERATION_TIMEDOUT) {
+                cerr << "[ERROR] Request timed out." << endl;
+            }
+            else if(res == CURLE_COULDNT_CONNECT) {
+                cerr << "[ERROR] Could not connect to server." << endl;
+            }
+            else {
+                cerr << "[ERROR] curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
+            }
+            curl_easy_cleanup(curl);
+            return;
+        } else {
+            cout << "[INFO] LoadBalancer Response: " << readBuffer << endl;
+        }
+        curl_easy_cleanup(curl);
+    }
+    // Parse the JSON response to extract server information
+    json responseJson = json::parse(readBuffer);
+    if (responseJson.contains("ip") && responseJson.contains("port")) {
+        serverUrl = responseJson["ip"].get<string>() + ":" + to_string(responseJson["port"].get<int>() + portOffset);
+        cout << "[INFO] Server URL: " << serverUrl << endl;
+    } else {
+        cout << "[ERROR] Server information not found in the response." << endl;
+    }
+}
+
+
+int main() {
+    vector<LoadBalancer> loadBalancers;
+
+    ifstream inFile("../data/loadbalancers.json");
+    if (!inFile) {
+        cerr << "Error opening loadbalancers.json" << endl;
+        return 0;
     }
 
-    serverUrl = argv[1];
+    json serverData;
+    inFile >> serverData;
+    inFile.close();
+
+    for (auto &s : serverData) {
+        loadBalancers.emplace_back(s["ip"], s["port"]);
+    }
+
+    string loadbalancerurl;
+    int randIndex = rand() % loadBalancers.size();
+    loadbalancerurl = "http://" + loadBalancers[randIndex].ip + ":" + to_string(loadBalancers[randIndex].port + portOffset);
+    cout << "\nConnecting to LoadBalancer: " << loadbalancerurl << endl;
+
+    getServer(loadbalancerurl);
+    cout << "Server URL: " << serverUrl << endl;
+
     int choice = 0;
     while (true) {
         cout << "\n========== Client Menu ==========" << endl;
         cout << "1. Command" << endl;
-        cout << "2. Get Status" << endl;
-        cout << "3. Get Leader" << endl;
-        cout << "4. Exit" << endl;
+        cout << "2. Get Status of current Server" << endl;
+        cout << "3. Get Leader [For Testing Purpose only]" << endl;
+        cout << "4. Refresh Server" << endl;
+        cout << "5. Exit" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         cin.ignore(); // Clear the newline from input
@@ -215,13 +275,18 @@ int main(int argc, char* argv[]) {
             getline(cin, command);
             Command(leaderURL, command);
         } else if(choice == 2) {
-            cout << "Enter server URL to get Status: ";
-            cin >> serverUrl;
             getStatus(serverUrl);
         } else if(choice == 3) {
             cout << "Currently speaking to server: " << serverUrl << endl;
             getLeader(serverUrl);
         } else if(choice == 4) {
+            int randIndex = rand() % loadBalancers.size();
+            loadbalancerurl = "http://" + loadBalancers[randIndex].ip + ":" + to_string(loadBalancers[randIndex].port + portOffset);
+            cout << "\nConnecting to LoadBalancer: " << loadbalancerurl << endl;
+    
+            getServer(loadbalancerurl);
+            cout << "Server URL: " << serverUrl << endl;
+        } else if(choice == 5) {
             cout << "Exiting client." << endl;
             break;
         } else {
