@@ -9,7 +9,18 @@ const int totalNodes = 5;
 const int voteTimeout = 5;
 const int basePort = 8080;
 
-int main() {
+int main(int argc, char* argv[]) {
+    bool delete_sem = false, reuse_port = false;
+    if (argc == 2) {
+        int arg = atoi(argv[1]);
+        if (arg == 1) delete_sem = true;
+        else if (arg == 2) reuse_port = true;
+        else {
+            delete_sem = true;
+            reuse_port = true;
+        }
+    }
+
     // Path to the JSON file
     const string filePath = "../data/servers.json";
 
@@ -138,16 +149,20 @@ int main() {
         cout << "Updated file: " << portFilePath << endl;
     }
 
-    int ret = system("for id in $(ipcs -s | awk '{print $2}' | tail -n +3); do ipcrm -s $id; done");
-    if (ret != 0) {
-        cerr << "Error executing shell command." << endl;
-    }
+    if(delete_sem) {
+        int ret = system("for id in $(ipcs -s | awk '{print $2}' | tail -n +3); do ipcrm -s $id; done");
+        if (ret != 0) {
+            cerr << "Error executing shell command." << endl;
+        }
+    }   
 
-    for (int iport = 8080; iport <= 8084; iport++) {
-        string command = "sudo kill -9 $(sudo lsof -t -i :" + to_string(iport) + ")";
-        int ret_command = system(command.c_str());
-        if (ret_command != 0) {
-            cerr << "Error executing kill command on port " << iport << endl;
+    if(reuse_port) {
+        for (int iport = 8080; iport <= 8084; iport++) {
+            string command = "sudo kill -9 $(sudo lsof -t -i :" + to_string(iport) + ")";
+            int ret_command = system(command.c_str());
+            if (ret_command != 0) {
+                cerr << "Error executing kill command on port " << iport << endl;
+            }
         }
     }
     return 0;
