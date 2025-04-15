@@ -55,8 +55,10 @@ bool validCommand(const string &cmd) {
     return false;
 }
 
-// Sends a POST request to /append endpoint with a JSON payload containing a command.
-void appendCommand(const string &serverUrl, const string &command) {
+// Sends a POST request to /command endpoint with a JSON payload containing a command.
+void Command(const string &serverUrl, const string &command) {
+    getLeader(serverUrl);
+
     // Validate the command structure.
     if (!validCommand(command)) {
         cerr << "[ERROR] Command does not follow the required format." << endl;
@@ -77,7 +79,7 @@ void appendCommand(const string &serverUrl, const string &command) {
 
     curl = curl_easy_init();
     if(curl) {
-        string url = leaderURL + "/append";
+        string url = leaderURL + "/command";
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payloadStr.c_str());
 
@@ -203,14 +205,14 @@ int main(int argc, char* argv[]) {
         cin.ignore(); // Clear the newline from input
         if(choice == 1) {
             cout << "Expected formats:" << endl;
-            cout << "  CREATE <filename>" << endl;
+            cout << "  CREATE" << endl;
             cout << "  WRITE <id> <message to be written>" << endl;
             cout << "  READ <id>" << endl;
             cout << "  APPEND <id> <message to be appended>" << endl;
             cout << "Enter command to : ";
             string command;
             getline(cin, command);
-            appendCommand(leaderURL, command);
+            Command(leaderURL, command);
         } else if(choice == 2) {
             cout << "Enter server URL to get Status: ";
             cin >> serverUrl;

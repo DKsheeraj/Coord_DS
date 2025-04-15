@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
     key_t localkey = ftok("/tmp", static_cast<int>(getpid() % 256));
 
     cout << "localkey: " << localkey << endl;
-    
+
     int semlocal = semget(localkey, 1, 0666 | IPC_CREAT);
 
     if (semmtx == -1 || semlocal == -1) {
@@ -174,18 +174,18 @@ int main(int argc, char* argv[]) {
     // We use Crow as an example HTTP framework.
     crow::SimpleApp app;
 
-    // POST /append endpoint:
+    // POST /command endpoint:
     // This endpoint accepts a JSON payload with a "command" field.
     // If this node is the leader, it appends the command to its log.
     // Otherwise, it returns an error along with the current leader's information.
-    CROW_ROUTE(app, "/append").methods("POST"_method)([&](const crow::request &req) {
+    CROW_ROUTE(app, "/command").methods("POST"_method)([&](const crow::request &req) {
         auto body = crow::json::load(req.body);
         if (!body) {
-            LOG_ERROR("Invalid JSON received at /append endpoint");
+            LOG_ERROR("Invalid JSON received at /command endpoint");
             return crow::response(400, "Invalid JSON");
         }
         string command = body["command"].s();
-        LOG_INFO("API /append received command: " << command);
+        LOG_INFO("API /command received command: " << command);
 
         wait(semlocal);
         serverNode.loadFromJson();
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
             res["error"] = "Not the leader";
             res["leaderIp"] = serverNode.leaderIp;
             res["leaderPort"] = serverNode.leaderPort;
-            LOG_INFO("API /append rejected: not the leader. Current leader: " << serverNode.leaderIp 
+            LOG_INFO("API /command rejected: not the leader. Current leader: " << serverNode.leaderIp 
                 << ":" << serverNode.leaderPort);
             signal(semlocal);
             return crow::response(503, res);
@@ -217,9 +217,9 @@ int main(int argc, char* argv[]) {
 
         // Check the response from handleAPIAppendEntries
         if (res["status"] == "success") {
-            LOG_INFO("API /append success: " << res["message"]);
+            LOG_INFO("API /command success: " << res["message"]);
         } else {
-            LOG_ERROR("API /append failed: " << res["message"]);
+            LOG_ERROR("API /command failed: " << res["message"]);
         }
         
         // Convert the JSON response to a crow::json::wvalue
