@@ -28,8 +28,9 @@ bool validCommand(const string &cmd) {
     
     if (token == "CREATE") {
         // Expect a filename.
-        string filename;
-        return bool(iss >> filename);
+        // string filename;
+        // return bool(iss >> filename);
+        return 1;
     } else if (token == "WRITE") {
         // Expect an id and a non-empty message
         int id;
@@ -53,6 +54,53 @@ bool validCommand(const string &cmd) {
         return (pos != string::npos);
     }
     return false;
+}
+
+// Sends a GET request to /leader endpoint to retrieve the current leader info.
+void getLeader(const string &serverUrl) {
+    CURL *curl;
+    CURLcode res;
+    string readBuffer;
+
+    curl = curl_easy_init();
+    if(curl) {
+        string url = serverUrl + "/leader";
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L); // Set timeout to 5 seconds
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L); // Set connection timeout to 5 seconds
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        res = curl_easy_perform(curl);
+        if(res != CURLE_OK) {
+            if(res == CURLE_OPERATION_TIMEDOUT) {
+                cerr << "[ERROR] Request timed out." << endl;
+            }
+            else if(res == CURLE_COULDNT_CONNECT) {
+                cerr << "[ERROR] Could not connect to server." << endl;
+            }
+            else {
+                cerr << "[ERROR] curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
+            }
+            curl_easy_cleanup(curl);
+            return;
+        } else {
+            cout << "[INFO] Server Response: " << readBuffer << endl;
+        }
+        curl_easy_cleanup(curl);
+    }
+
+    // Parse the JSON response to extract leader information
+    json responseJson = json::parse(readBuffer);
+    if (responseJson.contains("leaderIp") && responseJson.contains("leaderHTTPPort")) {
+        string leaderIp = responseJson["leaderIp"];
+        int leaderHTTPPort = responseJson["leaderHTTPPort"];
+        int leaderPort = responseJson["leaderPort"]; 
+        cout << "[INFO] Current Leader: " << leaderIp << ":" << leaderPort << ", HTTP : " << leaderHTTPPort << endl;
+        leaderURL = "http://" + leaderIp + ":" + to_string(leaderHTTPPort);
+        cout << "[INFO] Leader URL: " << leaderURL << endl;
+    } else {
+        cout << "[ERROR] Leader information not found in the response." << endl;
+    }
 }
 
 // Sends a POST request to /command endpoint with a JSON payload containing a command.
@@ -133,53 +181,6 @@ void getStatus(const string &serverUrl) {
             cout << "[INFO] Server Response: " << readBuffer << endl;
         }
         curl_easy_cleanup(curl);
-    }
-}
-
-// Sends a GET request to /leader endpoint to retrieve the current leader info.
-void getLeader(const string &serverUrl) {
-    CURL *curl;
-    CURLcode res;
-    string readBuffer;
-
-    curl = curl_easy_init();
-    if(curl) {
-        string url = serverUrl + "/leader";
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L); // Set timeout to 5 seconds
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L); // Set connection timeout to 5 seconds
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-        res = curl_easy_perform(curl);
-        if(res != CURLE_OK) {
-            if(res == CURLE_OPERATION_TIMEDOUT) {
-                cerr << "[ERROR] Request timed out." << endl;
-            }
-            else if(res == CURLE_COULDNT_CONNECT) {
-                cerr << "[ERROR] Could not connect to server." << endl;
-            }
-            else {
-                cerr << "[ERROR] curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
-            }
-            curl_easy_cleanup(curl);
-            return;
-        } else {
-            cout << "[INFO] Server Response: " << readBuffer << endl;
-        }
-        curl_easy_cleanup(curl);
-    }
-
-    // Parse the JSON response to extract leader information
-    json responseJson = json::parse(readBuffer);
-    if (responseJson.contains("leaderIp") && responseJson.contains("leaderHTTPPort")) {
-        string leaderIp = responseJson["leaderIp"];
-        int leaderHTTPPort = responseJson["leaderHTTPPort"];
-        int leaderPort = responseJson["leaderPort"]; 
-        cout << "[INFO] Current Leader: " << leaderIp << ":" << leaderPort << ", HTTP : " << leaderHTTPPort << endl;
-        leaderURL = "http://" + leaderIp + ":" + to_string(leaderHTTPPort);
-        cout << "[INFO] Leader URL: " << leaderURL << endl;
-    } else {
-        cout << "[ERROR] Leader information not found in the response." << endl;
     }
 }
 
