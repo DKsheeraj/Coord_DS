@@ -49,7 +49,7 @@ public:
 
     int termNumber;
     int votedFor;       // port of the candidate voted for (-1 if none)
-    set<int> votes;     // ports of nodes that voted for me
+    set<pair<string, int>> votes;     // ports of nodes that voted for me
     int voteTimeout;    // in seconds
 
     int totalNodes;
@@ -97,7 +97,7 @@ public:
             leaderIp = j.value("leaderIp", leaderIp);
             leaderPort = j.value("leaderPort", leaderPort);
             termNumber = j.value("termNumber", termNumber);
-            votes = j.value("votes", set<int>{});
+            votes = j.value("votes", set<pair<string, int>>{});
             votedFor = j.value("votedFor", votedFor);
             voteTimeout = j.value("voteTimeout", voteTimeout);
             role = j.value("role", role);

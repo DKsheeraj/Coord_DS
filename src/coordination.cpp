@@ -1067,7 +1067,8 @@ void handleVote(Node &node, const struct sockaddr_in &clientAddr, const char *ms
 
     wait(semlocal);
     if (term == node.termNumber && node.role == 1) { // candidate mode
-        node.votes.insert(voterPort);
+        string voterIp = inet_ntoa(clientAddr.sin_addr);
+        node.votes.insert({voterIp, voterPort});
         int numVotes = node.votes.size(); // include self vote
         signal(semlocal);
 
@@ -1163,7 +1164,7 @@ void startElection(Node &node, int &sockfd) {
     // Increment term, vote for self, and update state.
     node.termNumber++;
     node.votes.clear();
-    node.votes.insert(node.port);
+    node.votes.insert({node.ip, node.port});
     node.role = 1;       // candidate
     node.votedFor = node.port;
 
@@ -1205,7 +1206,7 @@ void startElection(Node &node, int &sockfd) {
                 signal(semlocal);
                 continue;
             }
-            else if (node.votes.find(server.port) != node.votes.end()) {
+            else if (node.votes.find({server.ip, server.port}) != node.votes.end()) {
                 signal(semlocal);
                 continue;
             }
