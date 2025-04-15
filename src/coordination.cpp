@@ -184,22 +184,18 @@ void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const 
     fullCommand = fullCommand.substr(8);
 
     wait(semlocal);
+    node.loadFromJson();
     if(!node.isLeader) {
         signal(semlocal);
         return;
     }
-    signal(semlocal);
 
-    wait(semlocal);
     LogEntry entry;
     entry.term = node.termNumber;
     entry.command = fullCommand;
     node.log.push_back(entry);
-    cout<<(entry.term)<<" "<<endl;
-    node.saveToJson();
-
-
     int port = node.port;
+    node.saveToJson();
     signal(semlocal);
     cv3.notify_all();
 
@@ -207,8 +203,8 @@ void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const 
 
     if (requestType == "CREATE") {
         wait(semlocal);
+        node.loadFromJson();
         node.fileNo++;
-        node.saveToJson();
         string folder = "../serverfiles";  // Folder name
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(node.fileNo) + ".txt";
 
@@ -224,6 +220,7 @@ void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const 
         if (!response.empty()) {
             sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
         }
+        node.saveToJson();
         signal(semlocal);
     } 
     else if (requestType == "WRITE" && V.size() >= 4) {
@@ -332,23 +329,19 @@ void handleAPIAppendEntries(Node &node, const char *msg, json &responseJson) {
     fullCommand = fullCommand.substr(8);
 
     wait(semlocal);
+    node.loadFromJson();
     if(!node.isLeader) {
         signal(semlocal);
         responseJson["status"] = "error";
         responseJson["message"] = "Not the leader";
         return;
     }
-    signal(semlocal);
-
-    wait(semlocal);
     LogEntry entry;
     entry.term = node.termNumber;
     entry.command = fullCommand;
     node.log.push_back(entry);
-    cout<<(entry.term)<<" "<<endl;
-    node.saveToJson();
-
     int port = node.port;
+    node.saveToJson();
     signal(semlocal);
     cv3.notify_all();
 
@@ -366,8 +359,9 @@ void handleAPIAppendEntries(Node &node, const char *msg, json &responseJson) {
 
     if (requestType == "CREATE") {
         wait(semlocal);
+        node.loadFromJson();
         node.fileNo++;
-        node.saveToJson();
+        
         
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(node.fileNo) + ".txt";
 
@@ -381,11 +375,13 @@ void handleAPIAppendEntries(Node &node, const char *msg, json &responseJson) {
         }
         file.close();
 
-        signal(semlocal);
+        
         responseJson["status"] = "success";
         responseJson["message"] = "File created successfully";
         responseJson["fileId"] = to_string(node.fileNo);
         responseJson["filePath"] = filename;
+        node.saveToJson();
+        signal(semlocal);
         return;
     } 
     else if (requestType == "WRITE" && V.size() >= 4) {
@@ -496,6 +492,7 @@ void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const c
     cout<<"Became leader - Starting send append Entries thread\n";
     
     wait(semlocal);
+    node.loadFromJson();
     if(!node.isLeader) {
         signal(semlocal);
         return;
@@ -538,6 +535,7 @@ void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const c
         auto status = cv3.wait_for(lock, chrono::seconds(sendAppendEntriesTimeout));
 
         wait(semlocal);
+        node.loadFromJson();
         if(!node.isLeader) {
             signal(semlocal);
             return;
@@ -556,6 +554,7 @@ void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const c
             inet_pton(AF_INET, server.ip.c_str(), &followerAddr.sin_addr);
 
             wait(semlocal);
+            node.loadFromJson();
             int lastLogIndex = node.nextIndex[{server.ip, server.port}];
             
             string sendAppendEntries = "APPEND REQUEST ";
@@ -584,6 +583,7 @@ void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const c
             sendAppendEntries += to_string(node.commitIndex);
             cout<<"Sending: "<<sendAppendEntries;
             cout << " to port "<< ntohs(followerAddr.sin_port) << endl;
+            node.saveToJson();
             signal(semlocal);
 
             sendto(sockfd, sendAppendEntries.c_str(), strlen(sendAppendEntries.c_str()), 0, (struct sockaddr*)&followerAddr, sizeof(followerAddr));
@@ -638,7 +638,7 @@ void parseAppendRequest(const char * msg, vector<string> &V, int &term, int &pre
             temp.term = stoi(entryParts[0]);  
             temp.command = "";
 
-            for (size_t i = 1; i < entryParts.size(); i++) {  
+            for (int i = 1; i < entryParts.size(); i++) {  
                 if (!temp.command.empty()) temp.command += " ";  
                 temp.command += entryParts[i];
             }
@@ -673,7 +673,7 @@ void processLogEntry(Node &node, const LogEntry &entry) {
     // no semwait here coz this is called only inside a wait semaphore
     if (requestType == "CREATE") {
         node.fileNo++;
-        node.saveToJson();
+        
         // string filename = to_string(port) + "_" + id + ".txt";
         string folder = "../serverfiles";  // Folder name
         string filename = folder + "/" + to_string(port) + "/" + to_string(port) + "_" + to_string(node.fileNo) + ".txt";
@@ -776,14 +776,17 @@ int storeEntries(Node &node, const char *msg) {
 
     parseAppendRequest(msg, V, term, prevLogIndex, tempLog, commitIndex);
 
+    wait(semlocal);
+    node.loadFromJson();
+
     if(prevLogIndex == -1){
-        wait(semlocal);
+        
         cout<<"Entries sent from the start\n";
         
-        size_t j = 0;
-        size_t i = 0;
-        size_t sz1 = tempLog.size();
-        size_t sz2 = node.log.size();
+        int j = 0;
+        int i = 0;
+        int sz1 = tempLog.size();
+        int sz2 = node.log.size();
         while(j < sz1 && i < sz2){
             if(node.log[i].term == tempLog[j].term && node.log[i].command == tempLog[j].command){
                 j++;
@@ -791,7 +794,6 @@ int storeEntries(Node &node, const char *msg) {
             }
             else break;
         }
-
         
         for(int k = 0; k < (sz2 -i-1); k++){
             node.log.pop_back();
@@ -804,18 +806,17 @@ int storeEntries(Node &node, const char *msg) {
             node.log.push_back(tempLog[j]);
             j++;
         }
-        node.saveToJson();
-        signal(semlocal);
+        
     }
     else{
-        wait(semlocal);
+        
         int sz = tempLog.size();
         int szlog = node.log.size();
 
         for (int i = 0; i < szlog; i++) {
             if (node.log[i].term == tempLog[0].term && node.log[i].command == tempLog[0].command) {
                 
-                size_t j = 0;
+                int j = 0;
                 while(j < sz){
                     if(node.log[i].term == tempLog[j].term && node.log[i].command == tempLog[j].command){
                         i++;
@@ -837,12 +838,9 @@ int storeEntries(Node &node, const char *msg) {
                 break;
             }
         }
-        node.saveToJson();
-        signal(semlocal);
+        
     }
 
-
-    wait(semlocal);
     index = node.log.size();
     index--;
   
@@ -862,6 +860,7 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
     sscanf(msg, "APPEND REQUEST %d %d | %d", &term, &prevLogIndex, &prevterm);
 
     wait(semlocal);
+    node.loadFromJson();
     if(term > node.termNumber){
         node.termNumber = term;
         node.role = 0;
@@ -881,6 +880,7 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
         sendAppendReply += "false";
         sendAppendReply += " ";
         sendAppendReply += to_string(prevLogIndex);
+        node.saveToJson();
         signal(semlocal);
         cout<<"Failure because of term number\n";
         cout<<"Sending reply as: "<<sendAppendReply<<endl;
@@ -900,6 +900,7 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
             success = true; 
         }
         
+        node.saveToJson();
         signal(semlocal);
         
         if(success){
@@ -908,12 +909,14 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
             
             string sendAppendReply = "APPEND REPLY ";
             wait(semlocal);
+            node.loadFromJson();
             sendAppendReply += to_string(node.termNumber);
             sendAppendReply += " ";
             sendAppendReply += "true";
             sendAppendReply += " ";
             sendAppendReply += to_string(index);
             cout<<"REPLYING WITH: "<<sendAppendReply<<" HI\n";
+            node.saveToJson();
             signal(semlocal);
             cout<<"Sending reply as: "<<sendAppendReply<<endl;
 
@@ -925,11 +928,13 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
 
             string sendAppendReply = "APPEND REPLY ";
             wait(semlocal);
+            node.loadFromJson();
             sendAppendReply += to_string(node.termNumber);
             sendAppendReply += " ";
             sendAppendReply += "false";
             sendAppendReply += " ";
             sendAppendReply += to_string(index);
+            node.saveToJson();
             signal(semlocal);
             cout<<"Sending reply as: "<<sendAppendReply<<endl;
             sendto(sockfd, sendAppendReply.c_str(), strlen(sendAppendReply.c_str()), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
@@ -952,6 +957,7 @@ void handleAppendReply(Node &node, const struct sockaddr_in &clientAddr, const c
 
 
     wait(semlocal);
+    node.loadFromJson();
     if(term > node.termNumber){
         node.termNumber = term;
         node.role = 0;
@@ -991,6 +997,7 @@ void handleHeartbeat(Node &node, const struct sockaddr_in &clientAddr, const cha
          << " (leader port: " << leaderPort << ", term: " << term << ")" << endl;
 
     wait(semlocal);
+    node.loadFromJson();
     if (term >= node.termNumber) {
         node.leaderIp = inet_ntoa(clientAddr.sin_addr);
         node.leaderPort = leaderPort;
@@ -1011,6 +1018,7 @@ void handleHeartbeat(Node &node, const struct sockaddr_in &clientAddr, const cha
         sendto(sockfd, ackMsg, strlen(ackMsg), 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
     }
     else {
+        node.saveToJson();
         signal(semlocal);
     }
 }
@@ -1024,6 +1032,7 @@ void handleRequestVote(Node &node, const struct sockaddr_in &clientAddr, const c
     char vote[1024] = {0};
 
     wait(semlocal);
+    node.loadFromJson();
     bool doo = 0;
     if (term > node.termNumber) {
         if(node.role == 1) doo = 1;
@@ -1037,6 +1046,7 @@ void handleRequestVote(Node &node, const struct sockaddr_in &clientAddr, const c
     signal(semlocal);
 
     wait(semlocal);
+    node.loadFromJson();
     if (term == node.termNumber && (node.votedFor == requesterPort || node.votedFor == -1)) {
         int lastLogTermV = (node.log.size()) ? node.log.back().term : 0;
         int lastLogIndexV = node.log.size() - 1;
@@ -1061,6 +1071,7 @@ void handleRequestVote(Node &node, const struct sockaddr_in &clientAddr, const c
         cv1.notify_all(); // notify any waiting thread
     }
     else {
+        node.saveToJson();
         signal(semlocal);
     }
 }
@@ -1072,6 +1083,7 @@ void handleVote(Node &node, const struct sockaddr_in &clientAddr, const char *ms
     cout << "Received VOTE from " << inet_ntoa(clientAddr.sin_addr) << " : "  << voterPort << " (term: " << term << ")" << endl;
 
     wait(semlocal);
+    node.loadFromJson();
     if (term > node.termNumber) {
         node.termNumber = term;
         node.role = 0;
@@ -1081,13 +1093,12 @@ void handleVote(Node &node, const struct sockaddr_in &clientAddr, const char *ms
         node.saveToJson();
         cv2.notify_all(); // notify any waiting thread
     }
-    signal(semlocal);
-
-    wait(semlocal);
+    
     if (term == node.termNumber && node.role == 1) { // candidate mode
         string voterIp = inet_ntoa(clientAddr.sin_addr);
         node.votes.insert({voterIp, voterPort});
         int numVotes = node.votes.size(); // include self vote
+        node.saveToJson();
         signal(semlocal);
 
         if (2 * numVotes > node.totalNodes) {
@@ -1096,6 +1107,7 @@ void handleVote(Node &node, const struct sockaddr_in &clientAddr, const char *ms
         }
     }
     else {
+        node.saveToJson();
         signal(semlocal);
     }
 }
@@ -1103,10 +1115,12 @@ void handleVote(Node &node, const struct sockaddr_in &clientAddr, const char *ms
 // Handles an ACK message (typically in response to a heartbeat).
 void handleAck(Node &node, const struct sockaddr_in &clientAddr, const char *msg, int sockfd) {
     wait(semlocal);
+    node.loadFromJson();
     if(!node.isLeader) {
         signal(semlocal);
         return;
     }
+    node.saveToJson();
     signal(semlocal);
 
     int ack_seq;
@@ -1114,8 +1128,10 @@ void handleAck(Node &node, const struct sockaddr_in &clientAddr, const char *msg
     if(ack_seq != ACK_SEQ) return;
     
     wait(semlocal);
+    node.loadFromJson();
     noOfACKs++;
     cout << "Received ACK from " << inet_ntoa(clientAddr.sin_addr) << " : " << ntohs(clientAddr.sin_port) << endl;
+    node.saveToJson();
     signal(semlocal);
     // Update any heartbeat tracking if needed.
 }
@@ -1179,6 +1195,7 @@ void startElection(Node &node, int &sockfd) {
     int remainingTime = electionTimeout;
 
     wait(semlocal);
+    node.loadFromJson();
     // Increment term, vote for self, and update state.
     node.termNumber++;
     node.votes.clear();
@@ -1191,8 +1208,9 @@ void startElection(Node &node, int &sockfd) {
         return;
     }
 
-    node.saveToJson();
+    
     cout << "Starting election with term " << node.termNumber << endl;
+    node.saveToJson();
     signal(semlocal);
 
     // Read server list from shared file.
@@ -1215,21 +1233,23 @@ void startElection(Node &node, int &sockfd) {
     signal(semmtx);
 
     wait(semlocal);
+    node.loadFromJson();
     while(node.role == 1) {
+        node.saveToJson();
         signal(semlocal);
         // Send REQUEST VOTE to every other node.
         for (auto &server : serverList) {
             wait(semlocal);
+            node.loadFromJson();
             if (server.ip == node.ip && server.port == node.port) {
+                node.saveToJson();
                 signal(semlocal);
                 continue;
             }
             else if (node.votes.find({server.ip, server.port}) != node.votes.end()) {
+                node.saveToJson();
                 signal(semlocal);
                 continue;
-            }
-            else {
-                signal(semlocal);
             }
 
             struct sockaddr_in followerAddr;
@@ -1242,6 +1262,8 @@ void startElection(Node &node, int &sockfd) {
             sendto(sockfd, requestVote, strlen(requestVote), 0,
                 (struct sockaddr*)&followerAddr, sizeof(followerAddr));
             cout << "Sent REQUEST VOTE to " << server.ip << " : " << server.port << endl;
+            node.saveToJson();
+            signal(semlocal);
         }
 
         // Instead of a fixed sleep, we wait on the condition variable.
@@ -1309,6 +1331,7 @@ void assignType(Node &node) {
     // Main loop: if leader, send periodic heartbeats; if follower, wait on the condition variable.
     while (true) {
         wait(semlocal);
+        node.loadFromJson();
         if (node.isLeader) {
             signal(semlocal);
             // Send heartbeats to all followers.
@@ -1343,7 +1366,11 @@ void assignType(Node &node) {
                 followerAddr.sin_port = htons(follower.port);
                 inet_pton(AF_INET, follower.ip.c_str(), &followerAddr.sin_addr);
                 char heartbeatMsg[1024] = {0};
+                wait(semlocal);
+                node.loadFromJson();
                 sprintf(heartbeatMsg, "HEARTBEAT %d %d %d", node.port, node.termNumber, ACK_SEQ);
+                node.saveToJson();
+                signal(semlocal);
                 sendto(sockfd, heartbeatMsg, strlen(heartbeatMsg), 0,
                        (struct sockaddr*)&followerAddr, sizeof(followerAddr));
                 cout << "Sent HEARTBEAT to " << follower.ip << " : " << follower.port << endl;
@@ -1352,6 +1379,7 @@ void assignType(Node &node) {
             this_thread::sleep_for(chrono::seconds(deltaHeartBeat));
             
             wait(semlocal);
+            node.loadFromJson();
             if(noOfACKs < node.totalNodes / 2) {
                 cout << "Not enough ACKs received. Starting election." << endl;
                 node.role = 1; // candidate
@@ -1360,6 +1388,7 @@ void assignType(Node &node) {
                 node.votes.clear();
                 node.saveToJson();
             }
+            node.saveToJson();
             signal(semlocal);
         }
         else {
@@ -1373,7 +1402,7 @@ void assignType(Node &node) {
                 if (status == cv_status::timeout) {
                     cout << "Didn't receive Heartbeat. Timed out." << endl;
                     wait(semlocal);
-
+                    node.loadFromJson();
                     node.role = 1;
                     node.saveToJson();
                     signal(semlocal);
@@ -1388,6 +1417,7 @@ void assignType(Node &node) {
                 startElection(node, sockfd);
                 
                 wait(semlocal);
+                node.loadFromJson();
                 if(node.role == 0) {
                     signal(semlocal);
                     cout << "Received heartbeat. Exiting election." << endl;
@@ -1398,6 +1428,7 @@ void assignType(Node &node) {
                 }
 
                 wait(semlocal);
+                node.loadFromJson();
                 // Check if majority was achieved.
                 int votesReceived = node.votes.size(); // including self vote
                 if (2 * votesReceived > node.totalNodes) {
