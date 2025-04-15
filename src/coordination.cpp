@@ -279,7 +279,7 @@ void handleAppendEntries(Node &node, const struct sockaddr_in clientAddr, const 
         if (!response.empty()) {
             sendto(sockfd, response.c_str(), response.length(), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
         }
-        sleep(30);
+        // sleep(30);
         releaseRead(filenum - 1);
     } 
     else if (requestType == "APPEND" && V.size() >= 4) {
@@ -446,7 +446,7 @@ void handleAPIAppendEntries(Node &node, const char *msg, json &responseJson) {
         responseJson["fileId"] = id;
         responseJson["filePath"] = filename;
 
-        sleep(30); // Simulate delay
+        // sleep(30); // Simulate delay
 
         releaseRead(filenum - 1);
         return;
@@ -601,6 +601,15 @@ void parseAppendRequest(const char * msg, vector<string> &V, int &term, int &pre
     stringstream ss(msg);
     string word;
 
+    if(ss.fail()){
+        cout << "Failed to parse message: " << msg << endl;
+        // return;
+        exit(0);
+    }
+
+    cout<<"Received message: "<<msg<<endl;
+    cout<<sizeof(msg)<<" \n";
+
     // Read first four values (fixed structure: "APPEND REQUEST term prevLogIndex")
     string commandType, requestType;
     ss >> commandType >> requestType >> term >> prevLogIndex;
@@ -658,14 +667,11 @@ void processLogEntry(Node &node, const LogEntry &entry) {
 
     string response;
 
-    wait(semlocal);
     int port = node.port;
-    signal(semlocal);
 
 
-
+    // no semwait here coz this is called only inside a wait semaphore
     if (requestType == "CREATE") {
-        wait(semlocal);
         node.fileNo++;
         node.saveToJson();
         // string filename = to_string(port) + "_" + id + ".txt";
@@ -678,7 +684,6 @@ void processLogEntry(Node &node, const LogEntry &entry) {
             return;
         }
         file.close();
-        signal(semlocal);
     } 
     else if (requestType == "WRITE") {
         string id = V[1];
@@ -786,15 +791,20 @@ int storeEntries(Node &node, const char *msg) {
             }
             else break;
         }
+
+        
+        for(int k = 0; k < (sz2 -i-1); k++){
+            node.log.pop_back();
+        }
         
         while(j < sz1){
-            signal(semlocal);
+            
             processLogEntry(node, tempLog[j]); // Process file operation
-            wait(semlocal);
+            
             node.log.push_back(tempLog[j]);
             j++;
         }
-
+        node.saveToJson();
         signal(semlocal);
     }
     else{
@@ -814,10 +824,12 @@ int storeEntries(Node &node, const char *msg) {
                     else break;
                 }
 
+                for(int k = 0; k < (szlog -i-1); k++){
+                    node.log.pop_back();
+                }
+
                 while(j < sz){
-                    signal(semlocal);
                     processLogEntry(node, tempLog[j]); // Process file operation
-                    wait(semlocal);
                     node.log.push_back(tempLog[j]);
                     j++;
                 }
@@ -825,6 +837,7 @@ int storeEntries(Node &node, const char *msg) {
                 break;
             }
         }
+        node.saveToJson();
         signal(semlocal);
     }
 
@@ -877,6 +890,11 @@ void handleAppendRequest(Node &node, const struct sockaddr_in& clientAddr, const
     else{
         int index = 0;
         bool success = false;
+
+        cout << prevLogIndex << " " << prevterm << node.log.size() << endl;
+        if(prevLogIndex != -1) cout<<node.log[prevLogIndex].term<<endl;
+        else cout<<"prevLogIndex is -1\n";
+        
 
         if(prevLogIndex == -1 || ((prevLogIndex < node.log.size()) && (node.log[prevLogIndex].term == prevterm))){
             success = true; 
