@@ -58,8 +58,8 @@ public:
     vector<LogEntry> log;
     int commitIndex;    // highest log entry known to be committed
     int lastApplied;    // highest log entry applied to state machine
-    map<int,int> nextIndex;  // for each follower (by port) next log index to send
-    map<int,int> matchIndex; // for each follower, highest replicated index
+    map<pair<string,int>,int> nextIndex;  // for each follower (by port) next log index to send
+    map<pair<string,int>,int> matchIndex; // for each follower, highest replicated index
     int fileNo = 0;
 
     Node(string ip_, int port_, bool isLeader_ = false) 
@@ -106,14 +106,24 @@ public:
             nextIndex.clear();
             if (j.contains("nextIndex") && j["nextIndex"].is_object()) {
                 for (auto& [key, value] : j["nextIndex"].items()) {
-                    nextIndex[stoi(key)] = value.get<int>();  // Convert key back to int
+                    auto pos = key.find(':');
+                    if (pos != string::npos) {
+                        string ip = key.substr(0, pos);
+                        int port = stoi(key.substr(pos + 1));
+                        nextIndex[{ip, port}] = value.get<int>();  // Convert key back to int
+                    }
                 }
             }
 
             matchIndex.clear();
             if (j.contains("matchIndex") && j["matchIndex"].is_object()) {
                 for (auto& [key, value] : j["matchIndex"].items()) {
-                    matchIndex[stoi(key)] = value.get<int>();  // Convert key back to int
+                    auto pos = key.find(':');
+                    if (pos != string::npos) {
+                        string ip = key.substr(0, pos);
+                        int port = stoi(key.substr(pos + 1));
+                        matchIndex[{ip, port}] = value.get<int>();  // Convert key back to int
+                    }
                 }
             }
 
@@ -145,12 +155,12 @@ public:
 
         json nextIndexJson = json::object();
         for (const auto &entry : nextIndex) {
-            nextIndexJson[to_string(entry.first)] = entry.second;
+            nextIndexJson[entry.first.first + ":" + to_string(entry.first.second)] = entry.second;
         }
 
         json matchIndexJson = json::object();
         for (const auto &entry : matchIndex) {
-            matchIndexJson[to_string(entry.first)] = entry.second;
+            matchIndexJson[entry.first.first + ":" + to_string(entry.first.second)] = entry.second;
         }
 
 

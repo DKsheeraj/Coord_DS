@@ -556,7 +556,7 @@ void sendAppendEntries(Node &node, const struct sockaddr_in& clientAddr, const c
             inet_pton(AF_INET, server.ip.c_str(), &followerAddr.sin_addr);
 
             wait(semlocal);
-            int lastLogIndex = node.nextIndex[server.port];
+            int lastLogIndex = node.nextIndex[{server.ip, server.port}];
             
             string sendAppendEntries = "APPEND REQUEST ";
             sendAppendEntries += to_string(node.termNumber);
@@ -947,15 +947,15 @@ void handleAppendReply(Node &node, const struct sockaddr_in &clientAddr, const c
         reply++;
         if(success == "true"){
             cout<<"Updating next Index for port: "<<(ntohs(clientAddr.sin_port))<<endl;
-            node.nextIndex[(ntohs(clientAddr.sin_port))] = index + 1;
+            node.nextIndex[{inet_ntoa(clientAddr.sin_addr),ntohs(clientAddr.sin_port)}] = index + 1;
             node.saveToJson();
         }
         else{
-            node.nextIndex[ntohs(clientAddr.sin_port)] = max(0, node.nextIndex[ntohs(clientAddr.sin_port)] - 1);
+            node.nextIndex[{inet_ntoa(clientAddr.sin_addr),ntohs(clientAddr.sin_port)}] = max(0, node.nextIndex[{inet_ntoa(clientAddr.sin_addr),ntohs(clientAddr.sin_port)}] - 1);
             node.saveToJson();
         }
 
-        if(node.nextIndex[ntohs(clientAddr.sin_port)] < node.log.size()){
+        if(node.nextIndex[{inet_ntoa(clientAddr.sin_addr),ntohs(clientAddr.sin_port)}] < node.log.size()){
             if(reply == (node.totalNodes - 1)) cv3.notify_all();
         }
         signal(semlocal);

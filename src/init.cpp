@@ -92,15 +92,38 @@ int main() {
         json nextIndexJson = json::object();
         json matchIndexJson = json::object();
 
-        // If total nodes are known, pre-fill default nextIndex and matchIndex
-        for (int i = 0; i < totalNodes; i++) {
-            int nodePort = basePort + i;  // Example way to derive ports
-            nextIndexJson[to_string(nodePort)] = 0;  // Start index at 0
-            matchIndexJson[to_string(nodePort)] = 0; // Start index at 0
+        vector<pair<string, int>> servers;
+        //read from servers.json into servers
+
+        ifstream serverFile("../data/servers.json");
+        if (!serverFile.is_open()) {
+            cerr << "Error: Could not open file " << "../data/servers.json" << endl;
+            continue;
         }
+        json serverData;
+        serverFile >> serverData;
+        serverFile.close();
+        for (const auto& server : serverData) {
+            string ip = server["ip"];
+            int port = server["port"];
+            servers.push_back(make_pair(ip, port));
+        }
+        serverFile.close();
+        // Initialize nextIndex and matchIndex for each server
+        for (const auto& server : servers) {
+            string ip = server.first;
+            int port = server.second;
+            //nextindex is pair<string,int>
+            
+            nextIndexJson[ip + ":" + to_string(port)] = 0; // Initialize to 0
+            matchIndexJson[ip + ":" + to_string(port)] = 0; // Initialize to 0
+        }
+
 
         portData["nextIndex"] = nextIndexJson;
         portData["matchIndex"] = matchIndexJson;
+
+
 
         // Write the modified JSON back to the file
         ofstream portOutputFile(portFilePath);
