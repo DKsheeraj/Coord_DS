@@ -48,7 +48,6 @@ int reply = 0;
 const int numFiles = 5;
 const int maxRead = 5;
 
-string leaderURL;
 
 std::vector<int> readSemaphores;
 std::vector<int> writeSemaphores;
@@ -143,10 +142,6 @@ void signal(int semid) {
     semop(semid, &op, 1);
 }
 
-size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
-    ((string*)userp)->append((char*)contents, size * nmemb);
-    return size * nmemb;
-}
 
 void initLeaderLocks(Node& node, int numFiles, int maxRead) {
     // Initialize semaphores for each file on this node/port
@@ -340,46 +335,7 @@ void handleAPIAppendEntries(Node &node, const char *msg, json &responseJson) {
     node.loadFromJson();
     if(!node.isLeader) {
         signal(semlocal);
-        // send a curl api call to leader and reply the response back to the client
-        // forward command to leader
-        CURL *curl;
-        CURLcode res;
-        string readBuffer;
-        json payload = { {"command", fullCommand} };
-        string payloadStr = payload.dump();
-
-        curl = curl_easy_init();
-        if(curl) {
-            string url = leaderURL + "/command";
-            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payloadStr.c_str());
-
-            struct curl_slist *headers = NULL;
-            headers = curl_slist_append(headers, "Content-Type: application/json");
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-
-            res = curl_easy_perform(curl);
-            if(res != CURLE_OK) {
-                cerr << "[ERROR] curl_easy_perform() failed: " 
-                    << curl_easy_strerror(res) << endl;
-            } else {
-                cout << "[INFO] Append response: " << readBuffer << endl;
-                // Parse the response JSON
-                responseJson = json::parse(readBuffer);
-                if (responseJson.contains("status") && responseJson["status"] == "success") {
-                    cout << "[INFO] Command executed successfully on leader." << endl;
-                } else {
-                    cout << "[ERROR] Command execution failed on leader." << endl;
-                }
-                
-                
-            }
-            curl_easy_cleanup(curl);
-            curl_slist_free_all(headers);
-        }
+        
         return;
     }
     LogEntry entry;
