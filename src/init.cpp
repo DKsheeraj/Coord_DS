@@ -137,5 +137,18 @@ int main() {
 
         cout << "Updated file: " << portFilePath << endl;
     }
+
+    int ret = system("for id in $(ipcs -s | awk '{print $2}' | tail -n +3); do ipcrm -s $id; done");
+    if (ret != 0) {
+        cerr << "Error executing shell command." << endl;
+    }
+
+    for (int iport = 8080; iport <= 8084; iport++) {
+        string command = "sudo kill -9 $(sudo lsof -t -i :" + to_string(iport) + ")";
+        int ret_command = system(command.c_str());
+        if (ret_command != 0) {
+            cerr << "Error executing kill command on port " << iport << endl;
+        }
+    }
     return 0;
 }

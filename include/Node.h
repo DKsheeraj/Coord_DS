@@ -158,12 +158,12 @@ public:
         }
         
         // For debugging, print some state.
-        cout << "Loaded Node state from " << filename << ":" << endl;
-        cout << "IP: " << ip << ", Port: " << port << ", isLeader: " << boolalpha << isLeader << endl;
-        cout << "Term: " << termNumber << ", votedFor: " << votedFor << ", role: " << role << endl;
-        cout << "Total Nodes: " << totalNodes << ", commitIndex: " << commitIndex << endl;
-        cout << "Log entries: " << log.size() << endl;
-        cout << "FileNo: " << fileNo << endl;
+    //     cout << "Loaded Node state from " << filename << ":" << endl;
+    //     cout << "IP: " << ip << ", Port: " << port << ", isLeader: " << boolalpha << isLeader << endl;
+    //     cout << "Term: " << termNumber << ", votedFor: " << votedFor << ", role: " << role << endl;
+    //     cout << "Total Nodes: " << totalNodes << ", commitIndex: " << commitIndex << endl;
+    //     cout << "Log entries: " << log.size() << endl;
+    //     cout << "FileNo: " << fileNo << endl;
     }
 
     // Save Node data to its corresponding JSON file.
@@ -227,13 +227,13 @@ public:
         outFile << j.dump(4);
         outFile.close();
 
-        // For debugging, print some state.
-        cout << "Storing data to Node " << filename << ":" << endl;
-        cout << "IP: " << ip << ", Port: " << port << ", isLeader: " << boolalpha << isLeader << endl;
-        cout << "Term: " << termNumber << ", votedFor: " << votedFor << ", role: " << role << endl;
-        cout << "Total Nodes: " << totalNodes << ", commitIndex: " << commitIndex << endl;
-        cout << "Log entries: " << log.size() << endl;
-        cout << "FileNo: " << fileNo << endl;
+        // // For debugging, print some state.
+        // cout << "Storing data to Node " << filename << ":" << endl;
+        // cout << "IP: " << ip << ", Port: " << port << ", isLeader: " << boolalpha << isLeader << endl;
+        // cout << "Term: " << termNumber << ", votedFor: " << votedFor << ", role: " << role << endl;
+        // cout << "Total Nodes: " << totalNodes << ", commitIndex: " << commitIndex << endl;
+        // cout << "Log entries: " << log.size() << endl;
+        // cout << "FileNo: " << fileNo << endl;
     }
 };
 
