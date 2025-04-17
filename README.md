@@ -5,35 +5,43 @@ KGPKeeper is a c++ based distributed coordination service
 ## Overview
 
 
-This project implements a distributed coordination system where an admin can dynamically add servers with IPs and ports to a servers.json file. Clients initially connect to a assistant server to know about exisiting servers and then can connect to any server later on
+This project implements a distributed coordination system where an admin can dynamically add servers with IPs and ports to a servers.json file. Clients initially connect to a Loadbalancer server to connect to any existing server
 
 
 ## Directory Structure
 
-```python
+```
 project_root/
-│── CMakeLists.txt          # CMake build file
-│── data/
-│   └── servers.json        # JSON storage
-│── include/
-│   └── assistantUtils.h    # Header files
-|   └── Node.h
-|   └── leaderElection.h
-│── src/
-│   ├── utils/
-│   │   └── assistantUtils.cpp  # Utility functions
-|   |   └── leaderElection.cpp
+│── CMakeLists.txt              # CMake build file
+│
+├── data/
+│   └── servers.json            # JSON storage
+│   └── loadbalancers.json       
+│   └── portNumbers*.json       # Log files and other info
+│
+├── include/
+│   ├── coordination.h        # Header files
+│   ├── Node.h
+│   └── loadbalancer.h
+│
+├── src/
 │   ├── server.cpp
 │   ├── client.cpp
 │   ├── admin.cpp
-│── build/                  # (Generated build files)
+│   ├── coordination.cpp
+│   ├── server_api.cpp
+│   ├── client_api.cpp
+│   ├── init.cpp
+│   └── loadbalancer.cpp
+│
+└── build/                      # (Generated build files)
 ```
 
 ## Features
 
 Admin Control: Add servers dynamically to servers.json.
 
-Client-Server Communication: Clients can request server information.
+Client-LoadBalancer Communication: Clients can request server information.
 
 JSON Storage: Server details are saved in data/servers.json.
 
@@ -53,6 +61,8 @@ crow
 
 asio
 
+curl
+
 ## Build Instructions
 
 ```python
@@ -65,15 +75,20 @@ cmake .. && cmake --build .
 
 ## Running the Programs
 
+Ensure that you are running servers and loadbalancer before running client
+
 ```python
 # Admin (Add servers)
 ./bin/admin
 
-# Server (Start server)
-./bin/server
+# Server
+./bin/server_api ip port
 
-# Client (Request server details)
-./bin/client
+# Client
+./bin/client_api 
+
+# Loadbalancer
+./bin/loadbalancer ip port
 ```
 
 

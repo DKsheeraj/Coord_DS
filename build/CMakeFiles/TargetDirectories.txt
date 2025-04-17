@@ -1,0 +1,7 @@
+/home/datta/Documents/SEM-8/KGPKeeper/build/CMakeFiles/server_api.dir
+/home/datta/Documents/SEM-8/KGPKeeper/build/CMakeFiles/client_api.dir
+/home/datta/Documents/SEM-8/KGPKeeper/build/CMakeFiles/admin.dir
+/home/datta/Documents/SEM-8/KGPKeeper/build/CMakeFiles/loadbalancer.dir
+/home/datta/Documents/SEM-8/KGPKeeper/build/CMakeFiles/init.dir
+/home/datta/Documents/SEM-8/KGPKeeper/build/CMakeFiles/edit_cache.dir
+/home/datta/Documents/SEM-8/KGPKeeper/build/CMakeFiles/rebuild_cache.dir
