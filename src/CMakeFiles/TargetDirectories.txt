@@ -1,6 +1,0 @@
-/home/mayukha/Documents/DS/KGPKeeper/src/CMakeFiles/server.dir
-/home/mayukha/Documents/DS/KGPKeeper/src/CMakeFiles/client.dir
-/home/mayukha/Documents/DS/KGPKeeper/src/CMakeFiles/admin.dir
-/home/mayukha/Documents/DS/KGPKeeper/src/CMakeFiles/assistant.dir
-/home/mayukha/Documents/DS/KGPKeeper/src/CMakeFiles/edit_cache.dir
-/home/mayukha/Documents/DS/KGPKeeper/src/CMakeFiles/rebuild_cache.dir

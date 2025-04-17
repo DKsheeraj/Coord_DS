@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare CMakeFiles/server_api.dir/src/server_api.cpp.o CMakeFiles/server_api.dir/src/coordination.cpp.o -o server_api  -lcurl -lpthread 

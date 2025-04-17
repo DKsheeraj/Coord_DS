@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare CMakeFiles/client_api.dir/src/client_api.cpp.o -o client_api  -lcurl -lpthread 
