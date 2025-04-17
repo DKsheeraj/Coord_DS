@@ -74,12 +74,15 @@ cmake .. && cmake --build .
 ```
 
 ## Running the Programs
-
+First run init file for initial configuration setup
 Ensure that you are running servers and loadbalancer before running client
 
 ```python
 # Admin (Add servers)
 ./build/admin
+
+# Init
+./build/init
 
 # Server
 ./build/server_api ip port
