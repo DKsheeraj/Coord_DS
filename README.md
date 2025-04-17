@@ -79,16 +79,16 @@ Ensure that you are running servers and loadbalancer before running client
 
 ```python
 # Admin (Add servers)
-./bin/admin
+./build/admin
 
 # Server
-./bin/server_api ip port
+./build/server_api ip port
 
 # Client
-./bin/client_api 
+./build/client_api 
 
 # Loadbalancer
-./bin/loadbalancer ip port
+./build/loadbalancer ip port
 ```
 
 
